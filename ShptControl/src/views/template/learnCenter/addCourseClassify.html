@@ -1,0 +1,74 @@
+
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <form class="layui-form" action=" lay-filter="zoneForm"">
+        <div class="layui-form-item">
+            <label class="layui-form-label" >分类名称：</label>
+            <div class="layui-input-block">
+            <input type="text" name="name" value="{{d.params.name?d.params.name:''}}" style="width:300px;" lay-verify="required" autocomplete="off" placeholder="请输入内容" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" >备注说明：</label>
+            <div class="layui-input-block">
+                <textarea name="remarks" id="" cols="30" rows="10" style="width:280px;height:100px;padding:10px" lay-verify="required" placeholder="请输入内容" class="remarks"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" >排序：</label>
+            <div class="layui-input-block">
+            <input type="number" name="sort" value="{{d.params.sort?d.params.sort:''}}" style="width:300px;" lay-verify="required" autocomplete="off" placeholder="请输入内容" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" >状态：</label>
+            <div class="layui-input-block">
+                <input type="checkbox" name="status" lay-skin="switch" lay-text="启用|禁用" lay-filter="" {{ d.params.status == 1 ? 'checked' : '' }}>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="width:200px;margin:0 auto;">
+            <button type="submit" class="layui-btn" style="width:100%;" lay-submit="" lay-filter="submit">确定</button>
+            </div>
+        </div> 
+    </form>  
+</script>
+    <script>
+        layui.data.sendParams = function (params) {
+            layui.use(['admin','form','public'], function () {
+                var $ = layui.$;
+                var admin = layui.admin;
+                var form = layui.form;
+                var base = new layui.public.Base64();
+                var classif_index=''
+                if(params.classif_index){
+                    classif_index=params.classif_index
+                    $('.remarks').text(base.decode(params.remarks))
+                }
+               form.render()
+                //保存品牌基本信息
+                form.on('submit(submit)', function (data) {
+                    if(data.field.status=='on'){
+                        data.field.status='1'
+                    }else{
+                        data.field.status='2'
+                    }
+                    data.field.classif_index=classif_index
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=course/CourseClassifAdd',
+                        data: data.field,
+                        success: function (res) {
+                            if (res.code == 0) {
+                                layer.msg(res.msg);
+                                layer.closeAll();
+                                parent.layui.table.reload("courseClassifyTable");
+                            } else {
+                                layer.msg(res.msg);
+                            }
+                        }
+                    })
+                    return false;
+                })
+            })
+        }
+    </script> 
+

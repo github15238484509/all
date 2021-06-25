@@ -1,0 +1,80 @@
+<style>
+    .layui-layer-admin .layui-layer-content{
+        padding: 0 20px!important;
+    }
+    .layui-form-item .layui-input-inline{
+        width: 100px;
+    }
+    .layui-upload img{
+        border: 1px solid #ccc;
+    }
+    .del{
+        width: 30px;
+        height: 30px;
+        position: absolute;
+        top: -20px;
+        right: -20px;
+        border-radius: 50%;
+    }
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <form class="layui-form" action="" style="padding:20px 0">
+        <div class="layui-form-item">
+            <label class="layui-form-label" >类型名称：</label>
+            <div class="layui-input-block">
+            <input type="text" name="scope_name" value="{{d.params.scope_name?d.params.scope_name:''}}" style="width:300px;" lay-verify="required" autocomplete="off" placeholder="请输入内容" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" >备注说明：</label>
+            <div class="layui-input-block">
+                <textarea name="" id="" style="width:280px;height:80px;padding:10px;" placeholder="请输入内容"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" >排序：</label>
+            <div class="layui-input-block">
+            <input type="number" name="scope_sort" value="{{d.params.scope_sort?d.params.scope_sort:''}}" style="width:300px;" lay-verify="required" autocomplete="off" placeholder="请输入内容" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="width:200px;margin:0 auto;">
+            <button type="submit" class="layui-btn" style="width:100%;" lay-submit="" lay-filter="submit">确定</button>
+            </div>
+        </div> 
+    </form>  
+</script>
+    <script>
+        layui.data.sendParams = function (params) {
+            layui.use(['admin','element','upload','form'], function () {
+                var $ = layui.$;
+                var admin = layui.admin;
+                var element = layui.element;
+                var form = layui.form;
+                var scope_index=""
+                if(params.scope_index){
+                    scope_index=params.scope_index
+                }
+                //保存
+                form.on('submit(submit)', function (data) {
+                    data.field.scope_type='2'
+                    data.field.scope_index=scope_index
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=scope/addEditScope',
+                        data: data.field,
+                        success: function (res) {
+                            if (res.code == 0) {
+                                layer.msg(res.msg);
+                                layer.closeAll();
+                                parent.layui.table.reload("tradeTable");
+                            } else {
+                                layer.msg(res.msg);
+                            }
+                        }
+                    })
+                    return false;
+                })
+            })
+        }
+    </script> 
+

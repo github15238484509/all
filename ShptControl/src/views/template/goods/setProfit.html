@@ -1,0 +1,68 @@
+<style>
+    .layui-upload img{
+        border: 1px solid #ccc;
+    }
+    .layui-form-label{
+        width: 130px!important;
+    }
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <form class="layui-form" action=" lay-filter="zoneForm"">
+        <div class="layui-form-item">
+            <label class="layui-form-label" >p1享受消费额比：</label>
+            <div class="layui-input-inline">
+                <input type="number" name="rank_ratio1" value="{{d.params.rank_ratio1?d.params.rank_ratio1:''}}" style="width:200px;" lay-verify="required" autocomplete="off" placeholder="请输入品牌名称" class="layui-input">
+            </div>
+            <div style="display:inline-block;line-height:38px;margin-left:10px">%</div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" >p2享受消费额比：</label>
+            <div class="layui-input-inline">
+                <input type="number" name="rank_ratio2" value="{{d.params.rank_ratio2?d.params.rank_ratio2:''}}" style="width:200px;" lay-verify="required" autocomplete="off" placeholder="请输入品牌名称" class="layui-input">
+            </div>
+            <div style="display:inline-block;line-height:38px;margin-left:10px">%</div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="width:200px;margin:0 auto;">
+                <button type="submit" class="layui-btn" style="width:100%;margin-top:20px" lay-submit="" lay-filter="submit">确定</button>
+            </div>
+        </div> 
+    </form>  
+</script>
+    <script>
+        layui.data.sendParams = function (params) {
+            layui.use(['admin','upload','form'], function () {
+                var $ = layui.$;
+                var admin = layui.admin;
+                var upload = layui.upload;
+                var form = layui.form,
+                rank_ratio=[
+                    {rank_index:'1',rank_ratio:''},
+                    {rank_index:'2',rank_ratio:''}
+                ]
+                //保存分润设置
+                form.on('submit(submit)', function (data) {
+                    rank_ratio[0].rank_ratio=data.field.rank_ratio1
+                    rank_ratio[1].rank_ratio=data.field.rank_ratio2
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=goods_zone/setZone',
+                        data: {
+                            zone_index:params.zone_index,
+                            rank_ratio:JSON.stringify(rank_ratio),
+                        },
+                        success: function (res) {
+                            if (res.code == 0) {
+                                layer.msg(res.msg);
+                                layer.closeAll();
+                                parent.layui.table.reload("zoneTable");
+                            } else {
+                                layer.msg(res.msg);
+                            }
+                        }
+                    })
+                    return false;
+                })
+            })
+        }
+    </script> 
+

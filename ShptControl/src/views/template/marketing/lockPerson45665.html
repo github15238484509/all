@@ -1,0 +1,225 @@
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)"></script>
+<div class="layui-fluid">
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto form" lay-filter="app-content-list">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">选择日期</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="time" class="layui-input" id="testTime1" placeholder=" 请输入审核时间">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search745">
+                    <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>搜索
+                </button>
+            </div>
+        </div>
+    </div>
+    </form>
+    <table class="layui-hide" id="commentTable9651" lay-filter="commentTable9651"></table>
+</div>
+</script>
+<script>
+    layui.data.sendParams = function(params) {
+        layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'table', 'laydate', 'common', 'public', 'form'], function() {
+            var $ = layui.$,
+                admin = layui.admin,
+                laydate = layui.laydate,
+                view = layui.view,
+                table = layui.table,
+                form = layui.form,
+                IsshowAnNiu = layui.common.IsshowAnNiu;
+            var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+            var base = new layui.public.Base64();
+            var cols = []
+            var tool = layui.public.tool;
+            var base = new layui.public.Base64();
+            var field = {
+                    area_index: params.data.area_index,
+                    time: ''
+                }
+                //日期范围
+            laydate.render({
+                elem: '#testTime1',
+                calendar: true,
+                done: function(value, date, endDate) {
+                    field.time = value
+                }
+            });
+            form.on('submit(search745)', function(data) {
+                render_table(field);
+                return false;
+            });
+            form.render()
+
+            //渲染表格数据
+            var render_table = function(data) {
+                    cols = [
+                        [{
+                                field: 'day_time',
+                                align: 'center',
+                                title: '日期',
+                                templet: function(d) {
+                                    return layui.common.createTime(d.day_time)
+                                }
+                            }, {
+                                field: 'group_name',
+                                title: '地区',
+                                align: 'center',
+                                templet: function(d) {
+                                    return d.province_name + d.city_name + d.district_name
+                                }
+                            }, {
+                                field: 'goods_total_price',
+                                title: '拼团营业额',
+                                align: 'center',
+                                templet: function(d) {
+                                    return d.goods_total_price / 100
+                                }
+                            }, {
+                                field: 'supplier_total_price',
+                                title: '产品',
+                                align: 'center',
+                                templet: function(d) {
+                                    return d.supplier_total_price / 100
+                                }
+                            }, {
+                                field: 'my_money',
+                                title: '毛利',
+                                align: 'center',
+                                templet: function(d) {
+                                    return d.my_money / 100
+                                }
+                            }, {
+                                field: 'use_money',
+                                title: '可用促销金',
+                                align: 'center',
+                                templet: function(d) {
+                                    return d.use_money / 100
+                                }
+                            }, {
+                                field: 'left_money',
+                                title: '加结转',
+                                align: 'center',
+                                templet: function(d) {
+                                    return d.left_money / 100
+                                }
+                            }, {
+                                field: 'reward_money',
+                                title: '参团奖励',
+                                align: 'center',
+                                templet: function(d) {
+                                    return d.reward_money / 100
+                                }
+                            }, {
+                                field: 'rank4_money',
+                                title: '督导服务费',
+                                align: 'center',
+                                templet: function(d) {
+                                    return d.rank4_money / 100
+                                }
+                            }, {
+                                field: 'server_money',
+                                title: '服务费',
+                                align: 'center',
+                                templet: function(d) {
+                                    return d.server_money / 100
+                                }
+                            }, {
+                                field: 'join_money',
+                                align: 'center',
+                                title: '参团奖励金额',
+                                templet: function(d) {
+                                    return d.join_money / 100
+                                }
+                            }, {
+                                field: 'reward_server',
+                                title: '奖励/服务费',
+                                align: 'center',
+                                templet: function(d) {
+                                    return d.reward_server / 100
+                                }
+                            }, {
+                                field: 'xing_money',
+                                title: '可用兑星余额',
+                                align: 'center',
+                                templet: function(d) {
+                                    return d.xing_money / 100
+                                }
+                            }, {
+                                field: 'one_money',
+                                title: '单星成本',
+                                align: 'center',
+                                templet: function(d) {
+                                    return d.one_money / 100
+                                }
+                            }, {
+                                field: 'xing_num',
+                                title: '明日出勋章数',
+                                align: 'center',
+                            }, {
+                                field: 'left_xing_money',
+                                title: '结转',
+                                align: 'center',
+                                templet: function(d) {
+                                    return d.left_xing_money / 100
+                                }
+                            }, {
+                                field: 'person_num',
+                                title: '参与人数',
+                                align: 'center',
+                            }, {
+                                field: 'join_num',
+                                title: '参与人次',
+                                align: 'center',
+                            }, {
+                                field: 'get_num',
+                                title: '会员拼中次数',
+                                align: 'center',
+                            }, {
+                                field: 'zhang_num',
+                                title: '今日出勋章数',
+                                align: 'center',
+                            }, {
+                                field: 'zhang_money',
+                                align: 'center',
+                                title: '勋章奖励金额',
+                                templet: function(d) {
+                                    return d.zhang_money / 100
+                                }
+                            }, {
+                                field: 'open_num',
+                                align: 'center',
+                                title: '激活人数'
+                            }
+                            // , {
+                            //     field: 'no_open_num',
+                            //     align: 'center',
+                            //     title: '待激活人数'
+                            // }
+                        ]
+                    ]
+
+                    table.render({
+                        elem: '#commentTable9651',
+                        url: layui.setter.requestUrl + 'api.php?c=group_area/getGroupDataList',
+                        where: data,
+                        cellMinWidth: 120,
+                        cols: cols,
+                        page: true,
+                        parseData: function(res) {
+                            return {
+                                "count": res.count, //解析接口状态
+                                "code": res.code, //解析接口状态
+                                "data": res.data //解析数据列表
+                            };
+                        },
+                    });
+                }
+                //先自调用请求渲染数据
+            render_table(field);
+
+        });
+
+    }
+</script>

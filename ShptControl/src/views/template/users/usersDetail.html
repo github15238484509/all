@@ -1,0 +1,745 @@
+<style>
+    .ul_record {
+        margin-left: 60px;
+    }
+    
+    .li_record {
+        width: 300px;
+        display: flex;
+        padding: 10px;
+        background-color: pink;
+    }
+    
+    .word_record {
+        margin-left: 20px;
+    }
+    
+    .money_record {
+        margin-top: 18px;
+    }
+    
+    .layui-table-cell {
+        height: 55px;
+    }
+    
+    .layui-laypage-limits {
+        display: none !important;
+    }
+    
+    .layui-table {
+        margin: auto !important;
+    }
+    
+    .layui-table-view,
+    .layui-table-header {
+        border: none !important;
+    }
+    
+    .layui-table-cell {
+        height: auto;
+        overflow: visible;
+        text-overflow: inherit;
+        white-space: normal;
+    }
+    
+    .color1 {
+        color: rgba(229, 6, 6, 1);
+    }
+    
+    .color2 {
+        color: rgba(31, 159, 83, 1);
+    }
+    
+    .wordStatus {
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        font-size: 18px;
+        transform: rotate(20deg);
+    }
+    
+    .right {
+        border-left: 1px solid #ccc;
+        padding-left: 80px;
+        width: 100%;
+    }
+    
+    .title {
+        color: rgba(80, 80, 80, 1);
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        margin-top: 10px;
+    }
+    
+    .box {
+        color: rgba(80, 80, 80, 1);
+        background-color: rgba(231, 229, 229, 1);
+        padding: 20px 40px;
+        font-weight: bold;
+    }
+    
+    .switch {
+        height: 30px;
+        line-height: 30px;
+        display: flex;
+        margin-bottom: 10px;
+    }
+    
+    .box p {
+        margin-bottom: 10px;
+    }
+    
+    .teamMsg {
+        display: flex;
+    }
+    
+    .teamMsg div {
+        width: 200px;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a lay-href="template/users/usersListV2.php">会员管理列表</a>
+        <a><cite>会员管理及业绩</cite></a>
+    </div>
+</div>
+<form class="layui-form" style="background:#fff;margin:10px 0;padding:10px 0 0 0">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">搜索类型：</label>
+            <div class="layui-input-inline">
+                <select name="search_type" lay-filter="type">
+                    <option value="1">手机号</option>
+                    <option value="2">昵称</option>
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <input type="text" name="value" placeholder="请输入所查询内容" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">会员状态：</label>
+            <div class="layui-input-inline">
+                <select name="sta" lay-filter="status">
+                    <option value=" -1">请选择</option>
+                    <option value="1">启用</option>
+                    <option value="0">禁用</option>
+                </select>
+            </div>
+        </div>
+        <button class="layui-btn layui-btn-danger" lay-submit lay-filter="search">查询</button>
+    </div>
+</form>
+<div style="display: flex;">
+    <div style="padding: 0 30px;">
+        <table class="layui-hide" id="table" lay-filter="table"></table>
+    </div>
+    <div class="right">
+
+    </div>
+</div>
+<script>
+    layui.use(['element', 'table', 'form', 'upload', 'laypage', 'layer', 'laydate', 'common', 'md5'], function() {
+        var setter = layui.setter,
+            $ = layui.jquery,
+            admin = layui.admin,
+            upload = layui.upload,
+            laypage = layui.laypage,
+            layer = layui.layer,
+            element = layui.element,
+            table = layui.table,
+            form = layui.form,
+            laydate = layui.laydate,
+            MD5 = layui.md5;
+        var user_id = ''
+            //初始化表单
+        form.render()
+            //定义搜索数据
+        var field = {
+            search_type: '2',
+            value: '',
+            sta: '-1'
+        }
+        var huiyuanjibie = `
+        <form class="layui-form" style="background:#fff;margin:10px 0;padding:10px 0 0 0">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">会员级别：</label>
+                    <div class="layui-input-inline">
+                        <select name="sta" lay-filter="huiyaunjibeiSelect" id='huiyaunjibeiSelect'>
+                        </select>
+                    </div>
+                </div>
+                <button class="layui-btn layui-btn-danger" id='addHuiyuanjibie'>确人修改</button>
+            </div>
+        </form>
+        `
+            //渲染表格数据
+        var render_table = function(data) {
+            table.render({
+                elem: '#table',
+                url: layui.setter.requestUrl + 'api.php?c=users/usersListV2',
+                where: data,
+                cols: [
+                    [{
+                        field: 'photo',
+                        width: '90',
+                        templet: function(d) {
+                            var src = d.photo.startsWith("http") ? d.photo : (layui.setter.CDN + d.photo)
+                            var str =
+                                `<img src = ${src} style="cursor:pointer;width:60px;height:60px" lay-event = 'enlarge'></img>`
+                            return str
+                        }
+                    }, {
+                        field: 'card_holder',
+                        width: '300',
+                        templet: function(d) {
+                            var str =
+                                `<div>昵称：${d.name}</div>
+                                        <div>级别：${d.rank_str}</div>
+                                        <div>注册时间：${d.regtime}</div>
+                                        <div class="wordStatus ${d.status == '0' ? 'color1' : 'color2'}">${d.status == '0' ? '禁用' : '启用'}</div>`
+                            return str
+                        }
+                    }]
+                ],
+                page: true,
+                layout: ['page', 'count', 'skip'],
+                done: function(res, curr, count) {
+                    rightRender(res.data[0]);
+
+                    $('.layui-table .layui-table-cell > span').css({
+                        'font-weight': 'bold'
+                    }); //表头字体样式
+                    $('th').hide(); //表头隐藏的样式
+                    $('.layui-table-page').css('margin-top', '40px'); //页码部分的高度调整
+                }
+            });
+        }
+        render_table(field);
+        //监听搜索
+        form.on('submit(search)', function(data) {
+            render_table(data.field);
+            return false;
+        });
+        table.on('row(table)', function(obj) {
+            //标注选中样式
+            obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+            //点击显示个人信息
+            rightRender(obj.data);
+        });
+
+        function rightRender(data) {
+            user_id = data.user_id
+            var cardData = {}
+            $('.right').empty()
+            $('.right').append(`
+                    <div class="layui-tab layui-tab-brief" lay-filter="test">
+                        <ul class="layui-tab-title">
+                            <li class="layui-this">会员基本信息</li>
+                            <li>会员余额记录</li>
+                            <li>会员支付记录</li>
+                            <li>浏览记录</li>
+                        </ul>
+                        <div class="layui-tab-content memberMsg">
+                        <div class="layui-tab-item layui-show">
+                            <div  style="display:flex!important">
+                                <div style="margin: 10px 0;width:80px">
+                                    <img src=${data.photo.startsWith("http")?data.photo:(layui.setter.CDN + data.photo)} style="width: 80px;height:80px">
+                                    <p style="text-align: center;margin-top: 5px;">${data.name}</p>
+                                </div>
+                                <div style="margin: 0 30px;width:500px">
+                                    <p class="title">用户信息</p>
+                                    <div class="box">
+                                        <div class="switch">
+                                            <div>状态：${data.status == '0' ? '禁用' : '启用'}</div>
+                                            <form class="layui-form layui-form-pane check_switch">
+                                                
+                                            </form>
+                                        </div>
+                                        <p>会员编号：${user_id}</p>
+                                        <p>手机号：${data.phone}</p>
+                                        <p>认证状态：${data.card_index == '0' ? '未认证' : '已认证'}</p>
+                                        <p>注册时间：${data.regtime}</p>
+                                        <p>当前余额：${data.cash}</p>
+                                        <p>拼团本金：${data.consumption/100}</p>
+                                        <p>累计消费金额：${data.lei_ji}元</p>
+                                        <p>累计提现金额：${data.total_extract_cash}元</p>
+                                        <div style="margin-bottom: 10px;">
+                                            <span style="margin-right: 70px;">级别：${data.rank_str}</span>
+                                            <button class="layui-btn layui-btn-danger layui-btn-xs modify_rank" data-rank=${data.rank}>修改</button>
+                                        </div>
+                                        <div>
+                                            <span style="margin-right: 30px;">推荐人：${data.referrer_phone}</span>
+                                            <button class="layui-btn layui-btn-danger layui-btn-xs modify_referrer">修改</button>
+                                        </div>
+                                    </div>
+                                    <p class="title">团队信息</p>
+                                    <div class="box">
+                                        <div class="teamMsg">
+                                            <div>直推人数：${data.user_total}</div>
+                                            <div>直推业绩：${data.total_commision_all}</div>
+                                        </div>
+                                        <div class="teamMsg">
+                                            <div>体系人数（含直推）：${data.user_total_t}</div>
+                                            <div>体系业绩（含直推）：${data.total_commision_all_t}</div>
+                                        </div>
+                                    </div>
+                                    <p class="title">银行卡信息</p>
+                                    <div class="box cardBox">
+                                        <p>开户人：${data.card_holder == '' ? '暂无' : data.card_holder}</p>
+                                        <p>开户银行：${data.card_bank == '' ? '暂无' : data.card_bank}</p>
+                                        <div>
+                                            <span style="margin-right: 70px;">银行卡号：${data.card_number == '' ? '暂无' : data.card_number}</span>
+                                            <button class="layui-btn layui-btn-danger layui-btn-xs modify_add">${data.card_holder == '' ? '添加' : '修改'}</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-tab-item">
+                            <table class="layui-hide" id="remain" lay-filter="remain"></table>
+                        </div>
+                        <div class="layui-tab-item">
+                            <table class="layui-hide" id="payment" lay-filter="payment"></table>
+                        </div>
+                        <div class="layui-tab-item">
+                            <table class="layui-hide" id="browse" lay-filter="browse"></table>
+                        </div>
+                    </div>   
+                `)
+                //判断开关按钮，0禁用关
+            if (data.status == '1') {
+                $('.check_switch').append(
+                    `<input type="checkbox" checked='' lay-skin="switch" lay-filter="switchTest">`)
+
+            } else {
+                $('.check_switch').append(`<input type="checkbox" lay-skin="switch" lay-filter="switchTest">`)
+            }
+            form.render()
+                //修改级别
+            $('.modify_rank').click(function() {
+                var rank = $(this).attr('data-rank');
+                layer.open({
+                    type: 1,
+                    area: ['600px', '260px'],
+                    shadeClose: true, //点击遮罩关闭
+                    content: huiyuanjibie,
+                    success() {
+                        admin.req({
+                            url: layui.setter.requestUrl + 'api.php?c=user_rank/getUserRankList',
+                            data: {
+                                type: 2,
+                            },
+                            success: function(res) {
+                                res.data.forEach(item => {
+                                    $('#huiyaunjibeiSelect').append(`
+                                   <option value="${item.rank_index}">${item.rank_name}</option>
+                                 `)
+                                })
+                                $('#huiyaunjibeiSelect').val(rank);
+                                form.render();
+                            }
+                        });
+                        $('#addHuiyuanjibie').on('click', function() {
+                            admin.req({
+                                url: layui.setter.requestUrl +
+                                    'api.php?c=users/userRankSet',
+                                data: {
+                                    user_id: user_id,
+                                    rank: $('#huiyaunjibeiSelect').val()
+                                },
+                                success: function(res) {
+                                    layer.msg(res.msg);
+                                    render_table(field);
+                                    setTimeout(function() {
+                                        layer.closeAll();
+                                    }, 1000)
+                                }
+                            });
+                            return false;
+                        })
+                    }
+                });
+            });
+            var tujianren = `
+                        <div style="padding-top:20px">
+                            <div class="layui-inline">
+                                <label class="layui-form-label" style='width:100px'>推荐人手机号：</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" autocomplete="off" placeholder="请输入内容" class="layui-input ipt" style="width:200px">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <label class="layui-form-label"></label>
+                                <div class="layui-input-inline user_img" style="padding:20px">
+                                    
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <div class="layui-input-block">
+                                <button type="submit" class="layui-btn sureSubmit" lay-submit="" lay-filter="demo1">确定</button>
+                                <button class="layui-btn cancel" style="background:#999">取消</button>
+                                </div>
+                            </div>
+                        </div>`
+                //修改推荐人
+            $('.modify_referrer').click(function() {
+                layer.open({
+                    type: 1,
+                    area: ['380px', '280px'],
+                    shadeClose: true, //点击遮罩关闭
+                    content: tujianren,
+                    success: function(a, index) {
+                        var rerffer = '';
+                        $('.ipt').val(data.referrer_phone)
+                        admin.req({
+                            url: layui.setter.requestUrl +
+                                'api.php?c=users/getUserInfoByPhoneV2',
+                            data: {
+                                phone: data.referrer_phone
+                            },
+                            success: function(res) {
+                                console.log(res)
+
+                                $('.user_img').append(`
+                                        <img src="${res.data.photo.startsWith("http")?res.data.photo:(layui.setter.CDN + res.data.photo)}" style="width: 50px;height: 50px;margin-right:20px"></img>${res.data.name}
+                                    `)
+                            }
+                        });
+                        $('.sureSubmit').click(function() {
+                            if ($('.ipt').val() === '') {
+                                return layer.msg('请输入您要更换会员的手机号~');
+                            }
+                            layer.close(index)
+                            checkPassword(user_id, rerffer);
+                        })
+                        $('.cancel').click(function() {
+                            layer.close(index)
+                            return false;
+                        })
+                        $('.ipt').on('input', function() {
+                            if ($(this).val().length === 11) {
+                                $('.user_img').html('');
+                                admin.req({
+                                    url: layui.setter.requestUrl +
+                                        'api.php?c=users/getUserInfoByPhoneV2',
+                                    data: {
+                                        phone: $(this).val()
+                                    },
+                                    success: function(res) {
+                                        rerffer = res.data.user_id;
+                                        $('.user_img').append(`
+                                        <img src="${layui.setter.CDN + res.data.photo}" style="width: 50px;height: 50px;margin-right:20px"></img>${res.data.name}
+                                    `)
+                                    }
+                                });
+                            }
+                        })
+                    }
+                });
+            })
+            var inputPassWorld = `
+                        <div style="padding-top:20px">
+                            <div class="layui-inline">
+                                <label class="layui-form-label" style='width:115px'>请输入操作密码：</label>
+                                <div class="layui-input-inline">
+                                    <input type="password" autocomplete="off" placeholder="请输入密码" class="layui-input inpPassWorld" style="width:200px">
+                                </div>
+                            </div>
+                            <div class="layui-inline" style='margin-top:20px'>
+                                <div class="layui-input-block">
+                                <button type="submit" class="layui-btn sureSubmit" lay-submit="" lay-filter="demo1">确定</button>
+                                <button class="layui-btn cancel" style="background:#999">取消</button>
+                                </div>
+                            </div>
+                        </div>`
+
+            function checkPassword(user_id, rerffer) {
+                layer.open({
+                    type: '1',
+                    area: ['380px', '280px'],
+                    shadeClose: true, //点击遮罩关闭
+                    content: inputPassWorld,
+                    success: function() {
+                        $('.cancel').click(function() {
+                            layer.closeAll()
+                            return false;
+                        })
+                        $('.sureSubmit').on('click', function() {
+
+                            let password = MD5($('.inpPassWorld').val())
+                            admin.req({
+                                url: layui.setter.requestUrl +
+                                    'api.php?c=users/userRerfferSet',
+                                data: {
+                                    user_id: user_id,
+                                    rerffer: rerffer,
+                                    md5_pwd: password
+                                },
+                                success: function(res) {
+                                    if (res.code == 0) {
+                                        layer.msg(res.msg);
+                                        render_table(field);
+                                        setTimeout(function() {
+                                            layer.closeAll();
+                                        }, 1000)
+                                    } else {
+                                        layer.msg(res.msg);
+                                    }
+                                }
+                            });
+                        })
+                    }
+                })
+            }
+            //修改银行卡
+            $('.modify_add').click(function() {
+                layer.open({
+                    type: 1,
+                    area: ['400px', '300px'],
+                    shadeClose: true, //点击遮罩关闭
+                    content: `
+                        <form class="layui-form" style="padding-top:20px" lay-filter="formTest">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">开户人</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name=card_holder autocomplete="off" lay-verify="required" placeholder="请输入开户人" class="layui-input" style="width:200px">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">开户银行</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name=card_bank autocomplete="off" lay-verify="required" placeholder="请输入开户银行" class="layui-input" style="width:200px">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">银行卡号</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name=card_number autocomplete="off" lay-verify="required" placeholder="请输入银行卡号" class="layui-input" style="width:200px">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <div class="layui-input-block">
+                                <button type="submit" class="layui-btn" lay-submit="" lay-filter="demo1">确定</button>
+                                <button class="layui-btn cancel" style="background:#999">取消</button>
+                                </div>
+                            </div>
+                        </form>`,
+                    success: function(a, index) {
+                        //银行卡信息表单反显
+                        form.val("formTest", {
+                            card_holder: data.card_holder,
+                            card_bank: data.card_bank,
+                            card_number: data.card_number
+                        });
+                        //监听提交
+                        form.on('submit(demo1)', function(item) {
+                            item.field.user_id = user_id;
+                            item.field.card_index = data.card_index == '0' ? '' :
+                                data.card_index;
+                            admin.req({
+                                url: layui.setter.requestUrl +
+                                    'api.php?c=users/setUserBankCard',
+                                data: item.field,
+                                success: function(res) {
+                                    if (res.code == '0') {
+                                        render_table(field);
+                                        layer.msg(res.msg, {
+                                            icon: 1
+                                        });
+                                        layer.close(index)
+                                    }
+                                }
+                            });
+                            return false;
+                        });
+                        $('.cancel').click(function() {
+                            layer.close(index)
+                            return false;
+                        })
+                    }
+                });
+            })
+        }
+
+        //监听状态开关
+        form.on('switch(switchTest)', function(data) {
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=users/setUserStatus',
+                data: {
+                    user_id: user_id
+                },
+                success: function(res) {
+                    layer.msg(res.msg, {
+                        icon: 1
+                    });
+                }
+            });
+        });
+        //tab切换
+        element.on('tab(test)', function(elem) {
+            var index = elem.index;
+            if (index == 1) {
+                remain_table()
+            }
+            if (index == 2) {
+                payment_table()
+            }
+            if (index == 3) {
+                browse_table()
+            }
+        });
+
+        //渲染余额记录表格数据
+        var remain_table = function() {
+                table.render({
+                    elem: '#remain',
+                    url: layui.setter.requestUrl + 'api.php?c=users/userCashChange',
+                    where: {
+                        user_id: user_id,
+                        type: '1'
+                    },
+                    cols: [
+                        [{
+                            field: 'index',
+                            align: 'center',
+                            title: '序号'
+                        }, {
+                            field: 'time',
+                            align: 'center',
+                            title: '时间',
+                            templet: function(d) {
+                                return layui.common.createTime(d.time)
+                            }
+                        }, {
+                            field: 'type_name',
+                            align: 'center',
+                            title: '类型'
+                        }, {
+                            field: 'before',
+                            align: 'center',
+                            title: '交易前',
+                            templet: function(d) {
+                                var money = (d.before / 1000).toFixed(2)
+                                return money
+                            }
+                        }, {
+                            field: 'amount',
+                            align: 'center',
+                            title: '交易金额',
+                            templet: function(d) {
+                                var money = (d.amount / 1000).toFixed(2)
+                                return money
+                            }
+                        }, {
+                            field: 'later',
+                            align: 'center',
+                            title: '交易后',
+                            templet: function(d) {
+                                var money = (d.later / 1000).toFixed(2)
+                                return money
+                            }
+                        }]
+                    ],
+                    page: true,
+                });
+            }
+            //渲染支付记录表格数据
+        var payment_table = function() {
+            table.render({
+                elem: '#payment',
+                url: layui.setter.requestUrl + 'api.php?c=users/userCashChange',
+                where: {
+                    user_id: user_id,
+                    type: '2'
+                },
+                cols: [
+                    [{
+                        field: 'index',
+                        align: 'center',
+                        title: '序号'
+                    }, {
+                        field: 'time',
+                        align: 'center',
+                        title: '时间',
+                        templet: function(d) {
+                            return layui.common.createTime(d.time)
+                        }
+                    }, {
+                        field: 'type_name',
+                        align: 'center',
+                        title: '支付类型'
+                    }, {
+                        field: 'type_name',
+                        align: 'center',
+                        title: '交易方式'
+                    }, {
+                        field: 'order',
+                        align: 'center',
+                        title: '商品id'
+                    }, {
+                        field: 'amount',
+                        align: 'center',
+                        title: '支付金额',
+                        templet: function(d) {
+                            var money = (d.amount / 1000).toFixed(2)
+                            return money
+                        }
+                    }]
+                ],
+                page: true,
+            });
+        }
+
+        //渲染浏览记录表格数据
+        var browse_table = function() {
+            table.render({
+                elem: '#browse',
+                url: layui.setter.requestUrl + 'api.php?c=foot/getUserFootList',
+                where: {
+                    user_id: user_id
+                },
+                cellMinWidth: '120',
+                cols: [
+                    [{
+                        field: 'index',
+                        align: 'center',
+                        title: '序号'
+                    }, {
+                        field: 'goods_index',
+                        align: 'center',
+                        title: '商品ID'
+                    }, {
+                        field: 'goods_name',
+                        align: 'center',
+                        title: '商品名称'
+                    }, {
+                        field: 'goods_icon',
+                        align: 'center',
+                        title: '商品图片',
+                        templet: function(d) {
+                            var str =
+                                `<img src = ${layui.setter.CDN + d.goods_icon}></img>`
+                            return str
+                        }
+                    }, {
+                        field: 'count',
+                        align: 'center',
+                        title: '浏览次数'
+                    }, {
+                        field: 'last_time',
+                        align: 'center',
+                        title: '最后浏览时间',
+                        templet: function(d) {
+                            return layui.common.createTime(data.last_time)
+                        }
+                    }, ]
+                ],
+                page: true,
+            });
+        }
+    })
+</script>

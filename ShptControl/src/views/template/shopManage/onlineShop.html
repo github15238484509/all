@@ -1,0 +1,77 @@
+<style>
+    .layui-table-cell {
+        display: block;
+        height: auto !important;
+        line-height: 20px !important;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">首页</a>
+        <a><cite>商城管理</cite></a>
+        <a><cite>线上商家管理</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+<div class="layui-tab layui-tab-brief" lay-filter="tab">
+    <ul class="layui-tab-title">
+        <li class="layui-this status1">待审核</li>
+        <li class="status2">营业中</li>
+        <li class="status3">未通过审核</li>
+        <li class="status4">已下架</li>
+    </ul>
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto form" style="background: #fff;margin:10px 0">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">店铺名称：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="supplier_name" style="width:200px;" autocomplete="off" placeholder="请输入内容"
+                        class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:100px">联系人手机号：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="supplier_phone" style="width:200px;" autocomplete="off" placeholder="请输入内容"
+                        class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">提交时间：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="time" class="layui-input" id="time" placeholder=" 开始时间-结束时间 ">
+                </div>
+            </div>
+            <div class="layui-inline checkTime" style="display:none">
+                <label class="layui-form-label">审核时间：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="time1" class="layui-input" id="time1" placeholder=" 开始时间-结束时间 ">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search">
+                    搜索
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show">
+            <table class="layui-hide" id="shopTable1" lay-filter="shopTable1"></table>
+        </div>
+        <div class="layui-tab-item">
+            <table class="layui-hide" id="shopTable2" lay-filter="shopTable2"></table>
+        </div>
+        <div class="layui-tab-item">
+            <table class="layui-hide" id="shopTable3" lay-filter="shopTable3"></table>
+        </div>
+        <div class="layui-tab-item">
+            <table class="layui-hide" id="shopTable4" lay-filter="shopTable4"></table>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    layui.use('onLineShop', layui.factory('onLineShop'));
+</script>

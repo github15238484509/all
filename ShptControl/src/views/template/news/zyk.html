@@ -1,0 +1,288 @@
+<style>
+    .ul {
+        width: 100%;
+        height: 100%;
+    }
+
+    .layui-layer-content {
+        padding: 0 20px;
+    }
+
+    .content {
+        display: flex;
+    }
+
+    .content .content_left {
+        width: 970px;
+        padding: 0 20px;
+    }
+
+    .content .content_left ul {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .content .content_left ul li {
+        margin: 10px;
+        padding: 0 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .content .content_right {
+        flex: 1;
+        padding: 0 10px;
+        border-left: 1px solid #000;
+    }
+
+    .content .content_right .content_right_top div {
+        margin: 10px 0;
+    }
+
+    .content_right_bottom_list {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .content_right_bottom_list div {
+        display: flex;
+        flex-direction: column;
+        margin: 10px;
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .content_right_bottom_list div img {
+        width: 26px;
+        height: 26px;
+    }
+
+    .layadmin-header {
+        line-height: 25px;
+    }
+</style>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>图文管理</cite></a>
+        <a><cite>资源库</cite></a>
+    </div>
+    <div class="layui-inline">
+        <button type="button" class="layui-btn" id="test1">
+            <i class="layui-icon">&#xe67c;</i>上传文件
+        </button>
+        <button class="layui-btn layui-btn-danger" id="newWjj">新建文件夹</button>
+    </div>
+    <div class="layui-inline">
+        <div class="layui-input-inline">
+            <input type="text" name="title" placeholder="请输入图片名称" autocomplete="off" class="layui-input searchInfo">
+        </div>
+    </div>
+    <div class="layui-inline">
+        <button class="layui-btn layui-btn-danger" id="upLoder">搜索</button>
+    </div>
+    <div class="content">
+        <div class="content_left">
+            <ul>
+            </ul>
+        </div>
+        <div class="content_right">
+            <div class="content_right_top">
+
+            </div>
+            <div class="content_right_bottom">
+                <h2 style="font-size: 14px;">常用操作：</h2>
+                <div class="content_right_bottom_list">
+                    <div>
+                        <img src="/admin/src/images/replace.png" alt="">
+                        CND预热
+                    </div>
+                    <div>
+                        <img src="/admin/src/images/uplod.png" alt="">
+                        替换文件
+                    </div>
+                    <div class="delProduct">
+                        <img src="/admin/src/images/del.png" alt="">
+                        删除文件
+                    </div>
+                    <div>
+                        <img src="/admin/src/images/down.png" alt="">
+                        下载文件
+                    </div>
+                    <div>
+                        <img src="/admin/src/images/prew.png" alt="">
+                        预览文件
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    layui.use(['form', 'table', 'element', 'layer', 'jquery', 'upload', 'admin'], function () {
+        var form = layui.form,
+            $ = layui.jquery,
+            layer = layui.layer,
+            table = layui.table,
+            upload = layui.upload,
+            admin = layui.admin;
+        var objFolder = {
+            folder_id: '',  // 文件夹自身的 id
+            delFolder_id: '', // 删除文件的id
+            folder_parent_id: ''//文件父级的id
+        }
+        var wenjian = `
+            <div class="layui-form-item" style="margin-top:10px">
+                   <label class="layui-form-label" style="width:90px">文件夹名字：</label>
+                   <div class="layui-input-block">
+                     <input type="text" name="title" required id='wjjName' style="width:200px;" lay-verify="required" placeholder="请输入文件夹名字" autocomplete="off" class="layui-input">
+                   </div>
+             </div>
+             <div style="padding-bottom: 10px;text-align:center;margin-top:10px">
+                            <button class="layui-btn" lay-submit lay-filter="formDemo" id='sureSubmit'>确定</button>
+             </div>
+            `
+        $('#newWjj').on('click', function () {
+            layer.open({
+                type: 1,
+                area: ['500px', '200px'],
+                title: '请输入文件夹姓名',
+                shadeClose: true,
+                content: wenjian,//这里content是一个普通的String
+                success: function () {
+                    $('#sureSubmit').on('click', function () {
+                        addProduct(objFolder.folder_id, $('#wjjName').val())
+                    })
+                }
+            });
+        });
+        //上传文件
+            var uploadInst = function (folder_parent_id) {
+                upload.render({
+                    elem: '#test1' //绑定元素
+                    , url: layui.setter.requestUrl + 'api.php?c=resource/uploadResource'//上传接口
+                    , data: {
+                        folder_parent_id
+                    }
+                    , done: function (res) {
+                        console.log(123);
+                        GetProductList(folder_parent_id, '')
+                        layer.msg(res.msg, { icon: 1 });
+                    }
+                    , error: function () {
+                        layer.msg(res.msg, { icon: 5 });
+                    }
+                });
+            };
+            uploadInst(objFolder.folder_parent_id)
+        // 新建文件夹
+        function addProduct(folder_parent_id, file_name) {
+            var folder_parent_id = folder_parent_id || 0;
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=resource/addProduct',
+                type: 'get',
+                data: {
+                    folder_parent_id: folder_parent_id,
+                    file_name: file_name
+                },
+                done: function (res) {
+                    if (res.code == 0) {
+                        GetProductList(objFolder.folder_parent_id, '');
+                        layer.msg(res.msg, { icon: 1 });
+                        setTimeout(function () {
+                            layer.closeAll();
+                        }, 1000)
+                    } else {
+                        layer.msg(res.msg, { icon: 5 });
+                    }
+                }
+            });
+        };
+        GetProductList(0, '');
+        // 获取文件列表
+        function GetProductList(folder_id, name) {
+            $('.content_left ul').html('');
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=resource/getProductList',
+                type: 'get',
+                data: {
+                    folder_id: folder_id || 0,
+                    name: name
+                },
+                done: function (res) {
+                    if (res.code == 0) {
+                        if (res.data.length) {
+                            getRightInfo(res.data[0]) //首次进来渲染第一个人间内容
+                            res.data.forEach(item => {
+                                $('.content_left ul').append(`
+                                    <li data-content='${JSON.stringify(item)}'>
+                                        <img src="${item.file_url == '' ? '/admin/src/images/wenjianjia.png' : layui.setter.CDN + item.file_url}" alt="" style="width: 70px;height:70px">
+                                        <span>${item.file_name}</span>
+                                    </li>
+                             `)
+                            })
+                        }
+                    } else {
+                        layer.msg(res.msg, { icon: 5 });
+                    }
+                }
+            });
+        }
+        $('.content_left ul').on('dblclick', 'li', function () {
+            var obj = JSON.parse($(this).attr('data-content'));
+            objFolder.folder_id = obj.folder_id;
+            objFolder.folder_parent_id = obj.folder_id;
+            uploadInst(objFolder.folder_parent_id)
+            if (obj.file_type == '文件夹') {
+                GetProductList(objFolder.folder_parent_id, '');
+            }
+        })
+        $('.content_left ul').on('click', 'li', function () {
+            var obj = JSON.parse($(this).attr('data-content'));
+            getRightInfo(obj);
+            $(this).css({
+                'background': '#ccc'
+            }).siblings().css({
+                'background': ''
+            });
+        })
+        //获取右边的信息
+        function getRightInfo(obj) {
+            objFolder.delFolder_id = obj.folder_id;
+            $('.content_right_top').html(`
+            <h2 style='text-align: center;'>${obj.file_name}</h2>
+            <div>创建时间：${layui.common.createTime(obj.add_time)}</div>
+            <div>文件类型：${obj.file_type}</div>
+            <div>文件大小：${obj.file_size}</div>
+            <div>存储路径：${obj.cc_url}</div>
+            <div>相对地址：${obj.xd_url}</div>
+         `)
+        }
+        //删除某个文件
+        function delProduct() {
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=resource/delResource',
+                data: {
+                    folder_id: objFolder.delFolder_id
+                },
+                type: 'get',
+                done: function (res) {
+                    if (res.code == 0) {
+                        GetProductList(objFolder.folder_parent_id, '');
+                        layer.msg(res.msg, { icon: 1 });
+                    } else {
+                        layer.msg(res.msg, { icon: 5 });
+                    }
+                }
+            });
+        };
+        $('.delProduct').click(function () {
+            delProduct()
+        })
+    });
+</script>

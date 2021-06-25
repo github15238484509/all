@@ -1,0 +1,84 @@
+<style>
+    .layui-table-cell {
+        display: block;
+        height: auto !important;
+        line-height: 20px !important;
+    }
+
+    .history {
+        color: rgba(42, 130, 228, 1);
+        text-decoration: underline;
+        cursor: pointer;
+    }
+
+    .add .layui-input-inline {
+        width: auto !important;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">首页</a>
+        <a><cite>广告位管理</cite></a>
+        <a><cite>广告位列表</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+<div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+    <ul class="layui-tab-title">
+        <li class="layui-this">解锁消费金广告位</li>
+        <li>支付成功广告位</li>
+    </ul>
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto form" style="background: #fff;margin:10px 0">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:100px">跳转类型：</label>
+                <div class="layui-input-inline">
+                    <select name="jump_type" lay-filter="type" class="jump_type">
+
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:100px">状态：</label>
+                <div class="layui-input-inline">
+                    <select name="status" lay-filter="status">
+                        <option value="">全部</option>
+                        <option value="1">禁用</option>
+                        <option value="0">启用</option>
+
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search1">
+                    搜索
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto form" style="background: #fff;margin:10px 0">
+        <div class="layui-form-item">
+            <div class="layui-inline add">
+
+            </div>
+
+        </div>
+    </div>
+    <div class="layui-inline button" style="margin-left:20px">
+        <button class="layui-btn addAdvert">添加广告位</button>
+    </div>
+    <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show">
+            <table class="layui-hide" id="advert1" lay-filter="advert1"></table>
+        </div>
+        <div class="layui-tab-item">
+            <table class="layui-hide" id="advert2" lay-filter="advert2"></table>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    layui.use('advert', layui.factory('advert'));
+    layui.use('checkTask', layui.factory('checkTask'));
+</script>

@@ -1,0 +1,609 @@
+<style>
+    .ul {
+        width: 100%;
+        height: 100%;
+    }
+    
+    .layui-layer-content {
+        padding: 0 20px;
+    }
+    
+    .showBtn {
+        background: #666;
+    }
+</style>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <!-- <a lay-href="javascript:;">系统配置</a> -->
+        <a><cite>系统配置</cite></a>
+        <a><cite>账号及权限管理</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+<!--搜索框部分-->
+<form class="layui-form" style="margin-top:35px;">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">搜索类型</label>
+            <div class="layui-input-inline">
+                <select name="type" lay-verify="required">
+                    <option value="1">手机号</option>
+                    <option value="2">账号</option>
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <input type="text" name="value" autocomplete="off" class="layui-input search1" style="wdith:300px">
+            </div>
+            <button class="layui-btn " lay-submit lay-filter="serach"><i class="layui-icon">&#xe615;</i>搜索</button>
+        </div>
+    </div>
+</form>
+<!--表格-->
+<div style="margin-left: 35px">
+    <button class="layui-btn" id="addUser">添加用户</button>
+    <table class="layui-table" lay-filter="tableData">
+        <thead>
+            <tr>
+                <th lay-data="{field:'employee_account',width:80, align:'center'}">账号</th>
+                <th lay-data="{field:'employee_name',width:80, align:'center'}">姓名</th>
+                <th lay-data="{field:'employee_phone',width:120, align:'center'}">手机号</th>
+                <th lay-data="{field:'rank_name',width:120, align:'center'}">职位</th>
+                <th lay-data="{field:'permission_des',width:200, align:'center'}">账号说明</th>
+                <th lay-data="{field:'employee_regtime',width:220, align:'center',templet :function (row){
+                        return createTime(row.employee_regtime);
+                    }}">创建时间</th>
+                <th lay-data="{field:'employee_logintime',width:200,align:'center',templet :function (row){
+                        return createTime(row.employee_logintime);
+                    }}">最后登陆时间</th>
+                <th lay-data="{fixed: 'right',width:500,toolbar: '#barDemo'}">操作</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+<!--按钮-->
+<!-- {{# if(layui.setter.loginType==1&&d.employee_type==1){}} -->
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-sm layui-btn-danger {{layui.setter.employee_id === d.employee_id?'showBtn':''}}" lay-event="{{layui.setter.employee_id === d.employee_id?'':'menu'}}">菜单权限</a>
+    <a class="layui-btn layui-btn-sm layui-btn-danger {{layui.setter.employee_id === d.employee_id?'showBtn':''}}" lay-event="{{layui.setter.employee_id === d.employee_id?'':'edit'}}">编辑</a>
+    <a class="layui-btn layui-btn-sm layui-btn-danger {{layui.setter.employee_id === d.employee_id?'showBtn':''}}" lay-event="{{layui.setter.employee_id === d.employee_id?'':'enable'}}">{{d.del_flg=='1'?'禁用':'启用'}}</a>
+    <a class="layui-btn layui-btn-sm layui-btn-danger {{layui.setter.employee_id === d.employee_id?'showBtn':''}}" lay-event="{{layui.setter.employee_id === d.employee_id?'':'del'}}">删除</a>
+    <a class="layui-btn layui-btn-sm layui-btn-danger" lay-event="addJob">设置职位</a>
+    <a class="layui-btn layui-btn-sm layui-btn-danger" lay-event="reLoginPwd">重置登录/操作密码</a>
+</script>
+<script type="text/javascript">
+    $ = layui.jquery;
+    var token = JSON.parse(localStorage.getItem('ShptMapi')).access_token
+    var tableOptions = {
+        url: layui.setter.requestUrl + "api.php?c=staffs/getEmployeeList", //后端请求数据地址
+        method: 'GET', //方式
+        id: 'tabelReload', //生成table的标识id，必须提供，用于搜索刷新操作
+        page: true, //是否分页
+        limit: 10, //每页显示多少条数据
+        dataType: 'json',
+        where: {
+            access_token: token
+        },
+        done: function(res) {
+
+        }
+    };
+    layui.use(['form', 'layedit', 'table', 'laydate', 'element', 'layer', 'admin', 'common', 'upload'], function() {
+        var form = layui.form,
+            layer = layui.layer,
+            layedit = layui.layedit,
+            laydate = layui.laydate,
+            element = layui.element,
+            upload = layui.upload,
+            table = layui.table,
+            admin = layui.admin;
+        IsshowAnNiu = layui.common.IsshowAnNiu;
+        var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+        let employee_pic = '';
+        var jobList = []
+            //表格初始化
+        table.init('tableData', tableOptions);
+        //搜索
+        form.on('submit(serach)', function(data) {
+            table.reload('tabelReload', { //此处是tableOptions里定义的table标识id
+                where: {
+                    type: data.field.type,
+                    value: data.field.value
+                },
+                page: {
+                    curr: 1 //重新从第1页开始
+                }
+            });
+            return false;
+        });
+        //添加
+        $('#addUser').click(function() {
+                employee_id = undefined;
+                employee_pic = ''
+                var views = addView({
+                    employee_account: '',
+                    employee_name: '',
+                    employee_phone: '',
+                    permission_des: ''
+                })
+                layer.open({
+                    type: 1,
+                    title: '添加用户',
+                    area: ['600px', '450px'],
+                    shadeClose: true, //点击遮罩关闭
+                    content: views,
+                    success: function() {
+                        form.render();
+                        getMenuLists();
+                        upload.render({
+                            elem: '#user_photo',
+                            url: layui.setter.requestUrl + 'api.php?c=uploadImg/uploadImage',
+                            accept: 'img', //视频
+                            data: {
+                                module: 'user_photo',
+                                access_token: layui.data('ShptMapi').access_token
+                            },
+                            done: function(res, index, upload) {
+                                if (res.code !== 0) {
+                                    return layer.msg('上传失败')
+                                }
+                                layer.msg('上传成功');
+                                $('#user_photo').attr('src', layui.setter.CDN + res.data);
+                                employee_pic = res.data
+                            },
+                            error() {
+                                layer.msg('上传失败');
+                            }
+                        })
+                    }
+                });
+            })
+            //获取职位
+        admin.req({
+            url: layui.setter.requestUrl + 'api.php?c=v3/position/positionList',
+            done: function(res) {
+                jobList = res.data
+            }
+        });
+        //table表格的事件
+        table.on('tool(tableData)', function(obj) { //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
+            var data = obj.data; //获得当前行数据
+            loginType = obj.data; //获取当前用户
+            var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+            var tr = obj.tr; //获得当前行 tr 的 DOM 对象（如果有的话）
+            employee_id = data.employee_id;
+            if (layEvent === 'del') { //删除
+                layer.confirm('确定删除行么，删除后不可恢复', {
+                    title: '删除'
+                }, function(index) {
+                    // obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+                    // layer.close(index);
+                    //向服务端发送删除指令
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=staffs/delEmployee',
+                        data: {
+                            employee_id: data.employee_id
+                        },
+                        done: function(res) {
+                            layer.msg(res.msg, {
+                                icon: 1
+                            });
+                            table.init('tableData', tableOptions);
+                        }
+                    });
+                });
+            } else if (layEvent === 'edit') { //编辑
+                var views = addView(data)
+                layer.open({
+                    type: 1,
+                    title: '修改',
+                    area: ['600px', '450px'],
+                    shadeClose: true, //点击遮罩关闭
+                    content: views,
+                    success: function() {
+                        form.val('first', {
+                            employee_sex: data.employee_sex
+                        })
+                        form.render();
+                        getMenuLists(data.home_page);
+                        if (data.employee_pic) {
+
+                            employee_pic = data.employee_pic;
+                            $('#user_photo').attr('src', layui.setter.CDN + data.employee_pic);
+                        } else {
+                            employee_pic = ''
+                        }
+                        upload.render({
+                            elem: '#user_photo',
+                            url: layui.setter.requestUrl + 'api.php?c=uploadImg/uploadImage',
+                            accept: 'img', //视频
+                            data: {
+                                module: 'user_photo',
+                                access_token: layui.data('ShptMapi').access_token
+                            },
+                            done: function(res, index, upload) {
+                                if (res.code !== 0) {
+                                    return layer.msg('上传失败')
+                                }
+                                layer.msg('上传成功');
+                                $('#user_photo').attr('src', layui.setter.CDN + res.data);
+                                employee_pic = res.data
+                            },
+                            error() {
+                                layer.msg('上传失败');
+                            }
+                        })
+                    }
+                });
+            } else if (layEvent === 'addJob') { //设置职位
+                layer.open({
+                    type: 1,
+                    title: '设置职位',
+                    area: ['400px', '450px'],
+                    shadeClose: true, //点击遮罩关闭
+                    content: `
+                    <form class="layui-form" style="margin-top:35px;" lay-filter="job">
+                        <div class="layui-form-item" style="margin-bottom:250px">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">搜索类型</label>
+                                <div class="layui-input-inline">
+                                    <select name="rank" lay-filter="CountryList" class="jobList">
+                                        <option value="">请选择标签</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div  style="text-align:center"><button class="layui-btn" lay-submit lay-filter="sure">确定</button></div>
+                    </form>
+                    `,
+                    success: function() {
+                        form.render()
+                        jobList.forEach(item => {
+                            if (data.rank == item.id) {
+                                $('.jobList').append(`
+                                    <option value="${item.id}" selected>${item.position_name}</option>
+                                `)
+                            } else {
+                                $('.jobList').append(`
+                                    <option value="${item.id}">${item.position_name}</option>
+                                `)
+                            }
+                        })
+                        form.render('select')
+                        form.on('submit(sure)', function(data) {
+                            console.log(data.field.rank);
+                            admin.req({
+                                url: layui.setter.requestUrl + 'api.php?c=staffs/editEmpolyeeRank',
+                                data: {
+                                    rank: data.field.rank,
+                                    employee_id: employee_id
+                                },
+                                done: function(res) {
+                                    if (res.code == 0) {
+                                        layer.msg(res.msg, {
+                                            icon: 1
+                                        });
+                                        layer.closeAll()
+                                        table.init('tableData', tableOptions);
+                                    }
+                                }
+                            });
+                            return false
+                        })
+                    }
+                });
+            } else if (layEvent === 'menu') {
+                layer.open({
+                    type: 1,
+                    title: '菜单权限',
+                    area: ['600px', '500px'],
+                    shadeClose: true, //点击遮罩关闭
+                    content: `
+                       <div id="BOX">
+
+                       </div>
+                    `,
+                    success: function(res) {
+                        layui.form.render()
+                        admin.req({
+                            url: layui.setter.requestUrl + 'api.php?c=menu/getAuth',
+                            async: false,
+                            data: {
+                                employee_id: employee_id
+                            },
+                            success: function(r) {
+                                layui.form.render()
+                                $('#BOX').append(`
+                                    <div class="layui-collapse">
+                                        <div class="layui-colla-item ul">
+
+                                        </div>
+                                    </div>
+
+                                    <div style='width:200px;margin:20px auto;'>
+                                        <button class="layui-btn sub-save" style='width:100%;'>保存</button>
+                                    </div>
+                                    `)
+                                r.data.auth.forEach((element, indexs) => {
+                                    $('.ul').append(`<h2 class="layui-colla-title li parent_id" employee_id="${element.id}" >${element.title}</h2>`)
+                                    $('.ul').append(`<div class="layui-colla-content layui-show div_menu"></div>`)
+                                    if (element.children !== false) {
+                                        element.children.forEach((e, i) => {
+                                            $('.div_menu').eq(indexs).append(`
+                                                <div>
+                                                    <div class="checkAll" employee_id="${element.id}"  c_id="${e.id}"> ${e.title}
+                                                        <div style="float: right;margin-right:200px;" >
+                                                            <input type='checkbox' name='checkL' value="${e.id}"  title="${e.title}" lay-skin='primary'>读权限
+                                                            <input type='checkbox' name='checkR' value="1" title="${e.title}" lay-skin='primary' style="margin-left: 25px;" >写权限
+                                                        </div>
+                                                    </div>
+                                                    <hr class="layui-bg-black">
+                                                </div>
+                                            `)
+                                        })
+                                    }
+                                })
+                                $('[name=checkR]').change(function() {
+
+                                    if ($(this).prop('checked')) {
+                                        $(this).prev().prop('checked', true)
+                                        $(this).val(2)
+                                    } else {
+                                        $(this).val(1)
+                                    }
+                                    // console.log($(this).prev().prop('checked'));
+                                })
+
+                                submit_menu();
+                                for (var i in r.data.permission) {
+                                    for (var j in r.data.permission[i]) {
+                                        // selfArr.push(j=>r.data.permission[i][j])
+                                        //j 拥有权限id
+                                        //r.data.permission[i][j] 拥有 读/写 权限
+                                        $('.checkAll').each(function() {
+                                            var $checkL = $(this).find('[name=checkL]');
+                                            var $checkR = $(this).find('[name=checkR]');
+                                            var c_id = $(this).attr('c_id')
+                                            if (c_id == j) {
+                                                $checkL.attr('checked', true);
+                                                if (r.data.permission[i][j] == 2) {
+                                                    $checkR.attr('checked', true);
+                                                    $checkR.val(2);
+                                                }
+                                            }
+                                        })
+                                    }
+                                }
+                                element.render();
+                                // 提交/修改菜单权限
+                                function submit_menu() {
+                                    var thisArr = {};
+                                    $(".sub-save").on('click', function() {
+                                        var parent_id = [];
+                                        $('input[name=checkL]:checked').each(function(index) {
+                                            var children_id = $(this).val();
+                                            var parent_id = $(this).parents('.checkAll').attr('employee_id');
+                                            var children_val = parseInt($(this).next('[name=checkR]:first').val());
+                                            if (!thisArr.hasOwnProperty(parent_id)) {
+                                                thisArr[parent_id] = {};
+                                            }
+                                            thisArr[parent_id][children_id] = children_val
+                                        });
+
+                                        if (isEmptyObject(thisArr)) {
+                                            submitData('');
+                                        } else {
+                                            submitData(thisArr);
+                                        }
+                                    });
+                                }
+
+                                //判断对象是否为空
+                                function isEmptyObject(obj) {
+                                    for (var key in obj) {
+                                        return false;
+                                    }
+                                    return true;
+                                }
+                                //数据提交
+                                function submitData(myAr) {
+                                    console.log(myAr)
+                                    admin.req({
+                                        url: layui.setter.requestUrl + 'api.php?c=menu/setAuth',
+                                        type: 'get',
+                                        data: {
+                                            employee_id: employee_id,
+                                            data: JSON.stringify(myAr)
+                                        },
+                                        done: function(res) {
+                                            if (res.code == 0) {
+                                                layer.msg(res.msg, {
+                                                    icon: 1
+                                                });
+                                                table.init('tableData', tableOptions);
+                                                layer.closeAll('page'); //关闭所有页面层
+                                            } else {
+                                                layer.msg(res.msg, {
+                                                    icon: 5
+                                                });
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }
+                });
+            } else if (layEvent === 'reLoginPwd') {
+                layer.confirm('是否将登陆/操作密码统一重置为JY2019ShptMapi', {
+                    icon: 3,
+                    title: '重置登陆/操作密码',
+                    area: ['450px', '270px']
+                }, function(index) {
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=staffs/resetEmployeePwd',
+                        data: {
+                            employee_id: data.employee_id
+                        },
+                        done: function(res) {
+                            layer.msg(res.msg, {
+                                icon: 1
+                            });
+                        }
+                    });
+                });
+            } else if (layEvent === 'enable') {
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=login/editEmployeeStatus',
+                    data: {
+                        status: data.del_flg = (+data.del_flg) ? 0 : 1,
+                        employee_id: data.employee_id
+                    },
+                    done: function(res) {
+                        layer.msg(res.msg, {
+                            icon: 1
+                        });
+                        table.init('tableData', tableOptions);
+                    }
+                });
+            }
+        });
+        // 添加/修改提交
+        form.on('submit(formDemo)', function(data) {
+                // console.log(data.field)  //这是表单中所有的数据
+                data.field.employee_pic = employee_pic;
+                if (typeof employee_id != "undefined") {
+                    var data = {
+                        employee_id: employee_id,
+                        employee_account: data.field.employee_account,
+                        employee_name: data.field.employee_name,
+                        employee_phone: data.field.employee_phone,
+                        permission_des: data.field.permission_des,
+                        home_page: data.field.home_page,
+                        employee_sex: data.field.employee_sex,
+                        employee_pic: data.field.employee_pic
+                    }
+                } else {
+                    var data = data.field;
+                    delete data.file
+                }
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=staffs/saveEmployeeInfo',
+                    type: 'get',
+                    data: data,
+                    done: function(res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg, {
+                                time: 20000, //20s后自动关闭
+                                btn: ['明白了']
+                            });
+                            table.init('tableData', tableOptions);
+                            layer.closeAll('page'); //关闭所有页面层
+                        } else {
+                            layer.msg(res.msg, {
+                                icon: 5
+                            });
+                        }
+                    }
+                });
+                return false;
+            })
+            //获取默认登录页
+        function getMenuLists(id) {
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=staffs/getMenuLists',
+                type: 'get',
+                done: function(res) {
+                    if (res.code == 0) {
+                        res.data.forEach(item => {
+                            $('#home_page').append(`
+                      <option value="${item.id}">${item.title}</option>
+                    `)
+                        })
+                        if (id) {
+                            $('#home_page').val(id);
+                        }
+                        form.render();
+                    } else {
+                        layer.msg(res.msg, {
+                            icon: 5
+                        });
+                    }
+                }
+            });
+        }
+    });
+    // 时间戳转换
+    function createTime(v) {
+        if (v > 0) {
+            return new Date(parseInt(v) * 1000).toLocaleString().replace(/:\d{1,2}$/, ' ');
+        }
+        return '';
+    }
+
+    // 添加/修改视图
+    function addView(data) {
+        // data = {employee_account:'',employee_name:'',employee_phone:'',permission_des:''}
+        return `
+          <form class="layui-form" action="" lay-filter="first"> 
+                <div class="layui-form-item" style="margin-top:20px">
+                    <label class="layui-form-label">员工账号</label>
+                    <div class="layui-input-block">
+                    <input type="text" name="employee_account" lay-verify="title" value="${data.employee_account}" autocomplete="off" placeholder="请输入" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">员工姓名</label>
+                    <div class="layui-input-block">
+                    <input type="text" name="employee_name" lay-verify="title" value="${data.employee_name}" autocomplete="off" placeholder="请输入" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">性别</label>
+                    <div class="layui-input-block">
+                    <input type="radio" name="employee_sex" value="1" title="男" checked="">
+                    <input type="radio" name="employee_sex" value="2" title="女">
+                    <input type="radio" name="employee_sex" value="3" title="保密">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">用户手机号</label>
+                    <div class="layui-input-block">
+                    <input type="text" name="employee_phone" lay-verify="title" value="${data.employee_phone}" autocomplete="off" placeholder="请输入" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">账号说明</label>
+                    <div class="layui-input-block">
+                    <input type="text" name="permission_des" lay-verify="title" value="${data.permission_des}" autocomplete="off" placeholder="请输入" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">默认登录页</label>
+                    <div class="layui-input-block">
+                        <select name="home_page" lay-filter="aihao" id="home_page">
+                            <option value="">请选择</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">上传头像</label>
+                    <div class="layui-input-block" style="display:flex;">
+                        <img src="/cloudservice/src/images/add.png" style="width:80px;height:80px;cursor: pointer;" id="user_photo">
+                        <div style="margin-left:20px">
+                            <p style="font-size:12px;">注意事项：</p>
+                            <p style="font-size:12px;">1、请上传.jpg或.png格式图片</p>
+                            <p style="font-size:12px;">2、图片宽高比要去：1：1</p>
+                            <p style="font-size:12px;">3、最低像素尺寸要求：256*256像素</p>
+                            <p style="font-size:12px;">4、图片文件大小控制在0.5MB以内</p>
+                        </div>
+                    </div>
+                </div>
+                <div style="padding-bottom: 10px;text-align:center;margin-top:30px">
+                    <button class="layui-btn" id="editAdd" lay-submit lay-filter="formDemo">确定</button>
+                </div>
+           </form>`
+    }
+</script>

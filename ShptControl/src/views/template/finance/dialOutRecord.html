@@ -1,0 +1,175 @@
+<style>
+    .layui-table-cell {
+        display: block;
+        height: auto !important;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>财务管理</cite></a>
+        <a><cite>消费金释放记录</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-card" style="padding-bottom: 20px;">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="app-content-list">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width: 85px;">会员名称：</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="name" placeholder="请输入内容" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width: 85px;">会员手机号</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="frequent_phone" placeholder="请输入内容" autocomplete="off"
+                            class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width:85px">释放时间</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="time" class="layui-input" id="test1" placeholder="请选择释放时间">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search">
+                        <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>查询
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <table class="layui-hide" id="table" lay-filter="table"></table>
+</div>
+
+<script>
+    layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'md5', 'table', 'laydate', 'common',
+        'upload'
+    ],
+        function () {
+            var $ = layui.$,
+                admin = layui.admin,
+                laydate = layui.laydate,
+                view = layui.view,
+                table = layui.table,
+                upload = layui.upload,
+                form = layui.form,
+                IsshowAnNiu = layui.common.IsshowAnNiu;
+            var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+            var imgList = [];
+            var imgStr = ''
+            var userId = ''
+            function str(strs) {
+                strs =  String(strs);
+                var index =strs.indexOf('.');
+                return strs.substr(0, index + 3);
+            }
+            form.render();
+            var field = {
+                name: '',
+                phone: '',
+                time_start: '',
+                time_end: '',
+            }
+            //日期范围
+            laydate.render({
+                elem: '#test1',
+                range: true,
+                format: 'yyyy/MM/dd',
+            });
+            //监听搜索
+            form.on('submit(search)', function (data) {
+                if (data.field.time != '') {
+                    data.field.time_start = data.field.time.split('-')[0].trim()
+                    var date = new Date(data.field.time_start);
+                    data.field.time_start = date.getTime() / 1000
+                    data.field.time_end = data.field.time.split('-')[1].trim()
+                    var date = new Date(data.field.time_end);
+                    data.field.time_end = date.getTime() / 1000
+                } else {
+                    data.field.time_start = ''
+                    data.field.time_end = ''
+                }
+                delete data.field.time
+                data.field.name = data.field.name
+                data.field.phone = data.field.phone
+                render_table(data.field);
+            });
+            //渲染表格数据
+            var render_table = function (data) {
+                table.render({
+                    elem: '#table',
+                    url: layui.setter.requestUrl + 'api.php?c=finance/IntegralUnlock',
+                    where: data,
+                    cols: [
+                        [{
+                            field: 'add_time',
+                            title: '释放时间',
+                            align: 'center',
+                            templet: function (d) {
+                                return d.add_time == '0' ? '暂无' : layui.common
+                                    .createTime(d.add_time)
+                            }
+                        }, {
+                            field: 'phone',
+                            title: '会员信息',
+                            align: 'center',
+                            templet: function (d) {
+                                var str = `<div>姓名:${d.name}</div><div>手机号:${d.phone}</div>`
+                                return str
+                            }
+                        }, {
+                            field: 'integral_ago',
+                            title: '释放前积分',
+                            align: 'center',
+                            templet: function (d) {
+                                return str(d.integral_ago / 100)
+                            }
+                        }, {
+                            field: 'integral_release',
+                            title: '释放积分',
+                            align: 'center',
+                            templet: function (d) {
+                                return str(d.integral_release / 100)
+                            }
+                        }, {
+                            field: 'integral_later',
+                            align: 'center',
+                            title: '释放后积分',
+                            templet: function (d) {
+                                return str(d.integral_later / 100)
+                            }
+                        },
+                        {
+                            field: 'balance_ago',
+                            align: 'center',
+                            title: '释放前余额',
+                            templet: function (d) {
+                                return str(d.balance_ago / 100);
+                            }
+                        }, {
+                            field: 'balance_later',
+                            align: 'center',
+                            title: '释放后余额',
+                            templet: function (d) {
+                                return str(d.balance_later / 100);
+                            }
+                        }
+                        ]
+                    ],
+                    page: true
+                });
+            }
+            //先自调用请求渲染数据
+            render_table(field);
+
+        });
+</script>

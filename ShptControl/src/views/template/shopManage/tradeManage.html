@@ -1,0 +1,150 @@
+<style>
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">首页</a>
+        <a><cite>商城管理</cite></a>
+        <a><cite>线下商家行业管理</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <button type="button" class="layui-btn layui-btn-normal addTrade">添加行业分类</button>
+    <table class="layui-hide" id="tradeTable" lay-filter="tradeTable"></table>
+</div>
+
+<script>
+    layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'table', 'laydate', 'common', 'public'],
+        function () {
+            var $ = layui.$,
+                admin = layui.admin,
+                laydate = layui.laydate,
+                view = layui.view,
+                table = layui.table;
+            IsshowAnNiu = layui.common.IsshowAnNiu;
+            var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+            var brand_status = '1';
+            var cols = []
+            var tool = layui.public.tool;
+
+            $('.addTrade').click(function () {
+                admin.popup({
+                    id: 'addTrade',
+                    title: '添加行业分类',
+                    zIndex: 10000,
+                    area: ['600px', '300px'],
+                    success: function () {
+                        view(this.id).render('/template/shopManage/addTrade', {});
+                    }
+                });
+            })
+            //渲染表格数据
+            var render_table = function () {
+                table.render({
+                    elem: '#tradeTable',
+                    url: layui.setter.requestUrl + 'api.php?c=scope/getScopeList',
+                    where: {
+                        scope_type: '2'
+                    },
+
+                    cols: cols = [
+                        [{
+                                field: 'scope_index',
+                                title: 'ID',
+                                align: 'center',
+                                width: 70,
+                                sort: true
+                            }, {
+                                field: 'scope_name',
+                                title: '行业名称',
+                                align: 'center'
+                            }, {
+                                field: 'num',
+                                align: 'center',
+                                title: '入驻商家数量'
+                            }, {
+                                field: 'add_time',
+                                align: 'center',
+                                title: '创建时间',
+                                templet: function (d) {
+                                    return layui.common.createTime(d.add_time)
+                                }
+                            }, {
+                                field: 'scope_sort',
+                                title: '排序',
+                                align: 'center',
+                                templet: function (d) {
+                                    var div = `<div>
+                                          <input style="text-align:center;width:100px" class="save" type="number" value='${d.scope_sort}'>
+                                          <a class="layui-btn layui-btn-sm layui-btn-danger"  lay-event="saveSort">保存</a>
+                                       </div>`
+                                    return [div]
+                                }
+                            },
+                            {
+                                fixed: 'right',
+                                align: 'center',
+                                title: '操作',
+                                width: 150,
+                                templet: function (d) {
+                                    return `<button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-event = 'edit'>编辑</button>
+                                    <button type="button" class="layui-btn layui-btn-sm" lay-event = 'del'>删除</button>`
+                                }
+                            }
+                        ]
+                    ],
+                    page: true,
+                });
+            }
+            //先自调用请求渲染数据
+            render_table();
+
+
+            table.on('tool(tradeTable)', function (obj) { //注：tool table 是 table  lay-filter="对应的值"
+                var data = obj.data; //获得当前行数据
+                var layEvent = obj.event; //获得 lay-event 对应的值
+                if (layEvent == 'edit') {
+                    admin.popup({
+                        id: 'editBrand',
+                        title: '编辑行业分类',
+                        area: ['600px', '300px'],
+                        success: function () {
+                            view(this.id).render('/template/shopManage/addTrade', data);
+                        }
+                    });
+                } else if (layEvent == 'del') {
+                    tool.delTableLine({
+                        url: 'scope/delScope',
+                        param: {
+                            scope_index: data.scope_index
+                        },
+                        success: function (res) {
+                            table.reload('tradeTable', {
+                                url: layui.setter.requestUrl +
+                                    'api.php?c=scope/getScopeList'
+                            });
+                        }
+                    });
+                } else if (layEvent == 'saveSort') {
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=scope/addEditScopeSort',
+                        data: {
+                            scope_index: data.scope_index,
+                            scope_sort: $(this).siblings('.save').val()
+                        },
+                        success: function (res) {
+                            if (res.code == 0) {
+                                layer.msg(res.msg);
+                                parent.layui.table.reload("tradeTable");
+                            } else {
+                                layer.msg(res.msg);
+                            }
+                        }
+                    })
+                }
+            })
+        });
+</script>

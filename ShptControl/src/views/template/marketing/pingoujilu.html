@@ -1,0 +1,173 @@
+<style>
+    .form {
+        background-color: #fff;
+    }
+    
+    .layui-table-cell {
+        height: auto !important;
+        line-height: 20px !important;
+    }
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <div class="layui-fluid">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto form" lay-filter="app-content-list">
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="width: auto;">激活状态:</label>
+                <div class="layui-input-inline">
+                    <div class="layui-input-inline">
+                        <select name="is_open" class="">
+                            <option value="-1">请选择</option>
+                            <option value="0">否</option>
+                            <option value="1">是</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width: auto;">商品名称:</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="goods_name" class="layui-input" placeholder=" 请输入关键字">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search123">
+                    <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>搜索
+                </button>
+                </div>
+            </div>
+        </div>
+        </form>
+        <table class="layui-hide" id="comm" lay-filter="comm"></table>
+    </div>
+</script>
+<script>
+    layui.data.sendParams = function(params) {
+        console.log(params);
+        layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'table', 'laydate', 'common', 'public', 'form'], function() {
+            var $ = layui.$,
+                admin = layui.admin,
+                laydate = layui.laydate,
+                view = layui.view,
+                table = layui.table,
+                form = layui.form,
+                IsshowAnNiu = layui.common.IsshowAnNiu;
+            var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+            var cols = []
+            var tool = layui.public.tool;
+            var base = new layui.public.Base64();
+            var field = {
+                user_id: params.data.user_id,
+                type: '-1',
+                is_get: '-1',
+                is_open: '-1',
+                goods_name: '',
+            }
+
+
+            form.on('submit(search123)', function(data) {
+                field.is_open = data.field.is_open;
+                field.goods_name = data.field.goods_name;
+                render_table132(field);
+                return false;
+            });
+            form.render()
+
+            //渲染表格数据
+            var render_table132 = function(data) {
+                    cols = [
+                        [{
+                            field: 'area_index',
+                            align: 'center',
+                            type: 'numbers',
+                            title: '拼购ID',
+                        }, {
+                            field: 'district_name',
+                            align: 'center',
+                            title: '地区',
+                            templet: function(d) {
+                                return `
+                                    ${d.province_name}${d.city_name}${d.district_name}
+                                `
+                            }
+                        }, {
+                            field: 'group_name',
+                            align: 'center',
+                            title: '活动标题'
+                        }, {
+                            field: 'goods_name',
+                            align: 'center',
+                            title: '商品名称'
+                        }, {
+                            field: 'goods_icon',
+                            align: 'center',
+                            title: '商品图',
+                            templet: function(d) {
+                                if (d.goods_icon == '') {
+                                    return '暂无'
+                                } else {
+                                    return `<button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-event = 'enlarge'>查看</button>`
+                                }
+                            }
+                        }, {
+                            field: 'group_price',
+                            align: 'center',
+                            title: '拼购价格',
+                            templet: function(d) {
+                                return d.group_price / 100
+                            }
+                        }, {
+                            field: 'is_open',
+                            align: 'center',
+                            title: '激活状态',
+                            templet: function(d) {
+                                return d.is_open == 0 ? '未激活' : '已激活'
+                            }
+                        }, {
+                            field: 'start_time',
+                            align: 'center',
+                            title: '拼团开始时间',
+                            templet: function(d) {
+                                return layui.common.createTime(d.start_time)
+                            }
+                        }, {
+                            field: 'end_time',
+                            align: 'center',
+                            title: '拼团结束时间',
+                            templet: function(d) {
+                                return layui.common.createTime(d.end_time)
+                            }
+                        }, ]
+                    ]
+
+                    table.render({
+                        elem: '#comm',
+                        url: layui.setter.requestUrl + 'api.php?c=group_join/getGroupJoinList',
+                        where: data,
+                        cellMinWidth: 120,
+                        cols: cols,
+                        page: true,
+                        parseData: function(res) {
+                            // $('.wait_count').html('待审核' + '&nbsp;' + res.data.wait_count)
+                            // $('.yyz').html('营业中' + '&nbsp;' + res.data.success_count)
+                            return {
+                                "count": res.count, //解析接口状态
+                                "code": res.code, //解析接口状态
+                                "data": res.data //解析数据列表
+                            };
+                        },
+                    });
+                }
+                //先自调用请求渲染数据
+            render_table132(field);
+            table.on('tool(comm)', function(obj) { //注：tool table 是 table  lay-filter="对应的值"
+                var data = obj.data; //获得当前行数据
+                var layEvent = obj.event; //获得 lay-event 对应的值
+                if (layEvent == 'enlarge') {
+                    data.img = data.goods_icon
+                    tool.lookBigImg(data.img.split(','));
+                }
+            });
+        });
+
+    }
+</script>

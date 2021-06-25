@@ -1,0 +1,176 @@
+<style>
+    .layui-layer-admin .layui-layer-content {
+        padding: 0 20px !important;
+    }
+
+    .baseMsg {
+        display: flex;
+        margin-bottom: 10px;
+    }
+
+    .baseMsg .left {
+        width: 90px;
+        flex-wrap: nowrap;
+    }
+
+    .baseMsg .right {
+        flex: 1;
+    }
+
+    .right img {
+        width: 96px;
+        height: 96px;
+        margin-right: 20px;
+    }
+</style>
+
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+        <ul class="layui-tab-title">
+            <li class="layui-this">基本信息</li>
+            <li>品牌简介</li>
+            <li>品牌历程</li>
+            <li>团队介绍</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <div class="baseMsg">
+                    <div class="left">品牌名称：</div>
+                    <div class="right brand_name"></div>
+                </div>
+                <div class="baseMsg">
+                    <div class="left">品牌logo：</div>
+                    <div class="right brand_logo"></div>
+                </div>
+                <div class="baseMsg">
+                    <div class="left">品牌封面：</div>
+                    <div class="right brand_cover"></div>
+                </div>
+                <div class="baseMsg">
+                    <div class="left">品牌视频：</div>
+                    <div class="right video_url"></div>
+                </div>
+                <div class="baseMsg">
+                    <div class="left">视频封面：</div>
+                    <div class="right video_pic"></div>
+                </div>
+                <!-- <button type="button" class="layui-btn layui-btn-normal layui-btn-lg btnSure" style="display: block;margin: auto;">确定</button> -->
+            </div>
+            <div class="layui-tab-item ">
+                <div class="brand_desp">
+
+                </div>
+            </div>
+            <div class="layui-tab-item brand_history">
+            </div>
+            <div class="layui-tab-item team_des">
+            </div>
+        </div>
+        <form class="layui-form check" action="">
+            <div class="layui-form-item">
+                <label class="layui-form-label">审核状态：</label>
+                <div class="layui-input-block">
+                    <input type="radio" name="type" value="1" title="通过" checked lay-filter="radio">
+                    <input type="radio" name="type" value="2" title="拒绝" lay-filter="radio">
+                </div>
+            </div>
+            <div class="layui-form-item reason" style="display:none">
+                <label class="layui-form-label">拒绝原因：</label>
+                <div class="layui-input-block">
+                    <textarea name="refuse_reason" id="" cols="30" rows="10" placeholder="输入拒绝原因"
+                        style="padding:10px"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item" style="">
+                <div class="layui-input-block" style="width:200px;">
+                    <button type="submit" class="layui-btn" style="width:100%;" lay-submit=""
+                        lay-filter="submit">确定</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</script>
+
+
+<script>
+    layui.data.sendParams = function (params) {
+        layui.use(['admin', 'element', 'public', 'form'], function () {
+            var admin = layui.admin;
+            var form = layui.form;
+            var $ = layui.jquery,
+                element = layui.element;
+            var base = new layui.public.Base64();
+            let img = params.brand_cover.split(',')
+
+            if (params.check) {
+                $('.check').css('display', 'block')
+            } else {
+                $('.check').css('display', 'none')
+            }
+
+            $('.brand_name').html(params.brand_name)
+            $('.brand_logo').append(
+                `<img src="${layui.setter.CDN+params.brand_logo}" alt="">`
+            )
+            img.forEach(item => {
+                $('.brand_cover').append(
+                    `<img src="${layui.setter.CDN+item}" alt="">`
+                )
+            });
+            if (params.video_url != '') {
+                $('.video_url').append(
+                    `<video src="${layui.setter.CDN+params.video_url}" controls="controls" style="width:200px;height:150px"></video>`
+                )
+                $('.video_pic').append(
+                    `<img src="${layui.setter.CDN+params.video_pic}" alt="">`
+                )
+            } else {
+                $('.video_url').append(
+                    `<div>暂无</div>`
+                )
+                $('.video_pic').append(
+                    `<div>暂无</div>`
+                )
+            }
+            $('.brand_desp').html(base.decode(params.brand_desp_base))
+            $('.brand_history').html(base.decode(params.brand_history_base))
+            $('.team_des').html(base.decode(params.team_des_base))
+
+
+            $(".btnSure").click(function () {
+                layer.closeAll()
+            });
+
+
+            form.render()
+            form.on('radio(radio)', function (data) {
+                if (data.value == 2) {
+                    $('.reason').css('display', 'block')
+                } else {
+                    $('.reason').css('display', 'none')
+                }
+            });
+            form.on('submit(submit)', function (data) {
+                if (data.field.type == 2 && data.field.refuse_reason == '') {
+                    layer.msg('请输入拒绝原因');
+                } else {
+                    data.field.brand_index = params.brand_index
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=brand/changeBrand',
+                        data: data.field,
+                        success: function (res) {
+                            if (res.code == 0) {
+                                layer.msg(res.msg);
+                                layer.closeAll();
+                                parent.layui.table.reload("brandTable");
+                            } else {
+                                layer.msg(res.msg);
+                            }
+                        }
+                    })
+                }
+                return false;
+            });
+        })
+    }
+</script>

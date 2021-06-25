@@ -1,0 +1,142 @@
+<style>
+    .layui-table-cell {
+        display: block;
+        height: auto !important;
+        line-height: 20px !important;
+    }
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <table class="layui-hide" id="table" lay-filter="table"></table>
+</script>
+<script>
+    layui.data.sendParams = function (params) {
+        layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'table', 'common', 'public',
+                'form'
+            ],
+            function () {
+                var $ = layui.$,
+                    admin = layui.admin,
+                    laydate = layui.laydate,
+                    view = layui.view,
+                    form = layui.form,
+                    tool = layui.public.tool
+                table = layui.table;
+
+                //渲染表格数据
+                var render_table = function (data) {
+                    table.render({
+                        elem: '#table',
+                        url: layui.setter.requestUrl + 'api.php?c=adspace/AdspaceHistoryList',
+                        method: 'post',
+                        where: {
+                            type: params.type
+                        },
+                        cols: cols = [
+                            [{
+                                field: 'space_index',
+                                title: 'ID',
+                                align: 'center',
+                                sort: true,
+                                width: 90,
+                            }, {
+                                width: 100,
+                                field: 'jump_type',
+                                title: '跳转类型',
+                                align: 'center',
+                                templet: function (d) {
+                                    return d.jump_type == '1' ? '无跳转' : '跳转链接'
+                                }
+
+                            }, {
+                                width: 250,
+                                field: 'parameter',
+                                title: '跳转链接',
+                                align: 'center',
+                                templet: function (d) {
+                                    return d.parameter == '' ? '暂无' : d.parameter
+                                }
+
+                            }, {
+                                width: 80,
+                                field: 'video',
+                                title: '视频',
+                                align: 'center',
+                                templet: function (d) {
+                                    return `<button type="submit" class="layui-btn layui-btn-xs" lay-event = 'enlarge'>查看</button>`
+                                }
+                            }, {
+                                width: 100,
+                                field: 'video_picture',
+                                title: '视频封面',
+                                align: 'center',
+                                templet: function (d) {
+                                    var src = layui.setter.CDN + d.video_picture
+                                    var str =
+                                        `<img src = ${src} style="cursor:pointer;width:30px;height:30px" lay-event = 'enlarge1'></img>`
+                                    return str
+                                }
+                            }, {
+                                width: 250,
+                                field: 'describe',
+                                title: '描述',
+                                align: 'center',
+                            }, {
+                                width: 150,
+                                field: 'browse_count',
+                                title: '浏览次数',
+                                align: 'center',
+                            }, {
+                                width: 150,
+                                field: 'browse_number',
+                                title: '浏览人数（人）',
+                                align: 'center',
+                            }, {
+                                width: 250,
+                                field: 'add_time',
+                                title: '添加时间',
+                                align: 'center',
+                                templet: function (d) {
+                                    return d.add_time == '0' ? '暂无' : layui.common
+                                        .createTime(d.add_time)
+                                }
+                            }, {
+                                width: 100,
+                                field: 'is_reward',
+                                title: '奖励状态',
+                                align: 'center',
+                                templet: function (d) {
+                                    return d.is_reward == '0' ? '开启' : '关闭'
+                                }
+                            }, {
+                                width: 350,
+                                field: 'msg',
+                                title: '奖励规则',
+                                align: 'center',
+                            }, ]
+                        ],
+                        page: true,
+                    });
+                }
+                //先自调用请求渲染数据
+                render_table()
+
+                table.on('tool(table)', function (obj) { //注：tool table 是 table  lay-filter="对应的值"
+                    var data = obj.data; //获得当前行数据
+                    var layEvent = obj.event; //获得 lay-event 对应的值
+                    if (layEvent == 'enlarge1') {
+                        tool.lookBigImg(data.video_picture.split(','));
+                    } else if (layEvent == 'enlarge') {
+                        var src = layui.setter.CDN + data.video
+                        layer.open({
+                            type: 1,
+                            title: '视频',
+                            area: ['600px', '400px'],
+                            shadeClose: true, //点击遮罩关闭
+                            content: `<video src = ${src} style="width:100%;height:100%" controls="controls"></video>`
+                        });
+                    }
+                })
+            })
+
+    }
+</script>

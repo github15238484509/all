@@ -1,0 +1,782 @@
+<style>
+    .ul {
+        width: 100%;
+        height: 100%;
+    }
+    
+    .layui-layer-content {
+        padding: 0 20px;
+    }
+    
+    .layui-table-cell {
+        display: block;
+        height: auto !important;
+        line-height: 20px !important;
+    }
+    
+    .layui-table-view .layui-table {
+        width: 100%;
+    }
+</style>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>图文管理</cite></a>
+        <a><cite>新闻公告管理</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+<!--搜索框部分-->
+<form class="layui-form" style="margin-top:35px;">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">公告类型</label>
+            <div class="layui-input-inline">
+                <select name="type" lay-verify="">
+                    <option value="-1">请选择类型</option>
+                    <option value="1">外部链接</option>
+                    <option value="2">内部编辑</option>
+                </select>
+            </div>
+            <label class="layui-form-label">状态</label>
+            <div class="layui-input-inline">
+                <select name="status" lay-verify="">
+                    <option value="-1">请选择状态</option>
+                    <option value="1">上线</option>
+                    <option value="2">下线</option>
+                </select>
+            </div>
+            <label class="layui-form-label">通知标题</label>
+            <div class="layui-input-inline">
+                <input type="text" name="title" autocomplete="off" class="layui-input search1 layui-input-inline" style="wdith:300px">
+            </div>
+            <button class="layui-btn " lay-submit lay-filter="serach"><i class="layui-icon">&#xe615;</i>搜索</button>
+        </div>
+    </div>
+</form>
+<!--表格-->
+<div style="margin-left: 35px">
+    <button class="layui-btn layui-btn-danger addviews" value='url'>外部链接</button>
+    <button class="layui-btn addviews" value='news'>内部编辑</button>
+    <table class="layui-table" lay-filter="tableData">
+        <thead>
+            <tr>
+                <th lay-data="{field:'id',width:80, align:'center',sort:'true'}">id</th>
+                <th lay-data="{field:'title',width:200, align:'center'}">标题</th>
+                <th lay-data="{field:'pv', width:80,align:'center'}">浏览量</th>
+                <th lay-data="{field:'type',width:176, align:'center',templet:function(row){
+                if(row.type == 1){
+                     return '外部链接';
+                }return '内部编辑';
+         }}">公告类型</th>
+                <th lay-data="{field:'add_time', width:180,align:'center',sort:'true',templet :function (row){
+                        return createTime(row.add_time);
+                    }}">添加时间</th>
+                <th lay-data="{field:'class_name',width:175, align:'center'}">新闻分类</th>
+                <th lay-data="{field:'news_region_name',width:175, align:'center'}">显示位置</th>
+                <th lay-data="{field:'alert',width:90, align:'center',templet:function(row){
+                   if(row.alert == 1){
+                        return '弹窗';
+                   }return '不弹窗';
+            }}">是否弹窗</th>
+                <th lay-data="{field:'content',width:200, align:'center'}">链接</th>
+                <th lay-data="{field:'status',width:80, align:'center',templet:function(row){
+                   if(row.status == 1){
+                        return '上线';
+                   }return '下线';
+            }}">状态</th>
+                <th lay-data="{fixed: 'right',width:200,templet:function(row){
+            var sta = null;
+            if(row.status == 1){
+                sta = '下线';
+            }else{
+                sta = '上线';
+            }
+            var but = `<div>
+                <a class='layui-btn layui-btn-sm layui-btn-danger' lay-event='up'>${sta}</a>
+                <a class='layui-btn layui-btn-sm layui-btn-danger' lay-event='edit'>编辑</a>
+                <a class='layui-btn layui-btn-sm layui-btn-danger' lay-event='view'>预览</a>
+            </div>
+            <div style='margin-top:5px'>
+                <a class='layui-btn layui-btn-sm layui-btn-danger' lay-event='del'>删除</a>
+                <a class='layui-btn layui-btn-sm layui-btn-danger' lay-event='is_alert'>${row.alert=='1'?'取消弹窗':'设置弹窗'}</a></div>`
+            return but;
+            }}">操作</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+<script type="text/javascript">
+    $ = layui.jquery;
+    var token = JSON.parse(localStorage.getItem('ShptMapi')).access_token
+    var tableOptions = {
+        url: layui.setter.requestUrl + "api.php?c=news/newsList", //后端请求数据地址
+        method: 'GET', //方式
+        id: 'tabelReload', //生成table的标识id，必须提供，用于搜索刷新操作
+        page: true, //是否分页
+        limit: 10, //每页显示多少条数据
+        dataType: 'json',
+        where: {
+            access_token: token,
+            type: -1
+        }
+    };
+    layui.use(['form', 'layedit', 'table', 'laydate', 'element', 'layer', 'admin', 'upload', 'common', 'public'],
+        function() {
+            var form = layui.form,
+                layer = layui.layer,
+                table = layui.table,
+                admin = layui.admin,
+                upload = layui.upload,
+                laydate = layui.laydate,
+                tool = layui.public.tool,
+                base = new layui.public.Base64(),
+                layedit = layui.layedit;
+            //构建一个默认的编辑器
+            layedit.set({
+                uploadImage: {
+                    url: layui.setter.requestUrl + 'api.php?c=uploadImg/wbUploadImage&module=news',
+                    type: 'get' //默认post
+                        ,
+                    success: function(res) {
+                        console.log(res.data)
+                    }
+                }
+            });
+            //表格初始化
+            table.init('tableData', tableOptions);
+            form.render()
+                //搜索
+            form.on('submit(serach)', function(data) {
+                table.reload('tabelReload', { //此处是tableOptions里定义的table标识id
+                    where: {
+                        type: data.field.type,
+                        status: data.field.status,
+                        title: data.field.title
+                    },
+                    page: {
+                        curr: 1 //重新从第1页开始
+                    }
+                });
+                return false;
+            });
+            //添加
+            $('.addviews').click(function() {
+                    news_id = undefined;
+                    var type = $(this).val()
+                    if (type == 'url') {
+                        var urlviews = addUrlView({
+                            type: 1,
+                            title: '',
+                            edit_user: '',
+                            intro: '',
+                            content: ''
+                        })
+                        layer.open({
+                            type: 1,
+                            title: '添加外链',
+                            area: ['800px', '700px'],
+                            shadeClose: true, //点击遮罩关闭
+                            content: urlviews,
+                            success: function() {
+                                //前后若干天可选
+                                laydate.render({
+                                    elem: '#test-limit2',
+                                    min: 0,
+                                });
+                                form.render()
+                                    //普通图片上传
+                                var uploadInst = upload.render({
+                                    elem: '#demo1',
+                                    url: layui.setter.requestUrl +
+                                        'api.php?c=uploadImg/uploadImage',
+                                    data: {
+                                        module: 'news'
+                                    },
+                                    before: function(obj) {
+                                        //预读本地文件示例，不支持ie8
+                                        obj.preview(function(index, file, result) {
+                                            $('#demo1').attr('src',
+                                                result); //图片链接（base64）
+                                        });
+                                    },
+                                    done: function(res) {
+                                        console.log(res)
+                                            //如果上传失败
+                                        if (res.code > 0) {
+                                            return layer.msg('上传失败');
+                                        }
+                                        //上传成功
+                                        $('.image').val(res.data)
+                                        return layer.msg(res.msg);
+                                    },
+                                    error: function() {
+                                        //演示失败状态，并实现重传
+                                        var demoText = $('#demoText');
+                                        demoText.html(
+                                            '<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>'
+                                        );
+                                        demoText.find('.demo-reload').on('click',
+                                            function() {
+                                                uploadInst.upload();
+                                            });
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+
+                        var urlviews = addUrlView({
+                            type: 2,
+                            title: '',
+                            edit_user: '',
+                            intro: '',
+                            content: ''
+                        })
+                        layer.open({
+                            type: 1,
+                            title: '内部编辑',
+                            area: ['800px', '700px'],
+                            shadeClose: true,
+                            content: urlviews,
+                            success: function() {
+
+                                //前后若干天可选
+                                laydate.render({
+                                    elem: '#test-limit2',
+                                    min: 0,
+                                });
+                                form.render()
+
+                                eidt_index = layedit.build('demo'); //建立编辑器
+                                form.verify({
+                                    content: function(value) {
+                                        return layedit.sync(eidt_index);
+                                    }
+                                });
+                                var uploadInst = upload.render({
+                                    elem: '#demo1',
+                                    url: layui.setter.requestUrl +
+                                        'api.php?c=uploadImg/uploadImage',
+                                    data: {
+                                        module: 'news'
+                                    },
+                                    before: function(obj) {
+                                        //预读本地文件示例，不支持ie8
+                                        obj.preview(function(index, file, result) {
+                                            $('#demo1').attr('src',
+                                                result); //图片链接（base64）
+                                        });
+                                    },
+                                    done: function(res) {
+                                        //如果上传失败
+                                        if (res.code > 0) {
+                                            return layer.msg('上传失败');
+                                        }
+                                        //上传成功
+                                        $('.image').val(res.data)
+                                        return layer.msg(res.msg);
+                                    },
+                                    error: function() {
+                                        //演示失败状态，并实现重传
+                                        var demoText = $('#demoText');
+                                        demoText.html(
+                                            '<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>'
+                                        );
+                                        demoText.find('.demo-reload').on('click',
+                                            function() {
+                                                uploadInst.upload();
+                                            });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                })
+                //table表格的事件
+            table.on('tool(tableData)', function(obj) { //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
+                var data = obj.data; //获得当前行数据
+                var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+                var tr = obj.tr; //获得当前行 tr 的 DOM 对象（如果有的话）
+                news_id = data.id;
+                if (layEvent === 'del') { //删除
+                    layer.confirm('确定删除么，删除后不可恢复', {
+                        title: '删除'
+                    }, function(index) {
+                        admin.req({
+                            url: layui.setter.requestUrl + 'api.php?c=news/newsStatus',
+                            data: {
+                                id: data.id,
+                                status: 3
+                            },
+                            done: function(res) {
+                                layer.msg(res.msg, {
+                                    icon: 1
+                                });
+                                table.init('tableData', tableOptions);
+                            }
+                        });
+                    });
+                } else if (layEvent === 'edit') { //编辑
+                    console.log(data);
+                    if (data.type == 1) {
+                        var title = '外部链接';
+                    } else if (data.type == 2) {
+                        var title = '内部编辑';
+                    }
+                    var urlviews = addUrlView(data)
+                    layer.open({
+                        type: 1,
+                        title: title,
+                        area: ['800px', '700px'],
+                        shadeClose: true,
+                        content: urlviews,
+                        success: function() {
+                            //前后若干天可选
+                            laydate.render({
+                                elem: '#test-limit2',
+                                min: 0,
+                            });
+                            form.render()
+                            layedit.set({
+                                uploadImage: {
+                                    url: layui.setter.requestUrl +
+                                        'api.php?c=uploadImg/uploadImage&module=news',
+                                    type: 'get' //默认post
+                                        ,
+                                    done: function(res) {
+                                        console.log(res)
+                                    }
+                                }
+                            });
+                            eidt_index = layedit.build('demo'); //建立编辑器
+                            form.verify({
+                                content: function(value) {
+                                    return layedit.sync(eidt_index);
+                                }
+                            });
+                            var uploadInst = upload.render({
+                                elem: '#demo1',
+                                url: layui.setter.requestUrl +
+                                    'api.php?c=uploadImg/uploadImage',
+                                data: {
+                                    module: 'news'
+                                },
+                                before: function(obj) {
+                                    //预读本地文件示例，不支持ie8
+                                    obj.preview(function(index, file, result) {
+                                        $('#demo1').attr('src',
+                                            result); //图片链接（base64）
+                                    });
+                                },
+                                done: function(res) {
+                                    //如果上传失败
+                                    if (res.code > 0) {
+                                        return layer.msg('上传失败');
+                                    }
+                                    //上传成功
+                                    $('.image').val(res.data)
+                                    return layer.msg(res.msg);
+                                },
+                                error: function() {
+                                    //演示失败状态，并实现重传
+                                    var demoText = $('#demoText');
+                                    demoText.html(
+                                        '<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>'
+                                    );
+                                    demoText.find('.demo-reload').on('click',
+                                        function() {
+                                            uploadInst.upload();
+                                        });
+                                }
+                            });
+                        }
+                    });
+                } else if (layEvent === 'up') {
+                    if (data.status == 1) { // 下线操作
+                        var sta = '下线',
+                            status = '2';
+                    } else if (data.status == 2) { // 上线操作+
+                        var sta = '上线',
+                            status = '1';
+                    }
+                    layer.confirm('确定' + sta + '么?', {
+                        title: sta
+                    }, function(index) {
+                        admin.req({
+                            url: layui.setter.requestUrl + 'api.php?c=news/newsStatus',
+                            data: {
+                                id: data.id,
+                                status: status
+                            },
+                            done: function(res) {
+                                layer.msg(res.msg, {
+                                    icon: 1
+                                });
+                                table.init('tableData', tableOptions);
+                            }
+                        });
+                    });
+                } else if (layEvent === 'is_alert') {
+                    if (data.alert == 1) { // 取消弹窗
+                        var sta = '取消弹窗',
+                            alert = '0';
+                    } else if (data.alert == 0) { // 设置弹窗
+                        var sta = '设置弹窗',
+                            status = '1';
+                    }
+                    layer.confirm('确定' + sta + '么?', {
+                        title: sta
+                    }, function(index) {
+                        admin.req({
+                            url: layui.setter.requestUrl + 'api.php?c=news/newsAlertStatus',
+                            data: {
+                                id: data.id
+                            },
+                            done: function(res) {
+                                layer.msg(res.msg, {
+                                    icon: 1
+                                });
+                                table.init('tableData', tableOptions);
+                            }
+                        });
+                    });
+                } else if (layEvent === 'view') {
+                    // tool.lookBigImg(data.region_img_demo.split(','));
+                    if (data.type == '2') {
+                        layer.open({
+                            type: 1,
+                            title: '预览',
+                            area: ['700px', '600px'],
+                            shadeClose: true,
+                            content: `<div>${data.content}</div>`,
+
+                        });
+                    } else {
+                        window.open(data.content);
+                    }
+                }
+            });
+            // 添加/修改提交
+            form.on('submit(formDemo)', function(datas) {
+
+                if (typeof news_id != "undefined") {
+                    datas.field.id = news_id
+                }
+                if (datas.field.status == undefined) { // 上下线状态
+                    datas.field.status = 2
+                } else {
+                    datas.field.status = 1
+                }
+
+                if (datas.field.alert != undefined) { // 弹窗状态
+                    datas.field.alert = 1
+                }
+
+                if (datas.field.edit_user == '') { // 默认编辑者
+                    datas.field.edit_user = JSON.parse(localStorage.getItem('layuiAdmin')).employee_name
+                }
+
+                if (datas.field.time != '') { // 处理上线时间
+                    var date = new Date(datas.field.time)
+                    datas.field.time = Date.parse(date).toString().substr(0, 10)
+                }
+
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=news/newsAdd',
+                    type: 'get',
+                    data: datas.field,
+                    done: function(res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg, {
+                                icon: 1
+                            });
+                            table.init('tableData', tableOptions);
+                            layer.closeAll('page');
+                        } else {
+                            layer.msg(res.msg, {
+                                icon: 5
+                            });
+                        }
+                    }
+                });
+
+                return false;
+            })
+
+            // 添加/修改视图 
+            function addUrlView(data) {
+
+                var classList = getClassList() // 分类列表渲染
+                var classOption = '';
+                classList.forEach(element => {
+                    if (element.id == data.class) {
+                        classOption +=
+                            `<option value="${element.id}" selected>${element.news_class_name}</option>`
+                    } else {
+                        classOption += `<option value="${element.id}">${element.news_class_name}</option>`
+                    }
+                });
+
+
+                var regionList = getRegionList() // 位置列表渲染
+                var regionOption = '';
+                regionList.forEach(element => {
+                    if (element.id == data.region) {
+                        regionOption +=
+                            `<option value="${element.id}" selected>${element.news_region_name}</option>`
+                    } else {
+                        regionOption += `<option value="${element.id}">${element.news_region_name}</option>`
+                    }
+                });
+
+                if (data.status == 1) {
+                    var sta = "checked"
+                }
+
+                if (data.alert == 1) {
+                    var alert = "checked"
+                }
+
+                if (data.image) {
+                    var src = layui.setter.CDN + data.image
+                } else {
+                    var src = '';
+                }
+
+                if (data.type == 1) {
+                    var view = `<form class="layui-form" style="margin-top: 20px;width: 600px">
+            <input type="hidden" name="type" value="${data.type}">
+                        <div class="layui-form-item">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">是否上线</label>
+                                <div class="layui-input-inline"  style="width:100px;">
+                                    <input type="checkbox" name="status" lay-skin="switch" ${sta}>
+                                </div>
+                                <label class="layui-form-label" style="width:100px;">是否弹窗提醒</label>
+                                <div class="layui-input-inline" >
+                                    <input type="checkbox" name="alert" lay-skin="switch" ${alert}>
+                                </div>
+                            </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">显示位置</label>
+                        <div class="layui-input-block">
+                            <select name="region" lay-verify="required">
+                                <option value=""></option>
+                                ${regionOption}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">新闻分类</label>
+                        <div class="layui-input-block">
+                            <select name="class" lay-verify="required">
+                                <option value=""></option>
+                                ${classOption}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">标题</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="title" value="${data.title}" required  lay-verify="required" placeholder="建议20个字以内" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">编辑者</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="edit_user" value="${data.edit_user}" placeholder="不填写默认登陆账号" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item layui-form-text">
+                        <label class="layui-form-label">简介概要</label>
+                        <div class="layui-input-block">
+                            <textarea name="intro" placeholder="简介用于首页推荐弹出公告内容" class="layui-textarea">${base.decode(data.intro)}</textarea>
+                        </div>
+                    </div>
+                    <div class="layui-form-item layui-form-text">
+                        <label class="layui-form-label">封面图片</label>
+                        <div class="layui-upload">
+                            <div class="layui-upload-list">
+                                <input type="hidden" name="image" value="${data.image}" lay-verify="required"  class="layui-input image">
+                                <img class="layui-upload-img" src="${src?src:'../src/images/upImg.png'}"  id="demo1" style="width:253px;height:83px;background:#ccc">
+                                <p id="demoText"></p>
+                            </div>
+                            
+                        </div>  
+                    </div>
+                    <div class="layui-form-item layui-form-text">
+                        <label class="layui-form-label"></label>
+                        <div style="color:rgba(212, 48, 48, 1);display:inline-block">
+                            <p>1.图片尺寸为690*276，比例位5：2</p>
+                            <p>2.上传图片不大于1M</p>
+                            <p>3.支持png、jpg格式</p>
+                            <p>4.注意保持图片清晰</p>
+                            <p>5.图片分辨率需大于1024*768以上</p>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">链接url</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="content" value="${data.content}" required  lay-verify="required" placeholder="如：http://www.baidu.com" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item layui-form-text">
+                        <label class="layui-form-label"></label>
+                        <div style="color:rgba(212, 48, 48, 1);display:inline-block">
+                            提示：可跳转到此链接
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">上线时间</label>
+                        <div class="layui-input-block">
+                            <input type="text" class="layui-input" id="test-limit2" value="${createTime(data.time).substr(0,10)}" placeholder="请选择上线时间">
+                        </div>
+                    </div>
+                    <div style="padding-bottom: 10px;text-align:center;margin-top:30px">
+                        <button class="layui-btn" lay-submit lay-filter="formDemo">提交</button>
+                    </div>
+                    </form>`;
+                } else if (data.type == 2) {
+                    var view = `<form class="layui-form" style="margin-top: 20px;width: 600px">
+            <input type="hidden" name="type" value="${data.type}">
+                        <div class="layui-form-item">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">是否上线</label>
+                                <div class="layui-input-inline"  style="width:100px;">
+                                    <input type="checkbox" name="status" lay-skin="switch"  ${sta}>
+                                </div>
+                                <label class="layui-form-label" style="width:100px;">是否弹窗提醒</label>
+                                <div class="layui-input-inline" >
+                                    <input type="checkbox" name="alert" lay-skin="switch" ${alert}>
+                                </div>
+                            </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">显示位置</label>
+                        <div class="layui-input-block">
+                            <select name="region" lay-verify="required">
+                                <option value=""></option>
+                                ${regionOption}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">内容分类</label>
+                        <div class="layui-input-block">
+                            <select name="class" lay-verify="required">
+                                <option value=""></option>
+                                ${classOption}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">新闻标题</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="title" required value="${data.title}" lay-verify="required" placeholder="建议20个字以内" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">新闻作者</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="edit_user" value="${data.edit_user}" placeholder="默认登陆账号" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item layui-form-text">
+                        <label class="layui-form-label">公告简介</label>
+                        <div class="layui-input-block">
+                            <textarea name="intro" placeholder="简介用于首页推荐弹出公告内容" class="layui-textarea">${base.decode(data.intro)}</textarea>
+                        </div>
+                    </div>
+                    <div class="layui-form-item layui-form-text">
+                        <label class="layui-form-label">封面图片</label>
+                        <div class="layui-upload">
+                            <div class="layui-upload-list">
+                                <input type="hidden" name="image" value="${data.image}" lay-verify="required"  class="layui-input image">
+                                <img class="layui-upload-img" src="${src?src:'../src/images/upImg.png'}" id="demo1" style="width:253px;height:83px;background:#ccc">
+                                <p id="demoText"></p>
+                            </div>
+                        </div>  
+                    </div>
+                    <div class="layui-form-item layui-form-text">
+                        <label class="layui-form-label"></label>
+                        <div style="color:rgba(212, 48, 48, 1);display:inline-block">
+                            <p>1.图片尺寸为690*276，比例位5：2</p>
+                            <p>2.上传图片不大于1M</p>
+                            <p>3.支持png、jpg格式</p>
+                            <p>4.注意保持图片清晰</p>
+                            <p>5.图片分辨率需大于1024*768以上</p>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">公告内容</label>
+                        <div class="layui-input-block">
+                            <textarea id="demo" style="display: none;" name="content" lay-verify="content" >${data.content}</textarea>
+                        </div>  
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">上线时间</label>
+                        <div class="layui-input-block">
+                            <input type="text" class="layui-input" id="test-limit2" value="${createTime(data.time).substr(0,10)}" placeholder="请选择上线时间">
+                        </div>
+                    </div>
+                    <div style="padding-bottom: 10px;text-align:center;margin-top:30px">
+                        <button class="layui-btn" lay-submit lay-filter="formDemo">提交</button>
+                    </div>
+                    </form>`;
+                }
+
+                return view
+            }
+
+
+            // 获取分类列表
+            function getClassList() {
+                classList = '';
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=news/news_class/getNewsClassList',
+                    type: 'get',
+                    async: false,
+                    data: {
+                        type: 1
+                    },
+                    done: function(res) {
+                        classList = res.data
+                    }
+                });
+                return classList;
+            }
+            // 获取位置列表
+            function getRegionList() {
+                regionList = '';
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=news/news_region/getNewsRegionList',
+                    type: 'get',
+                    async: false,
+                    data: {
+                        type: 1
+                    },
+                    done: function(res) {
+                        regionList = res.data
+                    }
+                });
+                return regionList;
+            }
+
+        });
+
+    // 时间戳转换
+    function createTime(v) {
+        console.log(v);
+        if (v > 0) {
+            return layui.common.createTime(v);
+        }
+        return '';
+    }
+    layui.use('checkTask', layui.factory('checkTask'));
+</script>

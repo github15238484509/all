@@ -1,0 +1,69 @@
+<style>
+    .layui-table-cell {
+        display: block;
+        height: auto !important;
+        line-height: 20px !important;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">首页</a>
+        <a><cite>营销管理</cite></a>
+        <a><cite>限量抢购</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+<div class="layui-tab layui-tab-brief" lay-filter="tab">
+    <ul class="layui-tab-title">
+        <li class="layui-this status1">即将开始</li>
+        <li class="status2">进行中</li>
+        <li class="status3">已抢完</li>
+        <li class="status4">已下架</li>
+    </ul>
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto form" style="background: #fff;margin:10px 0">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">商户名称：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="supplier_name" style="width:200px;" autocomplete="off" placeholder="请输入内容"
+                        class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:85px">商品名称：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="goods_name" style="width:200px;" autocomplete="off" placeholder="请输入内容"
+                        class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search">
+                    搜索
+                </button>
+            </div>
+        </div>
+    </div>
+    <div style="padding: 0 20px;">
+        <button class="layui-btn layuiadmin-btn-list addGoods">添加限量抢购商品</button>
+        <button class="layui-btn layuiadmin-btn-list down_more">批量下架</button>
+    </div>
+    <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show">
+            <table class="layui-hide" id="limitTable1" lay-filter="limitTable1"></table>
+        </div>
+        <div class="layui-tab-item">
+            <table class="layui-hide" id="limitTable2" lay-filter="limitTable2"></table>
+        </div>
+        <div class="layui-tab-item">
+            <table class="layui-hide" id="limitTable3" lay-filter="limitTable3"></table>
+        </div>
+        <div class="layui-tab-item">
+            <table class="layui-hide" id="limitTable4" lay-filter="limitTable4"></table>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    layui.use('LimitPurchase', layui.factory('LimitPurchase'));
+</script>

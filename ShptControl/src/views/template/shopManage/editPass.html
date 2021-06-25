@@ -1,0 +1,71 @@
+
+
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <div class="layui-form" style="margin-top:20px;">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:150px">输入新密码：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="pwd" lay-verify="required" style="width:200px;"  autocomplete="off" placeholder="请输入内容" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:150px">确认新密码：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="re_pwd" lay-verify="required" style="width:200px;"  autocomplete="off" placeholder="请输入内容" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item" style="margin-top:30px;text-align: center;">
+            <div class="layui-inline">
+                <button class="layui-btn layui-btn-lg" lay-submit lay-filter="sure">
+                    确定
+                </button>
+            </div>
+        </div>
+    </div>
+
+</script>
+   
+
+<script>
+    layui.data.sendParams = function (params) {
+        layui.use(['admin','element','form','md5'], function () {
+            var admin = layui.admin;
+            var form = layui.form,
+            MD5 = layui.md5;
+            var $ = layui.jquery,element = layui.element;
+            
+            form.on('submit(sure)', function(data){
+                if(data.field.pwd!=data.field.re_pwd){
+                    layer.msg('两次密码不一样')
+                    return false;
+                }
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=supplier/resetSupplier',
+                    data: {
+                        supplier_id:params.supplier_id,
+                        pwd:MD5(data.field.pwd),
+                        re_pwd:MD5(data.field.re_pwd)
+                    },
+                    success: function (res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg);
+                            layer.closeAll();
+                            parent.layui.table.reload("shopTable2");
+                        } else {
+                            layer.msg(res.msg);
+                        }
+                    }
+                })
+                return false;
+            }); 
+
+        })
+    }
+    
+    
+
+</script>

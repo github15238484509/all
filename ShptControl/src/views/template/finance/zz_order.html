@@ -1,0 +1,453 @@
+<style>
+    .ul_record {
+        margin-left: 60px;
+    }
+
+    .li_record {
+        width: 300px;
+        display: flex;
+        padding: 10px;
+        background-color: pink;
+    }
+
+    .word_record {
+        margin-left: 20px;
+    }
+
+    .money_record {
+        margin-top: 18px;
+    }
+
+    .layui-table-cell {
+        height: 55px;
+    }
+
+    .layui-laypage-limits {
+        display: none !important;
+    }
+
+    .layui-table {
+        margin: auto !important;
+    }
+
+    .layui-table-view,
+    .layui-table-header {
+        border: none !important;
+    }
+
+    .layui-table-cell {
+        height: auto;
+        overflow: visible;
+        text-overflow: inherit;
+        white-space: normal;
+    }
+
+    .color1 {
+        color: rgba(255, 87, 51, 1);
+    }
+
+    .color2 {
+        color: rgba(165, 214, 63, 1);
+    }
+
+    .color3 {
+        color: rgba(121, 72, 234, 1);
+    }
+
+    .wordStatus {
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        font-size: 18px;
+        transform: rotate(20deg);
+    }
+
+    .right {
+        border-left: 1px solid #ccc;
+        padding-left: 80px;
+        width: 100%;
+    }
+
+    .wordStatus1 {
+        position: absolute;
+        right: 100px;
+        top: 358px;
+        color: rgba(165, 214, 63, 1);
+        font-size: 24px;
+    }
+
+    .title {
+        color: rgba(80, 80, 80, 1);
+        font-size: 16px;
+        font-weight: bold;
+        margin: 20px 0;
+    }
+
+    .title1 {
+        color: rgba(80, 80, 80, 1);
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .member p {
+        margin: 10px 0 15px 0;
+    }
+
+    .member p:last-child {
+        margin-bottom: 0;
+    }
+
+    .fk_msg div {
+        margin-left: 30px;
+        margin-bottom: 10px;
+    }
+
+    .zz_img {
+        width: 120px;
+        height: 104px;
+        margin-left: 30px;
+        cursor: pointer;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>财务管理</cite></a>
+        <a><cite>转账充值订单</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+
+<form class="layui-form" style="background:#fff;margin:10px 0;padding:10px 0 0 0">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">搜索类型：</label>
+            <div class="layui-input-inline">
+                <select name="searchType" lay-filter="type">
+                    <option value="0">全部</option>
+                    <option value="3">支付宝</option>
+                    <option value="5">银联</option>
+                    <option value="1">手机号</option>
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <input type="text" name="searchInfo" placeholder="请输入所查询内容" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">转账时间：</label>
+            <div class="layui-input-inline">
+                <input type="text" name="time" class="layui-input" id="test" placeholder=" 开始时间-结束时间 ">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">转账类型：</label>
+            <div class="layui-input-inline">
+                <select name="trans_type" lay-filter="status">
+                    <option value="-1">全部</option>
+                    <option value="1">支付宝</option>
+                    <option value="0">银联</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">状态：</label>
+            <div class="layui-input-inline">
+                <select name="trans_status" lay-filter="status">
+                    <option value="-1">全部</option>
+                    <option value="0">待审核</option>
+                    <option value="1">审核通过</option>
+                    <option value="2">已驳回</option>
+                </select>
+            </div>
+        </div>
+        <button class="layui-btn layui-btn-danger" lay-submit lay-filter="search_order">查询</button>
+    </div>
+</form>
+<div style="display: flex;">
+    <div style="padding: 0 30px;min-width:400px">
+        <table class="layui-hide" id="table_order" lay-filter="table_order"></table>
+    </div>
+    <div class="right">
+
+    </div>
+</div>
+<script>
+    layui.use(['element', 'table', 'form', 'upload', 'laypage', 'layer', 'laydate'], function () {
+        var setter = layui.setter,
+            $ = layui.jquery,
+            admin = layui.admin,
+            upload = layui.upload,
+            laypage = layui.laypage,
+            layer = layui.layer,
+            element = layui.element,
+            table = layui.table,
+            form = layui.form,
+            laydate = layui.laydate;
+        var trans_id = ''
+        //初始化表单
+        form.render()
+        //定义搜索数据
+        var field = {
+            searchType: '0',
+            searchInfo: '',
+            trans_status: '-1', //状态
+            trans_type: '-1', //类型
+            timeFrom: '',
+            timeTo: ''
+        }
+        //日期格式化
+        laydate.render({
+            elem: '#test',
+            range: true,
+            format: 'yyyy/MM/dd',
+            done: function (value, date, endDate) {
+
+            }
+        });
+        //监听搜索
+        form.on('submit(search_order)', function (data) {
+            if (data.field.time != '') {
+                data.field.timeFrom = data.field.time.split('-')[0].trim()
+                var date = new Date(data.field.timeFrom);
+                data.field.timeFrom = date.getTime() / 1000
+                data.field.timeTo = data.field.time.split('-')[1].trim()
+                var date = new Date(data.field.timeTo);
+                data.field.timeTo = date.getTime() / 1000
+                delete data.field.time
+            } else {
+                delete data.field.time
+                data.field.timeFrom = ''
+                data.field.timeTo = ''
+            }
+            render_table(data.field);
+            return false;
+        });
+        //渲染表格数据
+        var render_table = function (data) {
+            table.render({
+                elem: '#table_order',
+                url: layui.setter.requestUrl + 'api.php?c=finance/transList',
+                where: data,
+                cols: [
+                    [{
+                        field: 'photo',
+                        width: '90',
+                        templet: function (d) {
+                            var src = layui.setter.CDN + d.photo
+                            var str =
+                                `<img src = ${src} style="cursor:pointer;width:50px;height:50px"></img>`
+                            return str
+                        }
+                    }, {
+                        // field: 'card_holder',
+                        width: '300',
+                        templet: function (d) {
+                            var status = d.trans_status
+                            var status_word = ''
+                            if (status == '0') {
+                                status_word = '待审核'
+                            } else if (status == '1') {
+                                status_word = '审核通过'
+                            } else {
+                                status_word = '驳回'
+                            }
+                            var str =
+                                `<div>收款人姓名：${d.name}</div>
+                                            <div>收款人账号：${d.trans_card}</div>
+                                            <div>充值金额：${d.amount}</div>
+                                             <div class="wordStatus ${d.status=='0' ? 'color1': status=='1' ? 'color2' :'color3'}">${status_word}</div>`
+                            return str
+                        }
+                    }]
+                ],
+                page: true,
+                layout: ['page', 'count', 'skip'],
+                done: function (res, curr, count) {
+                    if (res.data.length > 0) {
+                        rightRender(res.data[0]);
+                    } else {
+                        $('.right').empty()
+                    }
+
+                    $('.layui-table .layui-table-cell > span').css({
+                        'font-weight': 'bold'
+                    }); //表头字体样式
+                    $('th').hide(); //表头隐藏的样式
+                    $('.layui-table-page').css('margin-top', '40px'); //页码部分的高度调整
+                }
+            });
+        }
+        render_table(field);
+
+        table.on('row(table_order)', function (obj) {
+            //标注选中样式
+            obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+            rightRender(obj.data);
+
+        });
+
+        function rightRender(data) {
+            var status = data.trans_status
+            trans_id = data.trans_id
+            $('.right').empty()
+            $('.right').append(`
+                    <div class="title">会员信息:</div>
+                    <div style="display: flex;">
+                        <div style="margin: 0 30px;">
+                            <img src=${layui.setter.CDN + data.photo} style="width: 80px;height:80px">
+                            <p style="text-align: center;margin-top: 5px;">${data.name}</p>
+                        </div>
+                        <div class="member">
+                            <p><span style="margin-right: 30px;">会员级别：${data.rank_name}</span>当前余额：${data.cash/100}元</p>
+                            <p><span style="margin-right: 30px;">手机号：${data.phone}</span>推荐人：${data.referrer}</p>
+                            <p>注册时间：${layui.common.createTime(data.regtime)}</p>
+                        </div>
+                    </div>
+                    <div class="title">收款账号信息:</div>
+                    <div class="member">
+                        <p><span style="margin: 0 30px;">收款人姓名：${data.name}</span><span style="margin-right: 30px;">收款人账号：1235664  </span>开户行：支付宝</p>
+                    </div>
+                    <div class="title">付款方信息:</div>
+                    <div class="fk_msg">
+                        <div>充值金额：${data.amount/100}元</div>
+                        <div>付款金额：${data.amount/100}元</div>
+                        <div>付款人姓名：${data.trans_name}</div>
+                        <div>付款银行：${data.trans_bank}</div>
+                        <div>付款账号：${data.trans_card}</div>
+                        <div>转账说明：${data.remark}</div>
+                        <div>转账凭证：<img src = ${layui.setter.CDN + data.trans_vouchar} class="zz_img"></img></div>
+                    </div>
+                    <div class="title">审核操作:</div>
+                `)
+            if (status == '0') {
+                $('.right').append(`
+                            <div style="height: 40px;line-height: 40px;margin-bottom:10px" class="choose1">
+                                <div class="layui-inline title1">选择一:</div>
+                                <div class="layui-inline">
+                                    <label class="layui-form-label" style="line-height: 25px;width:60px">驳回原因</label>
+                                    <div class="layui-input-inline">
+                                        <input type="text" placeholder="请输入驳回申请原因" autocomplete="off" class="layui-input searchInfo">
+                                    </div>
+                                    <button class="layui-btn layui-btn-danger reject" style="margin-left:20px">驳回申请（未到账）</button>
+                                </div>
+                            </div>
+                            <div style="height: 40px;line-height: 40px;margin-bottom:10px" class="choose1">
+                                <div class="layui-inline title1">选择二:</div>
+                                <div class="layui-inline" style="margin-left:20px">
+                                    <input type="checkbox" style="margin-right:10px" class="checked" value="1"/>确认收款账号已收到对应款项，确认后款项将增加到用户余额
+                                </div>
+                            </div>
+                            <button class="layui-btn layui-btn-normal submit" style="margin:30px 30px 30px 87px">确认已收到此款项</button>
+                        `)
+            } else if (status == '1') {
+                $('.right').append(`
+                            <div style="height: 40px;line-height: 40px;margin-bottom:10px" class="choose1">
+                                <div class="layui-inline title1">选择二:</div>
+                                <div class="layui-inline" style="margin-left:20px">
+                                    <input type="checkbox" checked disabled style="margin-right:10px"/>确认收款账号已收到对应款项，确认后款项将增加到用户余额
+                                </div>
+                            </div>
+                        `)
+            } else {
+                $('.right').append(`
+                        <div style="height: 40px;line-height: 40px;margin-bottom:10px" class="choose1">
+                            <div class="layui-inline title1">选择一:</div>
+                            <div class="layui-inline">
+                                <label class="layui-form-label" style="line-height: 25px;width:67px">驳回原因</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" value=${data.reason} disabled class="layui-input searchInfo">
+                                </div>
+                            </div>
+                        </div>
+                    `)
+            }
+            $('.zz_img').click(function () {
+                layer.open({
+                    type: 1,
+                    title: false,
+                    closeBtn: 0,
+                    area: ['auto'],
+                    skin: 'layui-layer-nobg', //没有背景色
+                    shadeClose: true,
+                    content: `<img src = ${layui.setter.CDN + data.trans_vouchar} style="width:700px;height:500px"></img>`
+                });
+            })
+
+        }
+        //驳回申请
+        $('.right').on('click', '.reject', function () {
+            var reason = $('.searchInfo').val()
+            if (reason != '') {
+                layer.confirm('确定驳回？', {
+                    btn: ['确定', '取消'] //按钮
+                }, function (a, index) {
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=finance/transTo',
+                        data: {
+                            trans_id: trans_id,
+                            status: '2',
+                            reason: reason
+                        },
+                        success: function (res) {
+                            if (res.code == '0') {
+                                layer.msg('驳回成功')
+                                layer.close(index)
+                            }
+                        }
+                    })
+                }, function (a, index) {
+                    layer.close(index)
+                });
+            } else {
+                layer.msg('请输入驳回原因')
+            }
+        });
+        // 提交保存
+        $('.right').on('click', '.submit', function () {
+            var flag = $('.checked').is(":checked");
+            if (flag == true) {
+                layer.open({
+                    type: 1,
+                    title: '请输入操作密码',
+                    area: ['300px', '180px'],
+                    content: '<input type="password" placeholder="请输入密码"  class="layui-input psd" style="margin:20px;width:200px">',
+                    btn: ['确定', '取消'],
+                    yes: function (index, layero) {
+                        //获取输入框里面的值
+                        var closeContent = $(".psd").val();
+                        if (closeContent) {
+                            admin.req({
+                                url: layui.setter.requestUrl +
+                                    'api.php?c=finance/transTo',
+                                data: {
+                                    trans_id: trans_id,
+                                    status: '1',
+                                    reason: '',
+                                    md5_pwd: closeContent
+                                },
+                                success: function (res) {
+                                    if (res.code == 0) {
+                                        layer.msg('提交成功')
+                                        layer.close(index);
+                                    }
+                                }
+                            })
+                        } else {
+                            layer.msg('请输入操作密码')
+                        }
+
+                    },
+                    no: function (index, layero) {
+                        layer.close(index);
+                    }
+                });
+            } else {
+                layer.msg('请选择确认')
+            }
+        });
+    })
+    layui.use('checkTask', layui.factory('checkTask'));
+</script>

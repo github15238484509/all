@@ -1,0 +1,256 @@
+<style>
+.form .layui-input-inline{
+    width: 400px;
+}
+.delVideo{
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    top: -10px;
+    right: -10px;
+    cursor: pointer;
+}
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <form class="layui-form form" style="margin-top: 20px;width: 600px">
+        <div class="layui-form-item">
+            <div class="layui-form-item">
+                <label class="layui-form-label">是否上线</label>
+                <div class="layui-input-inline status">
+                    <input type="checkbox" name="status" lay-skin="switch">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">显示位置</label>
+            <div class="layui-input-inline">
+                <select name="region" lay-verify="required" class="local1">
+
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">帮助分类</label>
+            <div class="layui-input-inline">
+                <select name="class" lay-verify="required" class="helpClass">
+
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">帮助标题</label>
+            <div class="layui-input-inline">
+                <input type="text" name="title" value="{{d.params.title || ''}}" placeholder="输入内容" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">内容作者</label>
+            <div class="layui-input-inline">
+                <input type="text" name="edit_user" value="{{d.params.edit_user || ''}}" placeholder="输入内容" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">上传视频</label>
+            <div class="layui-upload layui-input-inline" style="width:240px;position:relative">
+                <img src="../src/images/upImg.png" id="test" style="width:230px;height:96px;cursor:pointer"></img>
+                <video src="" controls="controls" style="width:230px;height:96px;display:none" class="video"></video>
+                <div class="delVideo" style="display:none">×</div>
+            </div>
+            <div style="color:rgba(212, 48, 48, 1);display:inline-block">
+                <p>1.建议视频比例为16：9</p>
+                <p>2.大小不超过20M </p>
+            </div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">上传封面</label>
+            <div class="layui-upload layui-input-inline" style="width:240px">
+                <img src="../src/images/upImg.png" id="test1" style="width:230px;height:96px;cursor:pointer"></img>
+            </div>
+            <div style="color:rgba(212, 48, 48, 1);display:inline-block">
+                <p>1.建议图片尺寸:690*276</p>
+                <p>2.上传图片不大于5M </p>
+            </div>
+        </div>
+        <div style="padding-bottom: 10px;text-align:center;margin-top:30px">
+            <button class="layui-btn" lay-submit lay-filter="formDemo">提交</button>
+        </div>
+    </form>
+</script>
+<script>
+     
+    layui.data.sendParams = function (params) {
+        layui.use(['admin', 'element', 'view', 'form', 'public','upload','laydate'], function () {
+            var $ = layui.$;
+            var admin = layui.admin;
+            var element = layui.element;
+            var view = layui.view;
+            var form = layui.form;
+            var laydate  = layui.laydate ;
+            var upload = layui.upload;
+            var public = layui.public;
+            var tool = layui.public.tool;
+            var xmSelect = layui.xmSelect;
+            var tagNames=[],
+            video_cover='',
+            video_url=''
+            if(params.id){
+                $('.status').empty()
+                if(params.status=='2'){
+                    $('.status').append(`<input type="checkbox" name="status" lay-skin="switch" lay-text="ON|OFF">`)
+                }else{
+                    $('.status').append(`<input type="checkbox" name="status" lay-skin="switch" lay-text="ON|OFF" checked="">`)
+                }
+                $('.delVideo').css('display','block')
+                $('.video').css('display','block')
+                $('#test').css('display','none')
+                $('#test1').attr('src',layui.setter.CDN+params.video_cover)
+                $('.video').attr('src',layui.setter.CDN+params.video_url)
+                video_url=params.video_url
+                video_cover=params.video_cover
+            }
+            //显示位置
+            admin.req({
+                url:layui.setter.requestUrl+'api.php?c=help/help_region/getHelpRegionList',
+                success:function(res){
+                    if(res.code==0){
+                        $('.local1').empty()
+                        $('.local1').append(`<option value="">请选择</option>`)
+                        var dataList = res.data
+                        dataList.forEach(items => {
+                            if(params.region==items.id){
+                                $('.local1').append(`
+                                    <option value="${items.id}" selected>${items.help_region_name}</option>
+                                `)
+                            }else{
+                                $('.local1').append(`
+                                    <option value="${items.id}">${items.help_region_name}</option>
+                                `)
+                            }
+                        });
+                        layui.form.render("select");
+                    }
+                }
+            })
+            //显示分类
+            admin.req({
+                url:layui.setter.requestUrl+'api.php?c=news/news_class/getNewsClassList',
+                data: {
+                    type: '2'
+                }
+                ,success:function(res){
+                    if(res.code==0){
+                        $('.helpClass').empty()
+                        $('.helpClass').append(`<option value="">请选择</option>`)
+                        res.data.forEach(items => {
+                            if(params.class==items.id){
+                                $('.helpClass').append(`
+                                    <option value="${items.id}" selected>${items.news_class_name}</option>
+                                `)
+                            }else{
+                                $('.helpClass').append(`
+                                    <option value="${items.id}">${items.news_class_name}</option>
+                                `)
+                            }
+                        });
+                        layui.form.render("select");
+                    }
+                }
+            })
+
+            form.render()
+            // 上传视频
+            public.uploadVideo({
+                elem:'#test',
+                url:layui.setter.requestUrl + 'api.php?c=uploadImg/uploadImage',
+                data:{
+                    module:'video',
+                },
+                getTimes:function(time){
+                     console.log(time); //对象
+                 },
+               done:function(res, index, upload){
+                    video_url=res.data
+                    $('#test').css('display','none')
+                    $('.video').css('display','block')
+                    $('.video').attr('src',layui.setter.CDN+res.data)
+                    $('.delVideo').css('display','block')
+                } 
+          })
+          $('.delVideo').click(function(){
+            video_url=''
+                $('#test').css('display','block')
+                $('.video').css('display','none')
+                $('.delVideo').css('display','none')
+          })
+            //上传封面
+            upload.render({
+                elem: '#test1'
+                ,url: layui.setter.requestUrl + 'api.php?c=uploadImg/uploadImage' //改成您自己的上传接
+                ,multiple: false
+                ,data:{
+                    module: ''
+                }
+                ,before: function(obj){
+                    //预读本地文件示例，不支持ie8
+                    obj.preview(function(index, file, result){
+                        $('#test1').attr('src',result)
+                    });
+                }
+                ,done: function(res){
+                    //上传完毕
+                    if(res.code==0){
+                        layer.msg('上传成功')
+                        video_cover = res.data
+                    }else{
+                        layer.msg('上传失败')
+                    }
+                }
+            });
+            form.on('submit(formDemo)',function(data){
+                if(video_url == ''){
+                    layer.msg('请上传轮播视频')
+                    return false;
+                }else if(video_cover == ''){
+                    layer.msg('请上传轮播视频封面图')
+                    return false;
+                }else{
+                    var data = data.field
+                    delete data.file
+                    if(params.id){
+                        data.id=params.id
+                    }
+                    data.video_cover = video_cover;
+                    data.video_url = video_url;
+                    data.type = '2';
+                    data.help_des=''
+                    data.help_content=''
+                    if(data.status=='on'){
+                        data.status = '1'
+                    }else{
+                        data.status = '2'
+                    }
+                    admin.req({
+                        url:layui.setter.requestUrl+'api.php?c=help/addHelp',
+                        type:'POST',
+                        data:data,
+                        success:function(res){
+                            if(res.code==0){
+                                layer.msg(res.msg,{icon:1})
+                                layer.closeAll()
+                                parent.layui.table.reload("table1");
+                            }
+                        }
+                    })
+                    return false;
+
+                }
+            })
+
+        })
+
+    }
+</script>

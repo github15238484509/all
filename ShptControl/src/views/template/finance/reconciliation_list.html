@@ -1,0 +1,230 @@
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>财务管理</cite></a>
+        <a><cite>每日对账管理</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="app-content-list">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">日期筛选</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="time" class="layui-input" id="test1" placeholder=" 开始时间-结束时间 ">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">对账状态</label>
+                    <div class="layui-input-inline">
+                        <select name="verify_status">
+                            <option value="">全部</option>
+                            <option value="1">已对账</option>
+                            <option value="0">未对账</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="searchReconciliate">
+                        <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>查询
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <table class="layui-hide" id="table" lay-filter="table"></table>
+</div>
+<script type="text/html" id="operation">
+    <!-- <a class="layui-btn layui-btn-danger" lay-event="mark" style="height:28px;line-height:28px">标记</a> -->
+    {{#  if(d.verify_status == 0){ }}
+<a class="layui-btn layui-btn-danger" lay-event="mark" style="height:28px;line-height:28px">标记</a>
+{{#  }else{ }}
+<a class="layui-btn" style="height:28px;line-height:28px;background-color:rgba(166, 166, 166, 1)!important">标记</a>
+{{#  } }}
+</script>
+
+<script>
+    layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'table', 'laydate', 'common'],
+        function () {
+            var $ = layui.$,
+                admin = layui.admin,
+                laydate = layui.laydate,
+                view = layui.view,
+                table = layui.table,
+                form = layui.form,
+                IsshowAnNiu = layui.common.IsshowAnNiu;
+            var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+            form.render();
+            var field = {
+                verify_status: '', //对账状态
+                timeFrom: '',
+                timeTo: '',
+            }
+            //日期范围
+            laydate.render({
+                elem: '#test1',
+                range: true,
+                format: 'yyyy/MM/dd',
+                done: function (value, date, endDate) {
+
+                }
+            });
+            //监听搜索
+            form.on('submit(searchReconciliate)', function (data) {
+                if (data.field.time != '') {
+                    field.timeFrom = data.field.time.split('-')[0].trim()
+                    var date = new Date(field.timeFrom);
+                    field.timeFrom = date.getTime() / 1000
+                    field.timeTo = data.field.time.split('-')[1].trim()
+                    var date = new Date(field.timeTo);
+                    field.timeTo = date.getTime() / 1000
+                } else {
+                    field.timeFrom = ''
+                    field.timeTo = ''
+                }
+                field.verify_status = data.field.verify_status
+                render_table(field);
+            });
+            //渲染表格数据
+            var render_table = function (data) {
+                delete data.time
+                data.timeFrom = field.timeFrom;
+                data.timeTo = field.timeTo;
+                table.render({
+                    elem: '#table',
+                    url: layui.setter.requestUrl + 'api.php?c=finance/reconciliationList',
+                    where: data,
+                    cols: [
+                        [{
+                                field: 'product_time',
+                                title: '日期',
+                                align: 'center',
+                                sort: 'true',
+                                width: 180,
+                                templet: function (d) {
+                                    return layui.common.createTime(d.product_time)
+                                }
+                            }, {
+                                field: 'order_total_count',
+                                title: '商城订单收入(元)',
+                                align: 'center',
+                                sort: 'true',
+                                templet: function (d) {
+                                    return d.order_total_count / 100
+                                }
+                            }, {
+                                field: 'order_commission_count',
+                                title: '佣金金额提现(元)',
+                                align: 'center',
+                                sort: 'true',
+                                templet: function (d) {
+                                    return d.order_commission_count / 100
+                                }
+                            }, {
+                                field: 'order_xfj_count',
+                                align: 'center',
+                                title: '产生消费金(元)',
+                                sort: 'true',
+                                templet: function (d) {
+                                    return d.order_xfj_count / 100
+                                }
+                            }, {
+                                field: 'order_user_xfj_count',
+                                align: 'center',
+                                title: '会员消耗消费金(元)',
+                                sort: 'true',
+                                templet: function (d) {
+                                    return d.order_user_xfj_count / 100
+                                }
+                            }, {
+                                field: 'order_user_xfjservice_count',
+                                align: 'center',
+                                title: '消费金服务费收入(元)',
+                                sort: 'true',
+                                templet: function (d) {
+                                    return d.order_user_xfjservice_count / 100
+                                }
+                            }, {
+                                field: 'order_system_count',
+                                align: 'center',
+                                title: '系统合计金额(元)',
+                                sort: 'true',
+                                templet: function (d) {
+                                    return d.order_system_count / 100
+                                }
+                            },
+                            {
+                                field: 'order_system_xfj_count',
+                                align: 'center',
+                                title: '系统合计消费金(元)',
+                                sort: 'true',
+                                templet: function (d) {
+                                    return d.order_system_xfj_count / 100
+                                }
+                            },
+                            {
+                                field: 'verify_status',
+                                align: 'center',
+                                title: '对账状态',
+                                templet: function (d) {
+                                    return d.verify_status == '0' ? '未对账' : '已对账'
+                                }
+                            }, {
+                                field: 'employee_name',
+                                align: 'center',
+                                width: 180,
+                                title: '对账负责人',
+                            }, {
+                                fixed: 'right',
+                                align: 'center',
+                                title: '操作',
+                                toolbar: '#operation'
+                            }
+                        ]
+                    ],
+                    page: true
+                });
+            }
+            //先自调用请求渲染数据
+            render_table(field);
+
+
+            table.on('tool(table)', function (obj) { //注：tool table 是 table  lay-filter="对应的值"
+                var data = obj.data; //获得当前行数据
+                var layEvent = obj.event; //获得 lay-event 对应的值
+
+                if (layEvent === 'mark') { //删除
+                    layer.confirm('确认后即代表您已认真核查此条数据与相关第三方实际数据一致无误并不可撤销，如果发现数据有误请仔细核对原因，如有必要可联系技术人员协助核查。', {
+                        title: '提示'
+                    }, function (index) {
+                        //向服务端发送指令
+                        admin.req({
+                            url: layui.setter.requestUrl +
+                                'api.php?c=finance/reconciliationCheck',
+                            data: {
+                                id: data.id,
+                                status: '1'
+                            },
+                            done: function (res) {
+                                if (res.msg == '对账成功！') {
+                                    layer.msg('标记成功！')
+                                    layer.close(index);
+                                    render_table(field);
+                                } else {
+                                    layer.msg(res.msg)
+                                }
+                            }
+                        });
+                    });
+                }
+            })
+
+
+        });
+</script>

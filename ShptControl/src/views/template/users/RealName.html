@@ -1,0 +1,391 @@
+<style>
+    .ul_record {
+        margin-left: 60px;
+    }
+
+    .li_record {
+        width: 300px;
+        display: flex;
+        padding: 10px;
+        background-color: pink;
+    }
+
+    .word_record {
+        margin-left: 20px;
+    }
+
+    .money_record {
+        margin-top: 18px;
+    }
+
+    .layui-table-cell {
+        height: 55px;
+    }
+
+    .layui-laypage-limits {
+        display: none !important;
+    }
+
+    .layui-table {
+        margin: auto !important;
+    }
+
+    .layui-table-view,
+    .layui-table-header {
+        border: none !important;
+    }
+
+    .layui-table-cell {
+        height: auto;
+        overflow: visible;
+        text-overflow: inherit;
+        white-space: normal;
+    }
+
+    .color1 {
+        color: rgba(255, 87, 51, 1);
+    }
+
+    .color2 {
+        color: rgba(165, 214, 63, 1);
+    }
+
+    .color3 {
+        color: rgba(121, 72, 234, 1);
+    }
+
+    .wordStatus {
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        font-size: 18px;
+        transform: rotate(20deg);
+    }
+
+    .right {
+        border-left: 1px solid #ccc;
+        padding-left: 80px;
+        width: 100%;
+        margin-bottom: 50px;
+    }
+
+    .wordStatus1 {
+        position: absolute;
+        right: 100px;
+        top: 358px;
+        color: rgba(165, 214, 63, 1);
+        font-size: 24px;
+    }
+
+    .title {
+        color: rgba(80, 80, 80, 1);
+        font-size: 16px;
+        font-weight: bold;
+        margin: 20px 0;
+    }
+
+    .member p {
+        margin: 10px 0 15px 0;
+    }
+
+    .member p:last-child {
+        margin-bottom: 0;
+    }
+
+    .cardImg img {
+        width: 320px;
+        height: 170px
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>会员管理</cite></a>
+        <a><cite>实名认证</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+
+<form class="layui-form" style="background:#fff;margin:10px 0;padding:10px 0 0 0">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">搜索条件：</label>
+            <div class="layui-input-inline">
+                <select name="search_type" lay-filter="type">
+                    <option value="3">姓名</option>
+                    <option value="2">昵称</option>
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <input type="text" name="value" placeholder="请输入所查询内容" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">手机号：</label>
+            <div class="layui-input-inline">
+                <input type="text" name="phone" placeholder="请输入所查询内容" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">状态：</label>
+            <div class="layui-input-inline">
+                <select name="card_status" lay-filter="status">
+                    <option value="">全部</option>
+                    <option value="1">审核成功</option>
+                    <option value="0">待审核</option>
+                    <option value="-1">已审核</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">上传时间：</label>
+            <div class="layui-input-inline">
+                <input type="text" name="time" class="layui-input" id="test" placeholder=" 开始时间-结束时间 ">
+            </div>
+        </div>
+        <button class="layui-btn layui-btn-danger" lay-submit lay-filter="search1">搜索</button>
+    </div>
+</form>
+<div style="display: flex;">
+    <div style="padding: 0 50px;">
+        <table class="layui-hide" id="table" lay-filter="table"></table>
+    </div>
+    <div class="right">
+
+    </div>
+</div>
+<script>
+    layui.use(['element', 'table', 'form', 'upload', 'laypage', 'layer', 'laydate'], function () {
+        var setter = layui.setter,
+            $ = layui.jquery,
+            admin = layui.admin,
+            upload = layui.upload,
+            laypage = layui.laypage,
+            layer = layui.layer,
+            element = layui.element,
+            table = layui.table,
+            form = layui.form,
+            laydate = layui.laydate;
+        //初始化表单
+        form.render()
+        //定义搜索数据
+        var field = {
+            searchType: '3',
+            value: '',
+            phone: '',
+            card_status: '',
+            card_start_time: '',
+            card_end_time: '',
+        }
+        //日期格式化
+        laydate.render({
+            elem: '#test',
+            range: true,
+            format: 'yyyy/MM/dd',
+            done: function (value, date, endDate) {
+                if (value != '') {
+                    field.card_start_time = value.split('-')[0].trim()
+                    var date = new Date(field.card_start_time);
+                    field.card_start_time = date.getTime()
+                    field.card_end_time = value.split('-')[1].trim()
+                    var date = new Date(field.card_end_time);
+                    field.card_end_time = date.getTime()
+                } else {
+                    field.card_start_time = ''
+                    field.card_end_time = ''
+                }
+            }
+        });
+        //渲染表格数据
+        var render_table = function (data) {
+            table.render({
+                elem: '#table',
+                url: layui.setter.requestUrl + 'api.php?c=users/userIdentityList',
+                where: data,
+                cols: [
+                    [{
+                        field: 'photo',
+                        width: '90',
+                        templet: function (d) {
+                            if (d.photo) {
+                                var src = layui.setter.CDN + d.photo
+                                var str =
+                                    `<img src = ${src} style="cursor:pointer;width:50px;height:50px" lay-event = 'enlarge'></img>`
+                                return str
+                            }
+
+                        }
+                    }, {
+                        field: 'card_holder',
+                        width: '300',
+                        templet: function (d) {
+                            var status = d.card_status
+                            var status_word = ''
+                            if (status == '0') {
+                                status_word = '待审核'
+                            } else if (status == '1') {
+                                status_word = '成功'
+                            } else {
+                                status_word = '已驳回'
+                            }
+                            var str =
+                                `<div>昵称：${d.name}</div>
+                                            <div>手机号：${d.phone}</div>
+                                            <div>提交时间：${d.card_submit_time=='0'?'暂无':layui.common.createTime(d.card_submit_time)}</div>
+                                            <div class="wordStatus ${status=='0' ? 'color1': status=='1' ? 'color2' :'color3'}">${status_word}</div>`
+                            return str
+                        }
+                    }]
+                ],
+                page: true,
+                layout: ['page', 'count', 'skip'],
+                done: function (res, curr, count) {
+                    rightRender(res.data[0]);
+
+                    $('.layui-table .layui-table-cell > span').css({
+                        'font-weight': 'bold'
+                    }); //表头字体样式
+                    $('th').hide(); //表头隐藏的样式
+                    $('.layui-table-page').css('margin-top', '40px'); //页码部分的高度调整
+                }
+            });
+        }
+        render_table(field);
+        //监听搜索
+        form.on('submit(search1)', function (data) {
+            if (data.field.time != '') {
+                data.field.card_start_time = data.field.time.split('-')[0].trim()
+                var date = new Date(data.field.card_start_time);
+                data.field.card_start_time = date.getTime()
+                data.field.card_end_time = data.field.time.split('-')[1].trim()
+                var date = new Date(data.field.card_end_time);
+                data.field.card_end_time = date.getTime()
+                delete data.field.time
+                console.log(data.field);
+
+            } else {
+                delete data.field.time
+                data.field.card_start_time = ''
+                data.field.card_end_time = ''
+            }
+            render_table(data.field);
+            return false;
+        });
+        table.on('row(table)', function (obj) {
+            //标注选中样式
+            obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+            rightRender(obj.data);
+
+        });
+
+        function rightRender(data) {
+            $('.right').empty()
+            $('.right').append(` 
+                    <div class="title">会员信息:</div>
+                    <div style="display: flex;">
+                        <div style="margin: 0 30px;">
+                            <img src=${layui.setter.CDN + data.photo} style="width: 80px;height:80px">
+                            <p style="text-align: center;margin-top: 5px;">${data.name}</p>
+                        </div>
+                        <div class="member">
+                            <p><span style="display:inline-block;width:180px">姓名：${data.card_name}</span>身份证号码：${data.card_id}</p>
+                            <p><span style="display:inline-block;width:180px">手机号：${data.phone}</span>提交时间：${data.card_submit_time=='0'?'暂无':layui.common.createTime(data.card_submit_time)}</p>
+                        </div>
+                    </div>
+                    <div class="title">提交信息:</div>
+                    <div class="cardImg">
+                        <div>
+                            <img src=${layui.setter.CDN + data.card_front}>
+                        </div>
+                        <p style="margin:20px 100px">身份证正面照</p>
+                        <div>
+                            <img src=${layui.setter.CDN + data.card_reverse}>
+                        </div>
+                        <p style="margin:20px 100px">身份证背面照</p>
+                    </div>
+                    <hr>
+                    <div class="title">识别信息:</div>
+                    <div style="display: flex;">
+                        <div class="member">
+                            <span style="display:inline-block;">姓名：${data.card_name}</span>
+                            <span style="display:inline-block;margin-left:20px">身份证号码：${data.card_id}</span>
+                            <span style="display:inline-block;margin-left:20px">有效期至：${data.start_date} 至 ${data.end_date}</span>
+                        </div>
+                    </div>
+                    
+                `)
+            if (data.card_status == '0') {
+                $('.right').append(
+                    `<div style="text-align:center">
+                        <button class="layui-btn layui-btn-normal layui-btn-lg examine" style="margin: 20px 0;">审核</button>
+                    </div>`
+                )
+            } else if (data.card_status == '-1') {
+                $('.right').append(`
+                    <hr>
+                        <div class="title">驳回原因:</div>
+                        <div style="display: flex;">
+                            <div class="member" style="color:rgba(255, 87, 51, 1)">
+                                ${data.card_refuse_reason}
+                            </div>
+                        </div>
+                    `)
+            }
+            //审核
+            $('.examine').click(function () {
+                console.log();
+                var id = JSON.parse(localStorage.getItem(layui.setter.tableName)).employee_id
+                layer.confirm('是否通过该实名认证？', {
+                    btn: ['确定', '驳回'] //按钮
+                }, function () {
+                    admin.req({
+                        url: layui.setter.requestUrl +
+                            'api.php?c=users/userIdentityCheck',
+                        data: {
+                            card_index: data.card_index,
+                            type: '1',
+                            card_assessor: id
+                        },
+                        success: function (res) {
+                            if (res.msg == '审核成功！') {
+                                layer.msg(res.msg, {
+                                    icon: 1
+                                });
+                                render_table(field);
+                            }
+                        }
+                    })
+                }, function () {
+                    layer.prompt({
+                        title: '请输入驳回原因',
+                        formType: 2
+                    }, function (text, index) {
+                        layer.close(index);
+                        admin.req({
+                            url: layui.setter.requestUrl +
+                                'api.php?c=users/userIdentityCheck',
+                            data: {
+                                card_index: data.card_index,
+                                type: '2',
+                                card_assessor: id,
+                                card_refuse_reason: text
+                            },
+                            success: function (res) {
+                                if (res.msg == '审核成功！') {
+                                    layer.msg(res.msg, {
+                                        icon: 1
+                                    });
+                                    render_table(field);
+                                }
+                            }
+                        })
+                    });
+                });
+
+            })
+        }
+    })
+    layui.use('checkTask', layui.factory('checkTask'));
+</script>

@@ -1,0 +1,111 @@
+
+<style>
+    .layui-table-cell{
+        height: auto!important;
+        line-height: 20px!important;
+    }
+</style>
+
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <div class="layui-form" style="background: #fff;">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">商品名称：</label>
+                <div class="layui-input-inline">
+                    <select name="type" id="">
+                        <option value="">请选择</option>
+                        <option value="supplier_name ">商家名称</option>
+                        <option value="goods_name ">商品名称</option>
+                    </select>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="word" style="width:200px;"  autocomplete="off" placeholder="请输入内容" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search">
+                    搜索
+                </button>
+            </div>
+        </div>
+    </div>
+    <table class="layui-hide" id="goodsTable" lay-filter="goodsTable"></table>
+</script>
+   
+
+<script>
+    layui.data.sendParams = function (params) {
+        layui.use(['admin','element','table','form','public'], function () {
+            var admin = layui.admin;
+            var table = layui.table;
+            var form = layui.form;
+            var tool = layui.public.tool;
+            var base = new layui.public.Base64();
+            var $ = layui.jquery,element = layui.element;
+            var field={
+                comment_consumer:params.comment_consumer,
+                type:'',
+                word:''
+            }
+            field.is_classify=params.id
+            //搜索
+            form.on('submit(search)', function (data) {
+                data.field.comment_consumer=params.comment_consumer
+                render_table(data.field);
+            });
+
+            var render_table = function (data) {
+                table.render({
+                    elem: '#goodsTable',
+                    url: layui.setter.requestUrl + 'api.php?c=mall_facilitator/facilitator_goods',
+                    where: data,
+                    cols: [
+                        [{
+                            field: 'comment_index',
+                            title: '序号',
+                            align: 'center',
+                            sort: true,
+                        },{
+                            field: 'goods_name',
+                            title: '商品名称',
+                            align: 'center'
+                        }, {
+                            field: 'goods_icon',
+                            title: '商品图',
+                            align: 'center',
+                            height: '60px',
+                            templet: function (d) {
+                                var str = `<button type="button" class="layui-btn layui-btn-sm" lay-event = 'enlarge'>查看</button>`
+                                return str
+                            }
+                        }, {
+                            field: 'supplier_name',
+                            title: '商家名称',
+                            align: 'center',
+                        },{
+                            field: 'comment_content',
+                            title: '推荐词',
+                            align: 'center',
+                            templet:function(d){
+                                return  d.comment_content==''?'暂无':base.decode(d.comment_content)
+                            }
+                        }]
+                    ],
+                    page: true,
+                });
+            }
+            render_table(field)
+
+            table.on('tool(goodsTable)', function (obj) { //注：tool table 是 table  lay-filter="对应的值"
+                var data = obj.data; //获得当前行数据
+                var layEvent = obj.event; //获得 lay-event 对应的值
+                if (layEvent == 'enlarge') {
+                    tool.lookBigImg(data.goods_icon.split(','));
+                }
+            })
+        })
+    }
+    
+    
+
+</script>

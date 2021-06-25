@@ -1,0 +1,200 @@
+<style>
+    .ul {
+        width: 100%;
+        height: 100%;
+    }
+
+    .layui-layer-content {
+        padding: 0 20px;
+    }
+</style>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>图文管理</cite></a>
+        <a><cite>跳转类型列表</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+<!--表格-->
+<div style="margin-left: 35px;margin-top:35px;">
+    <button class="layui-btn layui-btn-danger" id="addRegion">添加</button>
+    <table class="layui-table" lay-filter="tableData">
+        <thead>
+            <tr>
+                <th lay-data="{field:'id',width:200, align:'center'}">序号</th>
+                <th lay-data="{field:'jump_type_name', width:200,align:'center'}">跳转类型名称</th>
+                <th lay-data="{field:'jump_parameter', width:200,align:'center'}">默认跳转参数</th>
+                <th lay-data="{field:'jump_parameter_des', width:200,align:'center'}">参数说明</th>
+                <th lay-data="{field:'jump_type_des', width:200,align:'center'}">跳转类型说明</th>
+                <th lay-data="{fixed: 'right',templet:function(row){
+                return `
+                        <a class='layui-btn layui-btn-sm layui-btn-danger' lay-event='edit'>编辑</a>
+                        <a class='layui-btn layui-btn-sm layui-btn-danger' lay-event='del'>删除</a>`
+            }}">操作</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+<script type="text/javascript">
+    var tableOptions = {
+        url: layui.setter.requestUrl + "api.php?c=banner/jump/getJumpTypeList", //后端请求数据地址
+        method: 'GET', //方式
+        id: 'tabelReload', //生成table的标识id，必须提供，用于搜索刷新操作
+        page: true, //是否分页
+        limit: 10, //每页显示多少条数据
+        dataType: 'json',
+    };
+    layui.use(['form', 'layedit', 'table', 'laydate', 'element', 'layer', 'admin', 'upload', 'layedit', 'common'],
+        function () {
+            var form = layui.form,
+                $ = layui.jquery,
+                layer = layui.layer,
+                table = layui.table,
+                admin = layui.admin,
+                layedit = layui.layedit,
+                IsshowAnNiu = layui.common.IsshowAnNiu;
+            var menuPermissions = IsshowAnNiu('addviews');
+            //表格初始化
+            table.init('tableData', tableOptions);
+            //添加
+            $('#addRegion').click(function () {
+                j_id = undefined;
+                var views = addView({
+                    jump_type_name: '',
+                    jump_parameter: '',
+                    is_must: '',
+                    jump_parameter_des: '',
+                    jump_type_des: ''
+                })
+                layer.open({
+                    type: 1,
+                    title: '添加跳转类型',
+                    area: ['600px', '600px'],
+                    shadeClose: true, //点击遮罩关闭
+                    content: views,
+                    success: function () {
+                        form.render()
+                    }
+                });
+            })
+
+            //table表格的事件
+            table.on('tool(tableData)', function (obj) {
+                var data = obj.data; //获得当前行数据
+                var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+                var tr = obj.tr; //获得当前行 tr 的 DOM 对象（如果有的话）
+                j_id = data.id;
+                if (layEvent === 'edit') {
+                    var views = addView(data)
+                    layer.open({
+                        type: 1,
+                        title: '编辑显示位置',
+                        area: ['600px', '450px'],
+                        shadeClose: true, //点击遮罩关闭
+                        content: views,
+                        success: function () {
+                            form.render()
+                        }
+                    });
+                } else if (layEvent === 'del') {
+                    layer.confirm('确定删除行么，删除后不可恢复', {
+                        title: '删除'
+                    }, function (index) {
+                        admin.req({
+                            url: layui.setter.requestUrl +
+                                'api.php?c=banner/jump/delJumpType',
+                            data: {
+                                id: data.id
+                            },
+                            done: function (res) {
+                                layer.msg(res.msg, {
+                                    icon: 1
+                                });
+                                table.init('tableData', tableOptions);
+                            }
+                        });
+                    });
+                }
+            });
+
+
+            form.on('submit(formDemo)', function (data) {
+                if (typeof j_id != "undefined") {
+                    data.field.id = j_id;
+                }
+
+
+                if (data.field.is_must == "on") { // 必填 
+                    data.field.is_must = 2;
+                } else {
+                    data.field.is_must = 1;
+                }
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=banner/jump/setJumpType',
+                    type: 'get',
+                    data: data.field,
+                    done: function (res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg, {
+                                icon: 1
+                            });
+                            table.init('tableData', tableOptions);
+                            layer.closeAll('page'); //关闭所有页面层
+                        } else {
+                            layer.msg(res.msg, {
+                                icon: 5
+                            });
+                        }
+                    }
+                });
+                return false
+            })
+            // 添加/修改视图
+            function addView(data) {
+                if (data.is_must == 2) {
+                    var sta = 'checked';
+                }
+                return `<form class="layui-form"  style="margin-top: 20px;">
+                        <div class="layui-form-item ">
+                            <label class="layui-form-label" style="width:100px;">跳转类型名字</label>
+                            <div class="layui-input-inline" style="width:250px;">
+                                <input type="text" name="jump_type_name" required value="${data.jump_type_name}" lay-verify="required" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label" style="width:100px;">默认跳转参数</label>
+                            <div class="layui-input-inline" style="width:250px;">
+                                <input type="text" name="jump_parameter" required value="${data.jump_parameter}" lay-verify="required" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label" style="width:100px;">必填跳转参数</label>
+                            <div class="layui-input-inline" style="width:250px;">
+                                <input type="checkbox" name="is_must" lay-skin="switch" ${sta}>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label" style="width:100px;">跳转参数说明</label>
+                            <div class="layui-input-inline" style="width:250px;">
+                                <textarea name="jump_parameter_des" required lay-verify="required"  placeholder="请输入" class="layui-textarea">${data.jump_parameter_des}</textarea>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label" style="width:100px;">跳转类型说明</label>
+                            <div class="layui-input-inline" style="width:250px;">
+                                <textarea name="jump_type_des" required lay-verify="required" placeholder="请输入" class="layui-textarea">${data.jump_type_des}</textarea>
+                            </div>
+                        </div>
+                        <div style="padding-bottom: 10px;text-align:center;margin-top:30px">
+                        <button class="layui-btn" lay-submit lay-filter="formDemo">提交</button>
+                    </div>
+                    </form>`
+
+            }
+        });
+</script>

@@ -1,0 +1,281 @@
+<style>
+    .tabMsg {
+        display: flex;
+        padding: 20px;
+    }
+    
+    .tabMsg>div {
+        width: 50px;
+        height: 30px;
+        text-align: center;
+        line-height: 30px;
+        font-size: 14px;
+        color: rgba(42, 130, 228, 1);
+        border: 1px solid rgba(42, 130, 228, 1);
+        cursor: pointer;
+        margin-left: -1px;
+    }
+    
+    .tabMsg .current {
+        color: #fff;
+        background-color: rgba(42, 130, 228, 1);
+    }
+    
+    .form {
+        background-color: #fff;
+    }
+    
+    .layui-table-cell {
+        height: auto !important;
+        line-height: 20px !important;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">首页</a>
+        <a><cite>营销管理</cite></a>
+        <a><cite>待出星会员管理</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <form action="">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto form" lay-filter="app-content-list" style="display: flex;  justify-content: space-between;align-items: center;">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">会员名称:</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="name" class="layui-input" placeholder=" 请输入店铺名称">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">会员手机号:</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="phone" class="layui-input" placeholder=" 请输入店铺名称">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">会员等级：</label>
+                    <div class="layui-input-inline">
+                        <select name="rank" class="">
+                            <option value="-1">请选择</option>
+                            <option value="1">普通会员</option>
+                            <option value="2">组长</option>
+                            <option value="3">团长</option>
+                            <option value="4">市场督导</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">地区筛选：</label>
+                    <div class="layui-input-inline">
+                        <select name="province" class="province" lay-filter="province">
+                            <option value="">请选择省</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <select name="city" class="city" lay-filter="city">
+                            <option value="">请选择市</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <select name="district" class="district" lay-filter="district">
+                            <option value="">请选择县/区</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label" id="changeTime">时间筛选:</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="time" class="layui-input" id="testTime1" placeholder=" 请输入时间">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search">
+                    <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>搜索
+                </button>
+                </div>
+            </div>
+            <button class="layui-btn layuiadmin-btn-list " id="exportForm">导出</button>
+        </div>
+    </form>
+
+
+    <table class="layui-hide" id="commentTable" lay-filter="commentTable"></table>
+</div>
+
+<script>
+    layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'table', 'laydate', 'common', 'public', 'form'], function() {
+        var $ = layui.$,
+            admin = layui.admin,
+            laydate = layui.laydate,
+            view = layui.view,
+            table = layui.table,
+            form = layui.form,
+            IsshowAnNiu = layui.common.IsshowAnNiu;
+        var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+        var base = new layui.public.Base64();
+        var cols = []
+        var tool = layui.public.tool;
+        var base = new layui.public.Base64();
+        var field = {
+                name: '',
+                phone: '',
+                start: '',
+                end: '',
+                province: "",
+                city: "",
+                district: "",
+                rank: '-1'
+            }
+            //tab切换
+        $(".tabMsg>div").click(function() {
+            var index = $(".tabMsg div").index(this);
+            field.type = $(this).attr('data-index');
+            $(this).addClass('current').siblings().removeClass('current');
+            render_table(field);
+        });
+        tool.linkage({
+            province: 'province',
+            city: 'city',
+            county: 'district',
+            success: function(province, city, county) {
+                console.log(province);
+                console.log(city);
+                console.log(county);
+            }
+        });
+        //日期范围
+        laydate.render({
+            elem: '#testTime1',
+            type: 'datetime',
+            range: true,
+            trigger: 'click',
+            format: 'yyyy/M/d',
+            change: function(value, date, endDate) {
+
+            },
+            done: function(value, date, endDate) {
+                if (!value) {
+                    $("input[name=testInput]").val("");
+                    field.start = '';
+                    field.end = '';
+                } else {
+                    field.start = new Date(value.split('-')[0]).getTime() / 1000;
+                    field.end = new Date(value.split('-')[1]).getTime() / 1000;
+                }
+            }
+        });
+        form.on('submit(search)', function(data) {
+            console.log(data);
+            field.name = data.field.name;
+            field.phone = data.field.phone;
+            field.rank = data.field.rank;
+            field.province = data.field.province;
+            field.city = data.field.city;
+            field.district = data.field.district;
+            render_table(field);
+            return false;
+        });
+        form.render()
+
+        //渲染表格数据
+        var render_table = function(data) {
+                cols = [
+                    [{
+                        title: '序号',
+                        align: 'center',
+                        width: 80,
+                        sort: true,
+                        type: 'numbers'
+                    }, {
+                        field: 'group_name',
+                        title: '会员信息',
+                        align: 'center',
+                        templet: function(d) {
+                            return `
+                                <p>昵称:${d.name}</p>
+                                <p>手机号:${d.phone}</p>
+                            `
+                        }
+                    }, {
+                        field: 'rank',
+                        title: '会员等级',
+                        align: 'center',
+                        templet: function(d) {
+                            var str = ''
+                            if (d.rank == 1) {
+                                str = '普通会员'
+                            }
+                            if (d.rank == 2) {
+                                str = '组长'
+                            }
+                            if (d.rank == 3) {
+                                str = '团长'
+                            }
+                            if (d.rank == 4) {
+                                str = '市场督导'
+                            }
+                            return str
+                        }
+                    }, {
+                        field: 'province_name',
+                        title: '默认地区',
+                        templet: function(d) {
+                            return d.province_name + d.city_name + d.district_name
+                        }
+                    }, {
+                        field: 'join_num',
+                        align: 'center',
+                        title: '参与次数'
+                    }, {
+                        field: 'get_num',
+                        align: 'center',
+                        title: '累加抢种次数'
+                    }, {
+                        field: 'add_time',
+                        align: 'center',
+                        title: '时间',
+                        templet: function(d) {
+                            return d.add_time == 0 ? '暂无' : layui.common.createTime(d.add_time)
+                        }
+                    }]
+                ]
+
+                table.render({
+                    elem: '#commentTable',
+                    url: layui.setter.requestUrl + 'api.php?c=group_area/getGroupAreaOpen',
+                    where: data,
+                    cellMinWidth: 120,
+                    cols: cols,
+                    page: true,
+                    parseData: function(res) {
+                        // $('.wait_count').html('待审核' + '&nbsp;' + res.data.wait_count)
+                        // $('.yyz').html('营业中' + '&nbsp;' + res.data.success_count)
+                        return {
+                            "count": res.count, //解析接口状态
+                            "code": res.code, //解析接口状态
+                            "data": res.data //解析数据列表
+                        };
+                    },
+                });
+            }
+            //先自调用请求渲染数据
+        render_table(field);
+        //添加商品
+        document.getElementById("exportForm").onclick = function() {
+            // console.log(`${layui.setter.requestUrl}api.php?c=group_area/getGroupAreaOpen&page=1&limit=10&name=${field.name}&phone=${field.phone}&start=${field.start}&end=${field.end}&province=${field.province}&city=${field.city}&district=${field.district}&rank=${field.rank}&export=1`);
+            // var a = document.createElement("a")
+            // a.download
+            // a.href = `${layui.setter.requestUrl}api.php?c=group_area/getGroupAreaOpen&page=1&limit=10&name=${field.name}&phone=${field.phone}&start=${field.start}&end=${field.end}&province=${field.province}&city=${field.city}&district=${field.district}&rank=${field.rank}&export=1`
+            // a.click()
+            window.open(`${layui.setter.requestUrl}api.php?c=group_area/getGroupAreaOpen&page=1&limit=10&name=${field.name}&phone=${field.phone}&start=${field.start}&end=${field.end}&province=${field.province}&city=${field.city}&district=${field.district}&rank=${field.rank}&export=1`)
+                // window.location.href = `${layui.setter.requestUrl}api.php?c=group_area/getGroupAreaOpen&page=1&limit=10&name=${field.name}&phone=${field.phone}&start=${field.start}&end=${field.end}&province=${field.province}&city=${field.city}&district=${field.district}&rank=${field.rank}&export=1`
+        };
+    });
+</script>

@@ -1,0 +1,332 @@
+<style>
+    .layui-layer-admin .layui-layer-content {
+        padding: 0 20px!important;
+    }
+    
+    .layui-form-item .layui-input-inline {
+        width: 100px;
+    }
+    
+    .layui-upload img {
+        border: 1px solid #ccc;
+    }
+    
+    .del {
+        width: 30px;
+        height: 30px;
+        position: absolute;
+        top: -20px;
+        right: -20px;
+        border-radius: 50%;
+    }
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+
+    <div class="layui-tab layui-tab-brief" lay-filter="">
+        <ul class="layui-tab-title">
+            <li class="layui-this">基本信息</li>
+            <li>品牌简介</li>
+            <li>品牌历程</li>
+            <li>团队介绍</li>
+        </ul>
+
+        <div class="layui-tab-content" style="height: 100px;">
+            <div class="layui-tab-item layui-show">
+                <form class="layui-form" action="">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label"><span style="color:red;">*</span>品牌名称：</label>
+                        <div class="layui-input-block">
+                            <input type="text" value="{{d.params.brand_name}}" name="brand_name" style="width:300px;" lay-verify="required" autocomplete="off" placeholder="请输入品牌名称" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label"><span style="color:red;">*</span>品牌logo：</label>
+                        <div class="layui-upload layui-input-inline">
+                            <img src="/ShptControl/src/images/upImg.png" class="layui-upload-img" id="uploadLogo" style='width:96px;height:96px;cursor: pointer;'>
+                        </div>
+                        <div style="color:rgba(212, 48, 48, 1);display:inline-block">
+                            <p>提示：建议图片尺寸100*100</p>
+                            <p>支持png、jpg格式</p>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label"><span style="color:red;">*</span>品牌封面：</label>
+                        <div>
+                            <button type="button" class="layui-btn" id="uploadPic">
+                                <i class="layui-icon">&#xe67c;</i>上传图片
+                            </button>
+                            <button type="button" class="layui-btn" id="reviewImg">
+                                查看已上传的图片
+                            </button>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label"></label>
+                        <div style="color:rgba(212, 48, 48, 1);display:inline-block">
+                            <p>提示：建议图片尺寸1920*1080</p>
+                            <p>比例为16:9，最多上传5张</p>
+                            <p>支持png、jpg格式</p>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">品牌视频：</label>
+                        <div class="layui-upload layui-input-inline">
+                            <img src="/ShptControl/src/images/upImg.png" class="layui-upload-img" id="uploadVideo" style='width:96px;height:96px;cursor: pointer;'>
+                            <div style='width:200px;height:130px;cursor: pointer;display:none;border:1px solid #ccc;position:relative' class="showVideo">
+                                <video src="/ShptControl/src/images/upImg.png" style='width:200px;height:130px;' controls="controls"></video>
+                                <img src="/ShptControl/src/images/cc.png" alt="" class="del">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label"></label>
+                        <div style="color:rgba(212, 48, 48, 1);display:inline-block">
+                            <p>提示：建议视频比例为16:9</p>
+                            <p>视频和视频封面一起上传或者都不传</p>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">视频封面：</label>
+                        <div class="layui-upload layui-input-inline">
+                            <img src="/ShptControl/src/images/upImg.png" class="layui-upload-img" id="videoUploadImg" style='width:96px;height:96px;cursor: pointer;'>
+                        </div>
+                        <div style="color:rgba(212, 48, 48, 1);display:inline-block">
+                            <p>提示：建议图片尺寸1920*1080</p>
+                            <p>比例为16:9</p>
+                            <p>支持png、jpg格式</p>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-input-block" style="width:200px;margin:0 auto;">
+                            <button type="submit" class="layui-btn" style="width:100%;" lay-submit="" lay-filter="submit">保存</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="layui-tab-item">
+
+            </div>
+            <div class="layui-tab-item">
+            </div>
+            <div class="layui-tab-item">
+
+            </div>
+        </div>
+    </div>
+</script>
+<script>
+    layui.data.sendParams = function(params) {
+        layui.use(['admin', 'element', 'upload', 'form'], function() {
+            var $ = layui.$;
+            var admin = layui.admin;
+            var element = layui.element;
+            var upload = layui.upload;
+            var form = layui.form;
+            var uplode_house = [];
+            var brand_cover = ''; //品牌封面
+            var brand_logo = ''; //品牌logo
+            var video_pic = ''; //视频封面
+            var video_url = ''; //视频地址
+            var brand_index = params.brand_index
+                //反显
+            brand_logo = params.brand_logo
+            $('#uploadLogo').attr("src", layui.setter.CDN + params.brand_logo);
+            if (params.video_url != '') {
+                $('.showVideo').css('display', 'block')
+                $('#uploadVideo').css('display', 'none')
+                $('.showVideo').prop("src", layui.setter.CDN + params.video_url);
+                $('#videoUploadImg').attr("src", layui.setter.CDN + params.video_pic);
+                video_url = params.video_url
+                video_pic = params.video_pic
+            }
+            uplode_house = params.brand_cover
+            brand_cover = params.brand_cover
+            $('.del').click(function() {
+                video_url = ''
+                $('.showVideo').css('display', 'none')
+                $('#uploadVideo').css('display', 'block')
+            })
+
+            //品牌logo
+            upload.render({
+                elem: '#uploadLogo',
+                url: layui.setter.requestUrl + 'api.php?c=uploadImg/uploadImage',
+                data: {
+                    module: 'brand'
+                },
+                drag: true,
+                done: function(res, index, upload) { //上传后的回调
+                    if (res.code == 0) {
+                        $('#uploadLogo').attr("src", layui.setter.CDN + res.data);
+                        brand_logo = res.data
+                    } else {
+                        layer.msg(res.msg);
+                    };
+                }
+            });
+            //品牌封面
+            $('#uploadPic').on('click', function() {
+                    layer.open({
+                        type: 1,
+                        title: '上传付款凭证',
+                        area: ['600px', '500px'],
+                        content: ` 
+                            <div style="padding:10px;">            
+                            <div class="layui-upload">
+                                    <button type="button" class="layui-btn" id="test2">多图片上传</button> 
+                                    <blockquote class="layui-elem-quote layui-quote-nm" style="margin-top: 10px;">
+                                        预览图：
+                                        <div class="layui-upload-list" id="demo2" style="display:flex;flex-wrap:wrap;"></div>
+                                    </blockquote>
+                                </div>
+                                <div class="layui-form-item" style="width:200px;margin:30px auto;">
+                                    <button type="submit" style="width:100%;" class="layui-btn determine" lay-submit="">确定</button>
+                                </div>
+                            </div>`, //这里content是一个普通的String
+                        success: function(lay, index) {
+                            var arr = [];
+                            if (uplode_house.length != 0) {
+                                arr = uplode_house.split(',');
+                                arr.forEach(item => {
+                                    $('#demo2').append(`
+                                    <div style="display:flex;flex-direction:column;align-items:center;" class="imgList">
+                                    <div style="width:92px;height:92px;overflow: hidden;margin:10px;">
+                                    <img src="${layui.setter.CDN + item}" style="height:100%;" class="layui-upload-img">
+                                    </div>
+                                    <button type="error"  class="layui-btn delImg" lay-submit="">删除</button>
+                                    </div>
+                                `)
+                                })
+                            }
+                            //多图片上传
+                            var load = ''
+                            upload.render({
+                                elem: '#test2',
+                                url: layui.setter.requestUrl + 'api.php?c=uploadImg/uploadImage' //改成您自己的上传接口
+                                    ,
+                                data: {
+                                    module: 'pic',
+                                    access_token: layui.data('layuiAdmin').access_token
+                                },
+                                multiple: true,
+                                number: '5',
+                                before: function(obj) {
+                                    load = layer.load(1);
+                                    if (arr.length < 5) {
+                                        //预读本地文件示例，不支持ie8
+                                        obj.preview(function(index, file, result) {
+                                            $('#demo2').append(`
+                                                <div style="display:flex;flex-direction:column;align-items:center;" class="imgList">
+                                                    <div style="width:92px;height:92px;overflow: hidden;margin:10px;">
+                                                    <img src="${result}" alt="${file.name}" style="height:100%;" class="layui-upload-img">
+                                                    </div>
+                                                    <button type="error"  class="layui-btn delImg" lay-submit="">删除</button>
+                                                </div>
+                                    `)
+                                        });
+                                    } else {
+                                        layer.msg('最多上传五张图片');
+                                    }
+                                },
+                                done: function(res) {
+                                    layer.close(load);
+                                    if (arr.length < 5) {
+                                        arr.push(res.data);
+                                    }
+                                }
+                            });
+                            $('.determine').on('click', function() {
+                                brand_cover = arr.join(',');
+                                layer.close(index);
+                            })
+                            $('#demo2').on('click', '.delImg', function() {
+                                var subscript = $(this).parent('.imgList').index();
+                                $(this).parent('.imgList').remove();
+                                arr.splice(subscript, 1);
+                            })
+                        }
+                    });
+                })
+                //查看已上传的图片
+            $('#reviewImg').click(function() {
+                if (brand_cover) {
+                    layui.public.tool.lookBigImg(brand_cover.split(','));
+                } else {
+                    layer.msg('暂无上传图片');
+                }
+            });
+            //视频
+            upload.render({
+                elem: '#uploadVideo',
+                url: layui.setter.requestUrl + '/api.php?c=uploadImg/uploadImage',
+                accept: 'video' //视频
+                    ,
+                data: {
+                    module: 'brand'
+                },
+                drag: true,
+                done: function(res, index, upload) { //上传后的回调
+                    if (res.code == 0) {
+                        $('#uploadVideo').css('display', 'none')
+                        $('.showVideo').css('display', 'block');
+                        $('.showVideo').prop("src", layui.setter.CDN + res.data);
+                        video_url = res.data
+                    } else {
+                        layer.msg(res.msg);
+                    };
+                }
+            });
+            //视频封面
+            upload.render({
+                elem: '#videoUploadImg',
+                url: layui.setter.requestUrl + '/api.php?c=uploadImg/uploadImage',
+                data: {
+                    module: 'brand'
+                },
+                drag: true,
+                done: function(res, index, upload) { //上传后的回调
+                    if (res.code == 0) {
+                        video_pic = res.data
+                        $('#videoUploadImg').attr("src", layui.setter.CDN + res.data);
+                    } else {
+                        layer.msg(res.msg);
+                    };
+                }
+            });
+            //保存品牌基本信息
+            form.on('submit(submit)', function(data) {
+                if (brand_logo == '') {
+                    layer.msg('请上传品牌logo')
+                } else if (brand_cover == '') {
+                    layer.msg('请上传品牌封面')
+                } else if (video_pic != '' && video_url == '') {
+                    layer.msg('请上传视频')
+                } else if (video_pic == '' && video_url != '') {
+                    layer.msg('请上传视频封面')
+                } else {
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=brand/addEditBrand',
+                        data: {
+                            brand_name: data.field.brand_name,
+                            brand_logo: brand_logo,
+                            brand_cover: brand_cover,
+                            video_pic: video_pic,
+                            video_url: video_url,
+                            brand_index: brand_index
+                        },
+                        success: function(res) {
+                            if (res.code == 0) {
+                                layer.msg(res.msg);
+                                layer.closeAll();
+                                parent.layui.table.reload("brandTable");
+                            } else {
+                                layer.msg(res.msg);
+                            }
+                        }
+                    })
+                }
+                return false;
+            })
+        })
+    }
+</script>

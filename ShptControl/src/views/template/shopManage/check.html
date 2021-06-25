@@ -1,0 +1,75 @@
+
+
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <form class="layui-form" action="">
+        <div class="layui-form-item">
+          <label class="layui-form-label" >审核状态：</label>
+          <div class="layui-input-block">
+            <input type="radio" name="type" value="1" title="通过" checked  lay-filter="radio">
+            <input type="radio" name="type" value="2" title="拒绝"  lay-filter="radio">
+          </div>
+        </div>
+        <div class="layui-form-item reason" style="display:none">
+            <label class="layui-form-label" >拒绝原因：</label>
+            <div class="layui-input-block">
+                  <textarea name="refuse_reason" id="" cols="30" rows="10" placeholder="输入拒绝原因" style="padding:10px"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item" style="position:absolute;left:50px;bottom:30px">
+            <div class="layui-input-block" style="width:200px;">
+                <button type="submit" class="layui-btn" style="width:100%;" lay-submit="" lay-filter="submit">确定</button>
+            </div>
+        </div> 
+    </form>
+
+</script>
+   
+
+<script>
+    layui.data.sendParams = function (params) {
+        layui.use(['admin','element','form'], function () {
+            var admin = layui.admin;
+            var form = layui.form;
+            var $ = layui.jquery,element = layui.element;
+            
+            form.render()
+            form.on('radio(radio)', function(data){
+                if(data.value==2){
+                    $('.reason').css('display','block')
+                }else{
+                    $('.reason').css('display','none')
+                }
+            }); 
+            form.on('submit(submit)', function(data){
+                if(data.field.type==2 && data.field.refuse_reason==''){
+                    layer.msg('请输入拒绝原因');
+                }else{
+                    let url=params.url
+                    let table=params.table
+                    params.type=data.field.type
+                    params.refuse_reason=data.field.refuse_reason
+                    delete params.url
+                    delete params.table
+                    admin.req({
+                        url: layui.setter.requestUrl + url,
+                        data: params,
+                        success: function (res) {
+                            if (res.code == 0) {
+                                layer.msg(res.msg);
+                                layer.closeAll();
+                                parent.layui.table.reload(table);
+                            } else {
+                                layer.msg(res.msg);
+                            }
+                        }
+                    })
+                }
+                return false;
+            }); 
+
+        })
+    }
+    
+    
+
+</script>

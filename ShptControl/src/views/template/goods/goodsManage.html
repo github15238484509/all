@@ -1,0 +1,209 @@
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">首页</a>
+        <a><cite>商品</cite></a>
+        <a><cite>商品管理</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+<div class="layui-tab layui-tab-brief" lay-filter="tab">
+    <ul class="layui-tab-title">
+        <li class="layui-this status1">待审核商品</li>
+        <li class="status2">出售中商品</li>
+        <li class="status3">未通过审核商品</li>
+        <li class="status4">已下架商品</li>
+    </ul>
+
+    <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show">
+            <div class="layui-form layui-card-header layuiadmin-card-header-auto form"
+                style="background: #fff;margin:10px 0">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">商品分类：</label>
+                        <div class="layui-input-inline">
+                            <select name="goods_sort1" class="goods_sort1" lay-filter="select1">
+                                <option value="">请选择一级分类</option>
+                            </select>
+                        </div>
+                        <div class="layui-input-inline">
+                            <select name="goods_sort2" class="goods_sort2">
+                                <option value="">请选择二级分类</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">商户名称：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="goods_supplier" style="width:200px;" autocomplete="off"
+                                placeholder="请输入内容" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">商品名称：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="goods_name" style="width:200px;" autocomplete="off"
+                                placeholder="请输入内容" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search1">
+                            <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>搜索
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-fluid" style="background: #fff;">
+                <button class="layui-btn" id="moreCheck">批量审核</button>
+            </div>
+            <table class="layui-hide" id="goodsTable1" lay-filter="goodsTable1"></table>
+        </div>
+        <div class="layui-tab-item">
+            <div class="layui-form layui-card-header layuiadmin-card-header-auto form"
+                style="background: #fff;margin:10px 0">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">商品分类：</label>
+                        <div class="layui-input-inline">
+                            <select name="goods_sort1" class="goods_sort1" lay-filter="select1">
+                                <option value="">请选择一级分类</option>
+                            </select>
+                        </div>
+                        <div class="layui-input-inline">
+                            <select name="goods_sort2" class="goods_sort2">
+                                <option value="">请选择二级分类</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">商户名称：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="goods_supplier" style="width:200px;" autocomplete="off"
+                                placeholder="请输入内容" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">商品名称：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="goods_name" style="width:200px;" autocomplete="off"
+                                placeholder="请输入内容" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">标签筛选：</label>
+                        <div class="layui-input-inline">
+                            <select name="goods_tag" class="search_tag">
+                                <option value="">请选择</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search2">
+                            <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>搜索
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-fluid" style="background: #fff;">
+                <button class="layui-btn" id="moreDown">批量下架</button>
+            </div>
+            <table class="layui-hide" id="goodsTable2" lay-filter="goodsTable2"></table>
+        </div>
+        <div class="layui-tab-item">
+            <div class="layui-form layui-card-header layuiadmin-card-header-auto form"
+                style="background: #fff;margin:10px 0">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">商品分类：</label>
+                        <div class="layui-input-inline">
+                            <select name="goods_sort1" class="goods_sort1" lay-filter="select1">
+                                <option value="">请选择一级分类</option>
+                            </select>
+                        </div>
+                        <div class="layui-input-inline">
+                            <select name="goods_sort2" class="goods_sort2">
+                                <option value="">请选择二级分类</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">商户名称：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="goods_supplier" style="width:200px;" autocomplete="off"
+                                placeholder="请输入内容" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">商品名称：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="goods_name" style="width:200px;" autocomplete="off"
+                                placeholder="请输入内容" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search3">
+                            <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>搜索
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <table class="layui-hide" id="goodsTable3" lay-filter="goodsTable3"></table>
+        </div>
+        <div class="layui-tab-item">
+            <div class="layui-form layui-card-header layuiadmin-card-header-auto form"
+                style="background: #fff;margin:10px 0">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">商品分类：</label>
+                        <div class="layui-input-inline">
+                            <select name="goods_sort1" class="goods_sort1" lay-filter="select1">
+                                <option value="">请选择一级分类</option>
+                            </select>
+                        </div>
+                        <div class="layui-input-inline">
+                            <select name="goods_sort2" class="goods_sort2">
+                                <option value="">请选择二级分类</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">商户名称：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="goods_supplier" style="width:200px;" autocomplete="off"
+                                placeholder="请输入内容" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">商品名称：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="goods_name" style="width:200px;" autocomplete="off"
+                                placeholder="请输入内容" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">标签筛选：</label>
+                        <div class="layui-input-inline">
+                            <select name="goods_tag" class="search_tag">
+                                <option value="">请选择</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search4">
+                            <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>搜索
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-fluid" style="background: #fff;">
+                <button class="layui-btn" id="moreUp">批量上架</button>
+            </div>
+            <table class="layui-hide" id="goodsTable4" lay-filter="goodsTable4"></table>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    layui.use('goodsManage', layui.factory('goodsManage'));
+</script>

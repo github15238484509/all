@@ -1,0 +1,211 @@
+<style>
+    .layui-form-item{
+        width: 900px;
+        margin-bottom: 50px;
+        margin: 20px auto;
+    }
+    .right{
+        position: absolute;
+        left: 150px;
+        top: 0px;
+    }
+    p{
+        font-size: 12px;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>系统配置</cite></a>
+        <a><cite>关于我们</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+            class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+    <div style="height: 100%;background:#fff;">
+        <form class="layui-form" style="background:#fff;margin:10px 0;padding:10px 0 0 0" lay-filter="form">
+            <h1 style="text-align: center;">关于我们</h1>
+            <div class="layui-form-item">
+                <label class="layui-form-label">公司名称</label>
+                <div class="layui-input-block">
+                   <input type="text" name="company_name" placeholder="请输入内容" autocomplete="off" class="layui-input" style="width: 700px;">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">联系电话</label>
+                <div class="layui-input-block">
+                    <input type="text" name="service_phone" placeholder="请输入内容" autocomplete="off" class="layui-input" style="width: 700px;">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">联系地址</label>
+                <div class="layui-input-block">
+                    <input type="text" name="company_address" placeholder="请输入内容" autocomplete="off" class="layui-input" style="width: 700px;">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">官方网站</label>
+                <div class="layui-input-block">
+                    <input type="text" name="website" placeholder="请输入内容" autocomplete="off" class="layui-input" style="width: 700px;">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">版权所有</label>
+                <div class="layui-input-block">
+                    <input type="text" name="copyright" placeholder="请输入内容" autocomplete="off" class="layui-input" style="width: 700px;">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">微信公众号</label>
+                <div class="layui-input-block">
+                    <input type="text" name="public_wechant" placeholder="请输入内容" autocomplete="off" class="layui-input" style="width: 700px;">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">项目logo </label>
+                <div class="layui-input-block">
+                    <img  id="test2" style="width:90px;height:90px;cursor:pointer" class="img"></img>
+                    <div class="right">
+                        <p style="color:rgba(212, 48, 48, 1)">注意事项：</p>
+                        <p style="color:rgba(212, 48, 48, 1)"> 1、请上传.png格式图片</p>
+                        <p style="color:rgba(212, 48, 48, 1)">2、图片宽高比要去：1：1</p>
+                        <p style="color:rgba(212, 48, 48, 1)">3、最低像素尺寸要求：256*256像素</p>
+                        <p style="color:rgba(212, 48, 48, 1)">4、图片文件大小控制在0.5MB以内</p>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">品牌横幅 </label>
+                <div class="layui-input-block" style="height:56px;display: flex;">
+                    <img  id="BrandLogo" style="width: 150px;height:100%;cursor:pointer" class="brandImg"></img>
+                    <div style="margin-left: 10px;">
+                        <p style="color:rgba(212, 48, 48, 1)">注意事项：</p>
+                        <p style="color:rgba(212, 48, 48, 1)"> 1、请上传.png格式图片</p>
+                        <p style="color:rgba(212, 48, 48, 1)">2、图片宽高比要去：5：2</p>
+                        <p style="color:rgba(212, 48, 48, 1)">3、最低像素尺寸要求：150*56</p>
+                        <p style="color:rgba(212, 48, 48, 1)">4、图片文件大小控制在0.5MB以内</p>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block" style="text-align: center;">
+                    <button type="submit" style="margin-top:20px;" class="layui-btn layui-btn-danger" lay-submit lay-filter="submit">提交</button>
+                </div>
+            </div>
+        </form> 
+    </div>
+  <script>
+  layui.use(['form','layer','upload','common'], function(){
+    var admin = layui.admin,
+        setter = layui.setter,
+        $ = layui.jquery,
+        form = layui.form,
+        upload = layui.upload,
+        layer = layui.layer,
+        IsshowAnNiu = layui.common.IsshowAnNiu;
+        var menuPermissions = IsshowAnNiu('addviews');  //菜单权限
+        var logo = '';
+        var long_logo = '';
+        //页面渲染
+        admin.req({
+            url:layui.setter.requestUrl+'houseadmin/api.php?c=configJson/getConfigJsonSetKey',
+            data:{
+                key:'company_name,website,public_wechant,service_phone,company_address,copyright,platform_logo,long_logo,qrcode_wechat,start_imag'
+            },
+            success:function(res){
+                if(res.code==0){
+                    form.val("form", { //formTest 即 class="layui-form" 所在元素属性 lay-filter="" 对应的值
+                        "company_name": res.data.company_name
+                        ,"service_phone": res.data.service_phone
+                        ,"company_address": res.data.company_address
+                        ,"website": res.data.website
+                        ,"copyright": res.data.copyright
+                        ,"public_wechant": res.data.public_wechant
+                    });
+                    logo = res.data.platform_logo
+                    long_logo = res.data.long_logo
+                    $('.img').attr('src',res.data.platform_logo+'?'+new Date().getTime());
+                    $('.brandImg').attr('src', layui.setter.CDN + res.data.long_logo+'?'+new Date().getTime());
+                }
+            }
+        })
+        //图片上传
+        upload.render({
+            elem: '#test2'
+            ,url: layui.setter.requestUrl + 'houseadmin/api.php?c=uploadImg/uploadLong&type=2'
+            ,data:{
+                module:'news',
+                access_token:layui.data('layuiAdmin').access_token
+            }
+            ,before: function(obj){
+                //预读本地文件示例，不支持ie8
+                obj.preview(function(index, file, result){
+                    $('#test2').attr('src', result); //图片链接（base64）
+                });
+            }
+            ,done: function(res){
+                //如果上传失败
+                if(res.code == 0){
+                    layer.msg('上传成功');
+                    logo = layui.setter.CDN + res.data
+                }else{
+                    return layer.msg('上传失败');
+                }
+            }
+            ,error: function(){
+            //演示失败状态，并实现重传
+            var demoText = $('#demoText');
+            demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+            demoText.find('.demo-reload').on('click', function(){
+                uploadInst.upload();
+            });
+            }
+        });
+        //图片上传
+        upload.render({
+            elem: '#BrandLogo'
+            ,url: layui.setter.requestUrl + 'houseadmin/api.php?c=uploadImg/uploadLong&type=1'
+            ,before: function(obj){
+                //预读本地文件示例，不支持ie8
+                obj.preview(function(index, file, result){
+                    $('#BrandLogo').attr('src', result); //图片链接（base64）
+                });
+            }
+            ,done: function(res){
+                //如果上传失败
+                if(res.code == 0){
+                    layer.msg('上传成功');
+                    long_logo =  res.data
+                }else{
+                    return layer.msg('上传失败');
+                }
+            }
+            ,error: function(){
+            //演示失败状态，并实现重传
+            var demoText = $('#demoText');
+            demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+            demoText.find('.demo-reload').on('click', function(){
+                uploadInst.upload();
+            });
+            }
+        });
+        //提交
+        form.on('submit(submit)',function(data){
+            data.field.platform_logo = logo
+            data.field.long_logo = long_logo
+            delete data.field.file
+            admin.req({
+                url:layui.setter.requestUrl+'houseadmin/api.php?c=configJson/configJsonSetKey',
+                type: 'POST',
+                data:data.field,
+                success:function(res){
+                    if(res.code==0){
+                        layer.msg(res.msg,{icon:1})
+                        // window.location.reload()
+                    }
+                }
+            })
+            return false;
+         })
+  });
+  </script>

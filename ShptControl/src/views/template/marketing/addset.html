@@ -1,0 +1,139 @@
+<style>
+    .layui-form-select {
+        width: 300px;
+    }
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <form class="layui-form" action=" " lay-filter="zoneForm">
+        <div class="layui-form-item">
+            <label class="layui-form-label">活动名称：</label>
+            <div class="layui-input-block">
+                <input type="text" name="group_name" style="width:300px;" lay-verify="required" autocomplete="off" placeholder="请输入内容" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">商品规格：</label>
+            <div class="layui-input-block">
+                <select name="sku_index" lay-verify="required" id="sku_index">
+                   
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">拼团价格：</label>
+            <div class="layui-input-block">
+                <input type="text" style="width: 250px;display: inline-block;" name="group_price" lay-verify="required" autocomplete="off" placeholder="请输入内容" class="layui-input">元
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: auto;">成团发货时间：</label>
+            <div class="layui-input-block">
+                成团后，商家在
+                <input type="text" style="width: 110px;display: inline-block;" name="fa_huo" style="width:300px;" lay-verify="required" autocomplete="off" placeholder="请输入内容" class="layui-input">小时发货
+            </div>
+        </div>
+        <!--  -->
+        <div class="layui-form-item" style="display: none;">
+            <label class="layui-form-label" style="width: auto;">每人限购数量：</label>
+            <div class="layui-input-block">
+                <input type="text" value="1" name="group_goods_count" style="width:280px;display: inline-block;" lay-verify="required" autocomplete="off" placeholder="请输入内容" class="layui-input">件
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button type="submit" class="layui-btn" lay-submit="" lay-filter="submit852">提交</button>
+                <button class="layui-btn" id="cancel956">取消</button>
+            </div>
+        </div>
+    </form>
+</script>
+<script>
+    layui.data.sendParams = function(params) {
+        layui.use(['admin', 'upload', 'form', 'public'], function() {
+            var $ = layui.$;
+            var admin = layui.admin;
+            var upload = layui.upload;
+            var form = layui.form;
+            var base = new layui.public.Base64();
+            //反显
+
+            // if (params.prefecture_index) {
+            //     $('#sku_index').val(params.sku_index)
+            //     $('#prefecture_desc').val(base.decode(params.prefecture_desc))
+            // }
+            console.log(params);
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=supplier_goods/getGoodsSku',
+                data: {
+                    goods_index: params.data.goods_index || params.data.group_goods_id
+                },
+                success: function(res) {
+                    if (res.code == 0) {
+                        let str = ""
+                        for (let i = 0; i < res.data.length; i++) {
+                            str += `<option value="${res.data[i].sku_index}">${res.data[i].sku}</option>`
+                        }
+                        $("#sku_index").html(str)
+                        if (params.data.group_goods_id) {
+                            form.val("zoneForm", {
+                                "sku_index": params.data.sku_index,
+                                "group_name": params.data.group_name,
+                                "group_price": params.data.group_price / 100,
+                                "fa_huo": params.data.fa_huo,
+                                "group_goods_count": 1,
+                            });
+                        }
+                        form.render()
+                    } else {
+                        layer.msg(res.msg);
+                    }
+                }
+            })
+
+            form.render()
+            $("#cancel956").on("click", function() {
+                layer.close(params.closeIndex);
+                return false;
+            })
+            form.on('submit(submit852)', function(data) {
+                console.log(params);
+
+                console.log(data.field);
+                if (!Number(data.field.group_price)) {
+                    layer.msg("请输入正确的价格")
+                    return false;
+                }
+                if (!Number(data.field.fa_huo)) {
+                    layer.msg("请输入正确小时数")
+                    return false;
+                }
+                if (!Number(data.field.group_goods_count)) {
+                    layer.msg("请输入数量")
+                    return false;
+                }
+                // params.data.goods_index //主键值
+                let result = data.field
+                result.group_price = result.group_price * 100
+                result.group_goods_id = params.data.goods_index || params.data.group_goods_id
+                if (params.data.group_goods_index) {
+                    result.group_goods_index = params.data.group_goods_index
+                }
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=group_goods/addEditGroupGoods',
+                    data: result,
+                    success: function(res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg);
+                            layer.close(params.closeIndex);
+                            parent.layui.table.reload("commentTable13564");
+                            parent.layui.table.reload("commentTable");
+                        } else {
+                            layer.msg(res.msg);
+                        }
+                    }
+                })
+                return false;
+            })
+        })
+    }
+</script>

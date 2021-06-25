@@ -1,0 +1,131 @@
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">首页</a>
+        <a><cite>营销管理</cite></a>
+        <a><cite>拼团时间段管理</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <button type="button" class="layui-btn layui-btn-normal addBrand">添加购物时间段</button>
+    <table class="layui-hide" id="brandTable" lay-filter="brandTable"></table>
+</div>
+
+<script>
+    layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'table', 'laydate', 'common', 'public'],
+        function() {
+            var $ = layui.$,
+                admin = layui.admin,
+                laydate = layui.laydate,
+                view = layui.view,
+                table = layui.table;
+            IsshowAnNiu = layui.common.IsshowAnNiu;
+            var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+            var base = new layui.public.Base64();
+            var brand_status = '1';
+            var cols = []
+            var tool = layui.public.tool;
+            $('.addBrand').click(function() {
+                    admin.popup({
+                        id: 'addBrand132',
+                        title: '添加时间段',
+                        zIndex: 10000,
+                        area: ['500px', '400px'],
+                        success: function() {
+                            view(this.id).render('/template/marketing/addtime', {});
+                        }
+                    });
+                })
+                //渲染表格数据
+            var render_table = function() {
+                    cols = [
+                        [{
+                            field: 'time_index',
+                            title: '序号',
+                            align: 'center',
+                            width: 70,
+                        }, {
+                            field: 'time_start',
+                            title: '开始时间',
+                            align: 'center'
+                        }, {
+                            field: 'time_end',
+                            title: '结束时间',
+                            align: 'center'
+                        }, {
+                            field: 'add_time',
+                            align: 'center',
+                            title: '添加时间',
+                            templet: function(d) {
+                                return layui.common.createTime(d.add_time)
+                            }
+                        }, {
+                            field: 'refuse_reason',
+                            align: 'center',
+                            title: '操作',
+                            templet: function(d) {
+                                return `<button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-event = 'editor'>编辑</button>
+                                    <button type="button" class="layui-btn layui-btn-sm" lay-event = 'delete'>删除</button>`
+                            }
+                        }]
+                    ]
+                    table.render({
+                        elem: '#brandTable',
+                        url: layui.setter.requestUrl + 'api.php?c=group_time/getGroupTimeList',
+                        cols: cols,
+                        page: true,
+                        parseData: function(res) {
+                            return {
+                                "count": res.count, //解析接口状态
+                                "code": res.code, //解析接口状态
+                                "data": res.data //解析数据列表
+                            };
+                        },
+                    });
+                }
+                //先自调用请求渲染数据
+            render_table();
+
+
+            table.on('tool(brandTable)', function(obj) { //注：tool table 是 table  lay-filter="对应的值"
+                var data = obj.data; //获得当前行数据
+                var layEvent = obj.event; //获得 lay-event 对应的值
+                if (layEvent == 'editor') {
+                    admin.popup({
+                        id: 'addBrand132',
+                        title: '添加时间段',
+                        zIndex: 10000,
+                        area: ['500px', '400px'],
+                        success: function() {
+                            view(this.id).render('/template/marketing/addtime', {
+                                data: data
+                            });
+                        }
+                    });
+                } else if (layEvent == 'delete') {
+                    layer.confirm('真的要删除吗?', function(index) {
+                        admin.req({
+                            url: layui.setter.requestUrl + 'api.php?c=group_time/delGroupTime',
+                            data: {
+                                time_index: data.time_index
+                            },
+                            success: function(res) {
+                                if (res.code == 0) {
+                                    layer.msg('添加成功', {
+                                        icon: 1
+                                    })
+                                    setTimeout(function() {
+                                        layer.closeAll()
+                                    }, 1500)
+                                    parent.layui.table.reload("brandTable");
+                                }
+                            }
+                        })
+                    });
+                }
+            })
+        });
+</script>

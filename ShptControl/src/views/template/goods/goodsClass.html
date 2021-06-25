@@ -1,0 +1,122 @@
+<style>
+    .layui-form-label {
+        width: 100px;
+    }
+
+    .layui-icon-file:before {
+        content: none !important
+    }
+
+    .layui-tab-content .layui-form-item .layui-input-inline {
+        width: 190px !important;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">首页</a>
+        <a><cite>商品</cite></a>
+        <a><cite>商品分类</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+<div class="layui-tab layui-tab-brief" lay-filter="classify">
+    <ul class="layui-tab-title">
+        <li class="layui-this">一级分类</li>
+        <li>二级分类</li>
+        <li>一级分类轮播图</li>
+    </ul>
+
+    <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show">
+            <div class="layui-form" style="background: #fff;padding:10px 0 0 0">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">关键词筛选：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="name" style="width:200px;" autocomplete="off" placeholder="请输入内容"
+                                class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search1">
+                            搜索
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <button type="button" class="layui-btn layui-btn-normal addClass1">添加一级分类</button>
+                <table class="layui-hide" id="table1" lay-filter="table1"></table>
+            </div>
+        </div>
+        <div class="layui-tab-item">
+            <div class="layui-form" style="background: #fff;padding:10px 0 0 0;">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">关键词筛选：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="name" style="width:200px;" autocomplete="off" placeholder="请输入内容"
+                                class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">所属一级分类:</label>
+                        <div class="layui-input-inline">
+                            <select name="parent" class="options">
+                                <option value="">请选择</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search2">
+                            搜索
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="layui-btn layui-btn-normal addClass2">添加二级分类</button>
+            <table class="layui-hide" id="table2" lay-filter="table2"></table>
+        </div>
+        <div class="layui-tab-item">
+            <div class="layui-form" style="background: #fff;padding:10px 0 0 0;">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">状态筛选</label>
+                        <div class="layui-input-inline">
+                            <select name="status">
+                                <option value="-1">全部</option>
+                                <option value="1">显示 </option>
+                                <option value="2">隐藏</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">所属一级分类：</label>
+                        <div class="layui-input-inline">
+                            <select name="class_id" class="options">
+                                <option value="">请选择</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search3">
+                            搜索
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="layui-btn layui-btn-normal addBanner">添加轮播图（跳转页面）</button>
+            <button type="button" class="layui-btn layui-btn-normal addBanner1">添加轮播图（无跳转）</button>
+            <table class="layui-hide" id="bannerTable" lay-filter="bannerTable"></table>
+        </div>
+
+    </div>
+    <script type="text/html" id="switchTpl">
+        <input type="checkbox" name="status" value="{{d.id}}" lay-skin="switch" lay-text="显示|隐藏"
+            lay-filter="statusSwitch" {{ d.status == '1' ? 'checked' : '' }}>
+    </script>
+    <script type="text/javascript">
+        layui.use('goodsClass', layui.factory('goodsClass'));
+    </script>

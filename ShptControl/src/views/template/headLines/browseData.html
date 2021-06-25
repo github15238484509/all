@@ -1,0 +1,88 @@
+<style>
+    .tabMsg {
+        display: flex;
+        padding: 20px;
+    }
+
+    .tabMsg>div {
+        width: 60px;
+        height: 30px;
+        text-align: center;
+        line-height: 30px;
+        font-size: 14px;
+        color: rgba(42, 130, 228, 1);
+        border: 1px solid rgba(42, 130, 228, 1);
+        cursor: pointer;
+        margin-left: -1px;
+    }
+
+    .tabMsg .current {
+        color: #fff;
+        background-color: rgba(42, 130, 228, 1);
+    }
+
+    .layui-col-md4 {
+        text-align: center;
+    }
+
+    .div1 {
+        margin: 30px 0 10px;
+    }
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <div class="" style="display:flex">
+        <div class="tabMsg">
+            <div class="current">全部</div>
+            <div>今日</div>
+            <div>昨日</div>
+            <div>近七天</div>
+            <div>近30天</div>
+        </div>
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto form">
+            <div class="layui-inline">
+                <label class="layui-form-label">时间筛选：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="time" class="layui-input" id="test" placeholder=" 开始时间-结束时间 ">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-row">
+        <div class="layui-col-md4">
+            <div class="div1">访问UV</div>
+            <div>55555</div>
+        </div>
+        <div class="layui-col-md4">
+            <div class="div1">访问PV</div>
+            <div>55555</div>
+        </div>
+        <div class="layui-col-md4">
+            <div class="div1">独立IP</div>
+            <div>55555</div>
+        </div>
+    </div>
+</script>
+<script>
+    layui.data.sendParams = function (params) {
+        layui.use(['admin', 'form', 'laydate'], function () {
+            var $ = layui.$;
+            var admin = layui.admin;
+            var form = layui.form;
+            var laydate = layui.laydate;
+            $(".tabMsg>div").click(function () {
+                var index = $(".tabMsg div").index(this);
+                $(this).addClass('current').siblings().removeClass('current');
+            });
+            //日期格式化
+            laydate.render({
+                elem: '#test',
+                range: true,
+                format: 'yyyy/MM/dd',
+                done: function (value, date, endDate) {
+
+                }
+            });
+
+        })
+    }
+</script>

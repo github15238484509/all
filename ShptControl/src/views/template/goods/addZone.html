@@ -1,0 +1,100 @@
+<style>
+    .layui-upload img {
+        border: 1px solid #ccc;
+    }
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <form class="layui-form" action=" lay-filter=" zoneForm "">
+        <div class="layui-form-item">
+            <label class="layui-form-label"><span style="color:red;">*</span>分区名称：</label>
+            <div class="layui-input-block">
+                <input type="text" name="zone_name" value="{{d.params.zone_name?d.params.zone_name:''}}" style="width:300px;" lay-verify="required" autocomplete="off" placeholder="请输入内容" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label"><span style="color:red;">*</span>分区图片：</label>
+            <div class="layui-upload layui-input-inline" style="width:100px!important">
+                <img src="/ShptControl/src/images/upImg.png" class="layui-upload-img" id="zonePic" style='width:96px;height:96px;cursor: pointer;'>
+            </div>
+            <div style="color:rgba(212, 48, 48, 1);display:inline-block">
+                <p>提示：建议图片尺寸100*100</p>
+                <p>支持png、jpg格式</p>
+                <p>透明背景的图片效果更好</p>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label"><span style="color:red;">*</span>分区简介：</label>
+            <div class="layui-input-block">
+                <textarea name="zone_desp" id="" cols="30" rows="10" style="width:280px;height:100px;padding:10px" lay-verify="required" placeholder="请输入内容" class="zone_desp"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="width:200px;margin:0 auto;">
+                <button type="submit" class="layui-btn" style="width:100%;" lay-submit="" lay-filter="submit">确定</button>
+            </div>
+        </div>
+    </form>
+</script>
+<script>
+    layui.data.sendParams = function(params) {
+        layui.use(['admin', 'upload', 'form'], function() {
+            var $ = layui.$;
+            var admin = layui.admin;
+            var upload = layui.upload;
+            var form = layui.form;
+            var zone_pic = '';
+            var zone_index = '';
+            var base = new layui.public.Base64();
+            if (params.zone_index) {
+                zone_index = params.zone_index
+                zone_pic = params.zone_pic
+                $('#zonePic').attr("src", layui.setter.CDN + params.zone_pic);
+                $('.zone_desp').html(base.decode(params.zone_desp))
+                form.render()
+            } else {}
+            //品牌logo
+            upload.render({
+                elem: '#zonePic',
+                url: layui.setter.requestUrl + 'api.php?c=uploadImg/uploadImage',
+                data: {
+                    module: 'zone'
+                },
+                drag: true,
+                done: function(res, index, upload) { //上传后的回调
+                    if (res.code == 0) {
+                        $('#zonePic').attr("src", layui.setter.CDN + res.data);
+                        zone_pic = res.data
+                    } else {
+                        layer.msg(res.msg);
+                    };
+                }
+            });
+            //保存品牌基本信息
+            form.on('submit(submit)', function(data) {
+                if (zone_pic == '') {
+                    layer.msg('请上传分区图片')
+                } else {
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=goods_zone/addEditZone',
+                        data: {
+                            zone_index: zone_index,
+                            zone_name: data.field.zone_name,
+                            zone_pic: zone_pic,
+                            zone_desp: data.field.zone_desp,
+                        },
+                        success: function(res) {
+                            if (res.code == 0) {
+                                layer.msg(res.msg);
+                                layer.closeAll();
+                                parent.layui.table.reload("zoneTable");
+                            } else {
+                                layer.msg(res.msg);
+                            }
+                        }
+                    })
+                }
+                return false;
+            })
+        })
+    }
+</script>

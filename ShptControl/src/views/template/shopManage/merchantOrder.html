@@ -1,0 +1,52 @@
+<style>
+    .layui-table-cell {
+        display: block;
+        height: auto !important;
+        line-height: 20px !important;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">首页</a>
+        <a><cite>商城管理</cite></a>
+        <a><cite>金牌商户订单列表</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+<div class="">
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto form" style="background: #fff;margin:10px 0">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">商家名称：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="merchant_name" style="width:200px;" autocomplete="off" placeholder="请输入内容"
+                        class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:85px">商家手机号：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="merchant_tel" style="width:200px;" autocomplete="off" placeholder="请输入内容"
+                        class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">支付时间：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="time" class="layui-input" id="test" placeholder=" 开始时间-结束时间 ">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search">
+                    搜索
+                </button>
+            </div>
+        </div>
+    </div>
+    <table class="layui-hide" id="merchantTable" lay-filter="merchantTable"></table>
+</div>
+<script type="text/javascript">
+    layui.use('merchantOrder', layui.factory('merchantOrder'));
+</script>

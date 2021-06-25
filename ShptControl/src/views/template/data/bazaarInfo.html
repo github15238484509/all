@@ -1,0 +1,234 @@
+<style>
+    .tabMsg {
+        display: flex;
+        padding: 20px;
+    }
+    
+    .tabMsg>div {
+        width: 50px;
+        height: 30px;
+        text-align: center;
+        line-height: 30px;
+        font-size: 14px;
+        color: rgba(42, 130, 228, 1);
+        border: 1px solid rgba(42, 130, 228, 1);
+        cursor: pointer;
+        margin-left: -1px;
+    }
+    
+    .tabMsg .current {
+        color: #fff;
+        background-color: rgba(42, 130, 228, 1);
+    }
+    
+    .form {
+        background-color: #fff;
+    }
+    
+    .layui-table-cell {
+        height: auto !important;
+        line-height: 20px !important;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">首页</a>
+        <a><cite>数据统计</cite></a>
+        <a><cite>市场督导统计</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <form action="">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto form" lay-filter="app-content-list" style="display: flex;  justify-content: space-between;align-items: center;">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">会员昵称:</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="name" class="layui-input" placeholder=" 请输入店铺名称">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">会员手机号:</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="phone" class="layui-input" placeholder=" 请输入店铺名称">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">升级时间：</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="time" class="layui-input" id="testTime1" placeholder=" 请输入时间">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search">
+                    <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>搜索
+                </button>
+                </div>
+            </div>
+            <button class="layui-btn layuiadmin-btn-list " id="exportForm">导出</button>
+        </div>
+    </form>
+    <div class="layui-card" style="display: flex;  justify-content: space-between;align-items: center;display: none;">
+        <div class="tabMsg">
+            <div class="current wait_count" data-index="5">全部</div>
+            <div class="yyz" data-index="1">今日</div>
+            <div class="yyz" data-index="2">昨日</div>
+            <div class="yyz" data-index="3">近7天</div>
+            <div class="yyz" data-index="4">近30天</div>
+            <div class="yyz" data-index="6">本月</div>
+            <div class="yyz" data-index="7">本年</div>
+        </div>
+        <!-- <button class="layui-btn layuiadmin-btn-list exportForm">导出</button> -->
+    </div>
+
+    <table class="layui-hide" id="commentTable" lay-filter="commentTable"></table>
+</div>
+
+<script>
+    layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'table', 'laydate', 'common', 'public', 'form'], function() {
+        var $ = layui.$,
+            admin = layui.admin,
+            laydate = layui.laydate,
+            view = layui.view,
+            table = layui.table,
+            form = layui.form,
+            IsshowAnNiu = layui.common.IsshowAnNiu;
+        var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+        var base = new layui.public.Base64();
+        var cols = []
+        var tool = layui.public.tool;
+        var base = new layui.public.Base64();
+        var field = {
+                type: '5',
+                name: '',
+                phone: '',
+                start: '',
+                end: ''
+            }
+            //tab切换
+        $(".tabMsg>div").click(function() {
+            var index = $(".tabMsg div").index(this);
+            field.type = $(this).attr('data-index');
+            $(this).addClass('current').siblings().removeClass('current');
+            render_table(field);
+        });
+
+        //日期范围
+        laydate.render({
+            elem: '#testTime1',
+            type: 'datetime',
+            range: true,
+            trigger: 'click',
+            format: 'yyyy/M/d',
+            change: function(value, date, endDate) {
+
+            },
+            done: function(value, date, endDate) {
+                if (!value) {
+                    $("input[name=testInput]").val("");
+                    field.start = '';
+                    field.end = '';
+                } else {
+                    field.start = new Date(value.split('-')[0]).getTime() / 1000;
+                    field.end = new Date(value.split('-')[1]).getTime() / 1000;
+                }
+            }
+        });
+        form.on('submit(search)', function(data) {
+            field.name = data.field.name;
+            field.phone = data.field.phone;
+            render_table(field);
+            return false;
+        });
+        form.render()
+
+        //渲染表格数据
+        var render_table = function(data) {
+                cols = [
+                    [{
+                        title: '序号',
+                        align: 'center',
+                        width: 80,
+                        type: 'numbers'
+                    }, {
+                        field: 'group_name',
+                        title: '会员信息',
+                        align: 'center',
+                        templet: function(d) {
+                            return `
+                                <p>昵称:${d.name}</p>
+                                <p>手机号:${d.phone}</p>
+                            `
+                        }
+                    }, {
+                        field: 'real_name',
+                        title: '姓名',
+                        align: 'center',
+                    }, {
+                        field: 'count',
+                        align: 'center',
+                        title: '团内总人数'
+                    }, {
+                        field: 'count2',
+                        align: 'center',
+                        title: '下级组长人数'
+                    }, {
+                        field: 'count3',
+                        align: 'center',
+                        title: '团长人数'
+                    }, {
+                        field: 'join_num',
+                        align: 'center',
+                        title: '参与次数'
+                    }, {
+                        field: 'get_num',
+                        align: 'center',
+                        title: '中奖次数'
+                    }, {
+                        field: 'zhang_num',
+                        align: 'center',
+                        title: '鸿运勋章数量'
+                    }, {
+                        field: 'rank_time',
+                        align: 'center',
+                        title: '升级时间',
+                        templet: function(d) {
+                            return d.rank_time == 0 ? '暂无' : layui.common.createTime(d.rank_time)
+                        }
+                    }]
+                ]
+
+                table.render({
+                    elem: '#commentTable',
+                    url: layui.setter.requestUrl + 'api.php?c=tong_ji/getRank4List',
+                    where: data,
+                    cellMinWidth: 120,
+                    cols: cols,
+                    page: true,
+                    parseData: function(res) {
+                        // $('.wait_count').html('待审核' + '&nbsp;' + res.data.wait_count)
+                        // $('.yyz').html('营业中' + '&nbsp;' + res.data.success_count)
+                        return {
+                            "count": res.count, //解析接口状态
+                            "code": res.code, //解析接口状态
+                            "data": res.data //解析数据列表
+                        };
+                    },
+                });
+            }
+            //先自调用请求渲染数据
+        render_table(field);
+        //添加商品
+        document.getElementById("exportForm").onclick = function() {
+            console.log(`${layui.setter.requestUrl}api.php?c=tong_ji/getRank4List&page=1&limit=10&type=${field.type}&name=${field.name}&phone=${field.phone}&start=${field.start}&end=${field.end}&is_excel=1`);
+            window.open(`${layui.setter.requestUrl}api.php?c=tong_ji/getRank4List&page=1&limit=10&type=${field.type}&name=${field.name}&phone=${field.phone}&start=${field.start}&end=${field.end}&is_excel=1`)
+                // window.location.href = `${layui.setter.requestUrl}api.php?c=tong_ji/getRank4List&page=1&limit=10&type=${field.type}&name=${field.name}&phone=${field.phone}&start=${field.start}&end=${field.end}&is_excel=1`
+        };
+    });
+</script>

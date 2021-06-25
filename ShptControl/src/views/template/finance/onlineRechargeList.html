@@ -1,0 +1,228 @@
+<style>
+    .layui-table-cell {
+        display: block;
+        height: auto !important;
+        line-height: 20px !important;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>财务管理</cite></a>
+        <a><cite>第三方支付记录</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="app-content-list">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width: 85px;">支付方式</label>
+                    <div class="layui-input-inline">
+                        <select name="pay_type" lay-filter="pay_type">
+                            <option value="">全部</option>
+                            <option value="1">支付宝APP</option>
+                            <option value="2">微信APP</option>
+                            <option value="3">微信h5</option>
+                            <option value="4">支付宝h5</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width: 85px;">单号查询类型</label>
+                    <div class="layui-input-inline">
+                        <select name="order_type" lay-filter="order_type">
+                            <option value="">全部</option>
+                            <option value="1">商户单号</option>
+                            <option value="2">交易单号</option>
+                            <option value="3">商城订单号</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width: 85px;">单号查询</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="order_numb" placeholder="请输入单号" autocomplete="off"
+                            class="layui-input searchInfo">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width: 85px;">支付状态</label>
+                    <div class="layui-input-inline">
+                        <select name="pay_status" lay-filter="pay_status">
+                            <option value="">全部</option>
+                            <option value="0">等待支付</option>
+                            <option value="1">支付成功</option>
+                            <option value="2">支付失败</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width: 85px;">支付时间</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="time" class="layui-input" id="test6" placeholder=" 开始时间-结束时间 ">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width: 85px;">会员手机号</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="user_phone" placeholder="请输入手机号" autocomplete="off"
+                            class="layui-input phone">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="searchRecharge">
+                        <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>搜索
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button class="layui-btn layuiadmin-btn-list download" style="margin-left: 30px;">下载</button>
+    <table class="layui-hide" id="table" lay-filter="table"></table>
+</div>
+
+
+<script>
+    layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'table', 'laydate', 'common'],
+        function () {
+            var $ = layui.$,
+                admin = layui.admin,
+                laydate = layui.laydate,
+                view = layui.view,
+                table = layui.table,
+                form = layui.form;
+            form.render()
+            //日期范围
+            laydate.render({
+                elem: '#test6',
+                range: true,
+                format: 'yyyy/MM/dd',
+                done: function (value, date, endDate) {
+
+                }
+            });
+            var filed = {
+                pay_type: '',
+                order_type: '',
+                order_numb: '',
+                pay_status: '',
+                time_start: '',
+                time_end: '',
+                user_phone: ''
+            }
+            //渲染表格数据
+            var render_table = function (data) {
+                table.render({
+                    elem: '#table',
+                    url: layui.setter.requestUrl + 'api.php?c=finance/PaymentList',
+                    where: data,
+                    cellMinWidth: 80,
+                    cols: [
+                        [{
+                            field: 'payment_index',
+                            title: 'ID',
+                            width: 80,
+                            align: 'center',
+                            sort: 'true'
+                        }, {
+                            field: 'phone',
+                            title: '会员手机号',
+                            align: 'center'
+                        }, {
+                            field: 'name',
+                            title: '会员昵称',
+                            align: 'center'
+                        }, {
+                            field: 'payment_fee',
+                            align: 'center',
+                            title: '支付金额',
+                            width: 80,
+                            sort: 'true',
+                            templet: '<div>{{ d.payment_fee/100 }}</div>'
+                        }, {
+                            field: 'payment_apply_time',
+                            align: 'center',
+                            title: '支付时间',
+                            width: 180,
+                            sort: 'true',
+                            templet: '<div>{{ layui.common.createTime(d.payment_apply_time) }}</div>'
+                        }, {
+                            field: 'payment_order_id',
+                            align: 'center',
+                            width: 240,
+                            title: '第三方订单号/交易单号/业务单号',
+                            templet: function (d) {
+                                return `<div>第三方订单号:${ d.order_id?d.order_id:'暂无' }</div>
+                                <div>交易单号:${ d.payment_order_id?d.payment_order_id:'暂无' }</div>
+                                <div>业务单号:${ d.payment_transaction_id?d.payment_transaction_id:'暂无' }</div>`
+                            }
+                        }, {
+                            field: 'order_id',
+                            align: 'center',
+                            title: '商城订单号',
+                            sort: 'true',
+                        }, {
+                            field: 'pay_type',
+                            align: 'center',
+                            title: '支付方式',
+                            width: 100,
+                            templet: function (d) {
+                                return d.pay_type == '1' ? '支付宝APP' : d.pay_type == '2' ?
+                                    '微信APP' : d.pay_type == '3' ? '微信H5' : '支付宝H5'
+                            }
+                        }, {
+                            field: 'payment_status',
+                            align: 'center',
+                            title: '状态',
+                            templet: function (d) {
+                                if (d.payment_status == 0) {
+                                    return d.payment_status = '等待支付结果'
+                                } else if (d.payment_status == 1) {
+                                    return d.payment_status = '支付成功'
+                                } else {
+                                    return d.payment_status = '支付失败'
+                                }
+                            }
+                        }]
+                    ],
+                    page: true
+                });
+            }
+            //先自调用请求渲染数据
+            render_table(filed);
+
+            //监听搜索
+            form.on('submit(searchRecharge)', function (data) {
+                var obj = data.field
+                if (obj.time != '') {
+                    obj.time_start = value.split('-')[0].trim()
+                    var date = new Date(obj.time_start);
+                    obj.time_start = date.getTime() / 1000
+                    obj.time_end = value.split('-')[1].trim()
+                    var date = new Date(obj.time_start);
+                    obj.time_end = date.getTime() / 1000
+                    delete obj.time
+                } else {
+                    delete obj.time
+                    obj.time_start = ''
+                    obj.time_end = ''
+                }
+                render_table(obj);
+                return false;
+            });
+            $('.download').click(function () {
+                var phone = $('.phone').val()
+                var searchInfo = $('.searchInfo').val()
+                window.location.href =
+                    `
+            ${layui.setter.requestUrl}api.php?c=finance/onlineRechargeList&is_excel=1&phone=${phone}&searchInfo=${searchInfo}&time_start=${filed.time_start}&time_end=${filed.time_end}&pay_type=${filed.pay_type}&recharge_status=${filed.recharge_status}&searchType=${filed.searchType}`
+            })
+        });
+    layui.use('checkTask', layui.factory('checkTask'));
+</script>

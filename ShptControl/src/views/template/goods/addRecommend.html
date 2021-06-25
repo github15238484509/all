@@ -1,0 +1,230 @@
+
+<style>
+
+</style>
+
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <div class="layui-form form" style="background: #fff;">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">商品名称：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="goods_name" style="width:200px;"  autocomplete="off" placeholder="请输入内容" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">商户名称：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="supplier_name" style="width:200px;"  autocomplete="off" placeholder="请输入内容" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search">
+                    搜索
+                </button>
+            </div>
+        </div>
+    </div>
+    <button type="button" class="layui-btn layui-btn-normal" id="addGoods">批量添加</button>
+    <table class="layui-hide" id="addTable" lay-filter="addTable"></table>
+</script>
+   
+
+<script>
+    layui.data.sendParams = function (params) {
+        layui.use(['admin','element','table','form','public'], function () {
+            var admin = layui.admin;
+            var table = layui.table;
+            var form = layui.form;
+            var tool = layui.public.tool;
+            var $ = layui.jquery,element = layui.element;
+            var checkStatus=[]
+            var field={
+                is_classify:'',
+                type:'2',
+                supplier_name:'',
+                goods_name:'',
+            }
+            field.is_classify=params.id
+            //搜索
+            form.on('submit(search)', function (data) {
+                data.field.type="2"
+                data.field.is_classify=params.id
+                render_table(data.field);
+            });
+
+            var render_table = function (data) {
+                table.render({
+                    elem: '#addTable',
+                    url: layui.setter.requestUrl + 'api.php?c=config_classify/getClassifyGoodsList',
+                    where: data,
+                    cols: [
+                        [ {
+                            type: 'checkbox',
+                        },{
+                            field: 'goods_index',
+                            title: 'ID',
+                            align: 'center',
+                            sort: true
+                        },{
+                            field: 'goods_name',
+                            title: '商品名称',
+                            align: 'center'
+                        }, {
+                            field: 'goods_icon',
+                            title: '商品图',
+                            align: 'center',
+                            height: '60px',
+                            templet: function (d) {
+                                var src = layui.setter.CDN + d.goods_icon
+                                var str = `<img src = ${src} style="cursor:pointer;width:30px;height:30px" lay-event = 'enlarge'></img>`
+                                return str
+                            }
+                        }, {
+                            field: 'sort1_name',
+                            title: '商品分类',
+                            align: 'center',
+                            templet:function(d){
+                                if(d.sort1_name!='' && d.sort2_name!=''){
+                                    return`<div>${d.sort1_name}/${d.sort2_name}</div>`
+                                }else if(d.sort1_name!=''){
+                                    return`<div>${d.sort1_name}</div>`
+                                }else if(d.sort2_name!=''){
+                                    return`<div>${d.sort2_name}</div>`
+                                }else{
+                                    return`<div>暂无</div>`
+                                }
+                                
+                            }
+                        },{
+                            field: 'supplier_name',
+                            title: '商户名称',
+                            align: 'center',
+                            templet:function(d){
+                                if(d.supplier_name!=''){
+                                    return`<div>${d.supplier_name}</div>`
+                                }else{
+                                    return`<div>暂无</div>`
+                                }
+                            }
+                        },{
+                            field: 'goods_name',
+                            title: '商品价格',
+                            align: 'center',
+                            templet:function(d){
+                            var str = `<div>市场价：${d.goods_price/100} 售价：${d.goods_cost/100} 成本价：${d.retail_price/100}</div>`
+                            return str
+                        }
+                        },{
+                            field: 'goods_sale',
+                            title: '销量/库存',
+                            align: 'center',
+                            templet:function(d){
+                                return`<div>${d.goods_sale}/${d.goods_sku_count}</div>`
+                            }
+                        },{
+                            field: 'goods_add_time',
+                            align: 'center',
+                            title: '创建时间',
+                            templet:function(d){
+                                if(d.goods_add_time!='0'){
+                                    return layui.common.createTime(d.goods_add_time)
+                                }else{
+                                    return`<div></div>`
+                                }
+                                
+                            }
+                        },
+                        {
+                            fixed: 'right',
+                            align: 'center',
+                            title: '操作',
+                            templet: function (d) {
+                                return `<button type="button" class="layui-btn layui-btn-danger layui-btn-sm" lay-event = 'add'>添加</button>`
+                            }
+                        }]
+                    ],
+                    page: true,
+                });
+            }
+            render_table(field)
+
+            table.on('tool(addTable)', function (obj) { //注：tool table 是 table  lay-filter="对应的值"
+                var data = obj.data; //获得当前行数据
+                var layEvent = obj.event; //获得 lay-event 对应的值
+                if (layEvent == 'enlarge') {
+                    tool.lookBigImg(data.goods_icon.split(','));
+                }else if(layEvent == 'add'){
+                    layer.confirm('确定添加吗？', {
+                        btn: ['确定','取消'] //按钮
+                    }, function(){
+                            admin.req({
+                                url:layui.setter.requestUrl + 'api.php?c=config_classify/addDelClassifyGoods',
+                                data:{
+                                    goods_index: data.goods_index,
+                                    type:'1',
+                                    classify_id:params.id
+                                },
+                                success:function(res){
+                                    if(res.code==0){
+                                        layer.msg(res.msg)
+                                        checkStatus=[]
+                                        table.reload('addTable', {
+                                            url: layui.setter.requestUrl + 'api.php?c=config_classify/getClassifyGoodsList',
+                                            where:field
+                                        });
+                                        parent.layui.table.reload("table1");
+                                    }
+                                }
+                            })
+                    }, function(){
+                        
+                    });
+                }
+            })
+
+            //多选拿到选择的行的数据
+            table.on('checkbox(addTable)', function (d) {
+                checkStatus = table.checkStatus('addTable').data;
+            });
+            //批量添加
+            $('#addGoods').on('click', function () {
+                if (checkStatus.length==0) {
+                    layer.msg('请先选择行');
+                    return false
+                }
+                let goods_index=[]
+                checkStatus.forEach(item => {
+                    goods_index.push(item.goods_index)
+                })
+                layer.confirm('确定添加吗？', {
+                    btn: ['确定','取消'] //按钮
+                }, function(){
+                        admin.req({
+                            url:layui.setter.requestUrl + 'api.php?c=config_classify/addDelMoreClassifyGoods',
+                            data:{
+                                goods_index_str: goods_index.join(','),
+                                type:'1',
+                                classify_id:params.id
+                            },
+                            success:function(res){
+                                if(res.code==0){
+                                    layer.msg(res.msg)
+                                    table.reload('addTable', {
+                                        url: layui.setter.requestUrl + 'api.php?c=config_classify/getClassifyGoodsList',
+                                        where:field
+                                    });
+                                    parent.layui.table.reload("table1");
+                                }
+                            }
+                        })
+                }, function(){
+                    
+                });
+            })
+        })
+    }
+    
+    
+
+</script>

@@ -1,0 +1,304 @@
+<style>
+
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>会员管理</cite></a>
+        <a><cite>会员等级管理</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+<div style="padding: 10px 10px;">
+    <button type="button" class="layui-btn layui-btn-normal" id="tianjia">添加等级</button>
+</div>
+<table class="layui-hide" id="demo" lay-filter="test"></table>
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+<script type="text/html" id="move">
+    <a class="layui-btn layui-btn-xs" lay-event="moveUp">上移</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="moveDown">下移</a>
+</script>
+<script>
+    layui.use(['admin', 'jquery', 'form', 'table', 'upload', 'common'], function () {
+        var setter = layui.setter,
+            $ = layui.jquery,
+            form = layui.form,
+            table = layui.table,
+            admin = layui.admin,
+            upload = layui.upload,
+            IsshowAnNiu = layui.common.IsshowAnNiu;
+        var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+        form.render();
+        var rank_pic = '',rank_index='';
+        //添加菜单
+        var add_menu = `
+                <form class="layui-form"  lay-filter="form">
+                    <div id="add_menu">
+                        <div class="layui-row">
+                            <div style="margin:20px 0">
+                                <label class="layui-form-label" style="width:120px">等级名称：</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="rank_name" id="menu_title" lay-verify="required" placeholder="请输入等级名称" autocomplete="off" class="layui-input sfName">
+                                </div>
+                            </div>
+                            <div style="margin:20px 0">
+                                <label class="layui-form-label" style="width:120px">上传图标：</label>
+                                <div class="layui-input-inline">
+                                <div class="layui-upload-list">
+                                    <img class="layui-upload-img" id="demo1" style='width:26px;height:26px;background:#ccc;cursor: pointer;'>
+                                     <p id="demoText"></p>
+                                </div>
+                                </div>
+                            </div>
+                            <div style="margin:20px 0">
+                                <label class="layui-form-label" style="width:120px">等级含义：</label>
+                                <div class="layui-input-inline">
+                                    <textarea name="rank_des" id="menu_desc" required lay-verify="required" placeholder="请输入等级含义" class="layui-textarea"></textarea>
+                                </div>
+                            </div>
+                            <div style="margin:20px 0">
+                                <label class="layui-form-label" style="width:120px">等级状态：</label>
+                                <div class="layui-input-inline">
+                                    <select name="rank_status" id='rank_status' lay-verify="required">
+                                        <option value="1">启用</option>
+                                        <option value="0">禁用</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="padding-bottom: 10px;text-align:center;margin-top:30px">
+                                <button class="layui-btn" id="add" lay-submit lay-filter="submitGrade">确定</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>  
+         `
+        //表格渲染
+        tabRender();
+
+        function tabRender() {
+            table.render({
+                elem: '#demo',
+                url: layui.setter.requestUrl + 'api.php?c=user_rank/getUserRankList',
+                cols: [
+                    [{
+                        field: 'rank_index',
+                        width: 80,
+                        align: 'center',
+                        title: '序号',
+                        sort: true
+                    }, {
+                        field: 'rank_name',
+                        align: 'center',
+                        title: '等级名称'
+                    }, {
+                        field: 'rank_pic',
+                        align: 'center',
+                        title: '等级图标',
+                        templet: function (res) {
+                            return `<div style="width:26px;height: 26px;">
+                                        <img style="width:100%;height:100%;" src='${layui.setter.CDN + res.rank_pic}' >
+                                    </div>`
+                        }
+                    }, {
+                        field: 'rank_des',
+                        align: 'center',
+                        title: '等级含义'
+                    }, {
+                        field: 'rank_status',
+                        width: 80,
+                        align: 'center',
+                        title: '状态',
+                        templet: function (res) {
+                            if (res.rank_status == '0') {
+                                return '禁用';
+                            } else {
+                                return '启用';
+                            }
+                        }
+                    }, {
+                        field: 'rank_sort',
+                        title: '排序',
+                        toolbar: '#move'
+                    }, {
+                        field: 'score',
+                        title: '操作',
+                        toolbar: '#barDemo'
+                    }]
+                ]
+            });
+        };
+        table.on('tool(test)', function (obj) {
+            switch (obj.event) {
+                case 'edit':
+                    addEdit(obj.data, true)
+                    break;
+                case 'del':
+                    confirm1(obj.data.rank_index)
+                    break;
+                case 'moveUp':
+                    moveUserSort('user_rank/upUserRank', obj.data.rank_index, obj.data.rank_sort)
+                    break;
+                case 'moveDown':
+                    moveUserSort('user_rank/downUserRank', obj.data.rank_index, obj.data.rank_sort)
+                    break;
+            }
+        })
+        //添加或编辑操作
+        function addEdit(obj) {
+            let title=''
+            if(obj){
+                title="编辑等级"
+            }else{
+                title="添加等级"
+            }
+            layer.open({
+                type: 1,
+                title: title,
+                area: ['500px', '500px'],
+                shadeClose: true, //点击遮罩关闭
+                content: add_menu, //这里content是一个普通的String  
+                success: function () {
+                    form.render();
+                    uplode();
+                    if (obj) {
+                        form.val("form", { //formTest 即 class="layui-form" 所在元素属性 lay-filter="" 对应的值
+                            "rank_name": obj.rank_name // "name": "value"
+                                ,
+                            "rank_des": obj.rank_des,
+                            "rank_status": obj.rank_status
+                        });
+                        rank_pic = obj.rank_pic
+                        rank_index = obj.rank_index
+                        $('#demo1').attr('src', layui.setter.CDN + obj.rank_pic)
+                    }
+                    form.on('submit(submitGrade)', function (data) {
+                        console.log(obj);
+                        if (rank_pic == '') {
+                            layer.msg('请上传等级图标', {
+                                icon: 5
+                            });
+                            return false;
+                        }
+                        data.field.rank_pic = rank_pic
+                        data.field.rank_index = rank_index
+                        delete data.field.file
+                        console.log(data.field);
+                        // return false;
+
+                        admin.req({
+                            url: layui.setter.requestUrl +
+                                'api.php?c=user_rank/addEditUserRank',
+                            data: data.field,
+                            done: function (res) {
+                                layer.msg(res.msg, {
+                                    icon: 1
+                                });
+                                setTimeout(function () {
+                                    layer.closeAll()
+                                    tabRender();
+                                }, 600);
+                                setTimeout(function () {
+                                    flag = true;
+                                }, 2000)
+                            }
+                        });
+                        return false;
+                    })
+                }
+            })
+        }
+
+        $('#tianjia').on('click', function () {
+            addEdit()
+        })
+        //上传图标
+        function uplode() {
+            var uploadInst = upload.render({
+                elem: '#demo1',
+                url: layui.setter.requestUrl + 'api.php?c=uploadImg/uploadImage' //改成您自己的上传接口
+                    ,
+                data: {
+                    module: 'userRank'
+                },
+                before: function (obj) {
+                    //预读本地文件示例，不支持ie8
+                    obj.preview(function (index, file, result) {
+                        $('#demo1').attr('src', result); //图片链接（base64）
+                    });
+                },
+                done: function (res) {
+                    //如果上传失败
+                    if (res.code > 0) {
+                        return layer.msg('上传失败');
+                    }
+                    //上传成功
+                    layer.msg('上传成功');
+                    rank_pic = res.data;
+                },
+                error: function () {
+                    //演示失败状态，并实现重传
+                    var demoText = $('#demoText');
+                    demoText.html(
+                        '<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>'
+                    );
+                    demoText.find('.demo-reload').on('click', function () {
+                        uploadInst.upload();
+                    });
+                }
+            });
+        }
+        //删除会员等级
+        function delUserRank(rank_index, index) {
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=user_rank/delUserRank',
+                data: {
+                    rank_index: rank_index
+                },
+                done: function (res) {
+                    layer.msg(res.msg, {
+                        icon: 1
+                    });
+                    setTimeout(function () {
+                        layer.close(index);
+                        tabRender();
+                    }, 600);
+                    setTimeout(function () {
+                        flag = true;
+                    }, 2000)
+                }
+            });
+        };
+
+        function confirm1(rank_index) {
+            layer.confirm('确认要删除吗？', {
+                icon: 3,
+                title: '删除'
+            }, function (index) {
+                //do something
+                delUserRank(rank_index, index)
+            })
+        };
+        //移动会员排名
+        function moveUserSort(route, rank_index, rank_sort) {
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=' + route + '',
+                data: {
+                    rank_index: rank_index,
+                    rank_sort: rank_sort
+                },
+                success: function (res) {
+                    if(res.code=='0'){
+                        tabRender();
+                    }else{
+                        layer.msg(res.msg)
+                    }
+                }
+            });
+        };
+    })
+</script>

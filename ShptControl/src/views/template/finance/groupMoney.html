@@ -1,0 +1,466 @@
+<style>
+    /* .layui-table-cell {
+        display: block;
+        height: 60px !important;
+
+    } */
+    
+    .layui-upload-drag1 {
+        border: none;
+        padding: 0;
+    }
+    
+    #demo2 img {
+        width: 90px;
+        height: 90px;
+        position: relative;
+    }
+    
+    .layui-upload-list {
+        margin: 0;
+    }
+    
+    #demo2 .del {
+        margin-right: 0;
+        position: relative;
+        top: -10px;
+        right: 8px;
+        cursor: pointer;
+        width: 20px;
+        height: 20px;
+        text-align: center;
+        line-height: 20px;
+        background-color: rgb(128, 120, 120);
+        color: #fff;
+        font-size: 20px;
+        border-radius: 50%;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>财务管理</cite></a>
+        <a><cite>拼团本金管理</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-card" style="padding-bottom: 20px;">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="app-content-list">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width:100px">充值/扣除</label>
+                    <div class="layui-input-inline">
+                        <select name="type" lay-filter="type">
+                            <option value="-1">全部</option>
+                            <option value="1">充值</option>
+                            <option value="101">扣除</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width:100px">会员手机号</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="phone" placeholder="请输入手机号" autocomplete="off" class="layui-input phone">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width:100px">变更时间</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="time" class="layui-input" id="test1" placeholder=" 开始时间-结束时间 ">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search">
+                        <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>查询
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <button class="layui-btn recharge" style="margin-left: 30px;">余额变更</button>
+        </div>
+        <!-- <div class="layui-inline">
+            <button class="layui-btn layui-btn-danger download" style="margin-left: 30px;">下载</button>
+        </div> -->
+    </div>
+    <table class="layui-hide" id="table" lay-filter="table"></table>
+</div>
+
+<script>
+    layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'md5', 'table', 'laydate', 'common',
+            'upload', 'public'
+        ],
+        function() {
+            var $ = layui.$,
+                admin = layui.admin,
+                laydate = layui.laydate,
+                view = layui.view,
+                table = layui.table,
+                upload = layui.upload,
+                form = layui.form,
+                IsshowAnNiu = layui.common.IsshowAnNiu;
+            var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+            var tool = layui.public.tool;
+            var imgList = [];
+            var imgStr = ''
+            var userId = ''
+            form.render();
+            var field = {
+                    type: '-1',
+                    stime: '',
+                    etime: '',
+                    phone: '',
+                    is_excel: ''
+                }
+                //日期范围
+            laydate.render({
+                elem: '#test1',
+                range: true,
+                format: 'yyyy/MM/dd',
+                done: function(value, date, endDate) {
+                    if (value != '') {
+                        field.stime = value.split('-')[0].trim()
+                        var date = new Date(field.stime);
+                        field.stime = date.getTime()
+                        field.etime = value.split('-')[1].trim()
+                        var date = new Date(field.etime);
+                        field.etime = date.getTime()
+                    } else {
+                        field.stime = ''
+                        field.etime = ''
+                    }
+                }
+            });
+            //渲染表格数据
+            var render_table = function(data) {
+                    delete data.time
+                    data.stime = field.stime;
+                    data.etime = field.etime;
+                    table.render({
+                        elem: '#table',
+                        url: layui.setter.requestUrl + 'api.php?c=consumption/getConsumptionList',
+                        where: data,
+                        page: true,
+                        cols: [
+                            [{
+                                field: 'name',
+                                title: '会员名称',
+                                align: 'center',
+                                width: 180,
+                            }, {
+                                field: 'phone',
+                                title: '会员手机号',
+                                align: 'center',
+                                width: 180,
+                            }, {
+                                field: 'time',
+                                title: '充值时间',
+                                align: 'center',
+                                sort: 'true',
+                                width: 180,
+                                templet: '<div>{{ layui.common.createTime(d.time) }}</div>'
+                            }, {
+                                width: 180,
+                                field: 'amount',
+                                title: '充值金额',
+                                sort: 'true',
+                                align: 'center',
+                                templet: '<div>{{ (d.amount/100).toFixed(2) }}</div>'
+                            }, {
+                                width: 180,
+                                field: 'take_money',
+                                sort: 'true',
+                                align: 'center',
+                                title: '财务实际收款金额',
+                                templet: '<div>{{ (d.take_money/100).toFixed(2) }}</div>'
+                            }, {
+                                width: 180,
+                                field: 'before',
+                                align: 'center',
+                                title: '充值前金额',
+                                sort: 'true',
+                                templet: '<div>{{ (d.before/100).toFixed(2) }}</div>'
+                            }, {
+                                width: 180,
+                                field: 'later',
+                                align: 'center',
+                                title: '充值后金额',
+                                sort: 'true',
+                                templet: '<div>{{ (d.later/100).toFixed(2) }}</div>'
+                            }, {
+                                width: 180,
+                                field: 'cert',
+                                align: 'center',
+                                title: '收款凭证',
+                                templet: function(d) {
+                                    return `<button type="button" class="layui-btn layui-btn-sm" lay-event = 'enlarge'>查看</button>`
+                                }
+                            }, {
+                                width: 180,
+                                field: 'employee_id',
+                                align: 'center',
+                                title: '操作人',
+                                templet: function(d) {
+                                    return d.employee_id > 0 ? '管理员' : ''
+                                }
+                            }, {
+                                width: 180,
+                                field: 'remark',
+                                align: 'center',
+                                title: '备注'
+                            }]
+                        ],
+                    });
+                }
+                //先自调用请求渲染数据
+            render_table(field);
+
+            //监听搜索
+            form.on('submit(search)', function(data) {
+                if (data.field.time != '') {
+                    field.stime = data.field.time.split('-')[0].trim()
+                    var date = new Date(field.stime);
+                    field.stime = date.getTime()
+                    field.etime = data.field.time.split('-')[1].trim()
+                    var date = new Date(field.etime);
+                    field.etime = date.getTime()
+                } else {
+                    field.stime = ''
+                    field.etime = ''
+                }
+                field.phone = data.field.phone
+                field.type = data.field.type
+                render_table(field);
+            });
+            table.on('tool(table)', function(obj) { //注：tool table 是 table  lay-filter="对应的值"
+                var data = obj.data; //获得当前行数据
+                var layEvent = obj.event; //获得 lay-event 对应的值
+                if (layEvent == 'enlarge') {
+                    tool.lookBigImg(data.cert.split(','));
+                }
+            });
+            $('.recharge').on('click', function() {
+                layer.open({
+                    type: 1,
+                    title: '余额充值/扣除',
+                    area: ['700px', '550px'],
+                    shadeClose: true, //点击遮罩关闭
+                    content: `<form class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="app-content-list">
+                                <div class="layui-form-item">
+                                    <div style="height:50px">
+                                        <label class="layui-form-label" style="width: 120px;"><span style="color:rgba(212, 48, 48, 1)">★</span>会员手机号</label>
+                                        <div class="layui-input-inline">
+                                            <input type="text"  placeholder="请输入手机号" autocomplete="off" class="layui-input tel">
+                                        </div>
+                                        <div class="layui-inline">
+                                            <button class="layui-btn searchMsg">
+                                                <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>查询
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div style="height:50px">
+                                        <label class="layui-form-label" style="width: 120px;">会员昵称</label>
+                                        <div class="layui-input-inline">
+                                            <input type="text" disabled class="layui-input userName">
+                                        </div>
+                                    </div>
+                                    <div style="height:50px">
+                                        <label class="layui-form-label" style="width: 120px;">当前余额</label>
+                                        <div class="layui-input-inline">
+                                            <input type="text" disabled class="layui-input cash">
+                                        </div>
+                                    </div>
+                                    <div style="height:50px">
+                                        <label class="layui-form-label" style="width: 120px;"><span style="color:rgba(212, 48, 48, 1)">★</span>充值余额</label>
+                                        <div class="layui-input-inline">
+                                            <input type="text" name="cash" lay-verify="required || number" placeholder="请输入充值/扣除余额" autocomplete="off" class="layui-input">
+                                        </div>
+                                        <div class="layui-inline">支持-1000000万~ 1000000万之间</div>
+                                    </div>
+                                    <div>
+                                        <label class="layui-form-label" style="width: 120px;"></label>
+                                        <div style="color:rgba(212, 48, 48, 1)">
+                                            如是扣款，输入负数即可，扣除1块钱，就输入-1
+                                        </div>
+                                    </div>
+                                    <div style="height:50px">
+                                        <label class="layui-form-label" style="width: 120px;"><span style="color:rgba(212, 48, 48, 1)">★</span>财务实际收款</label>
+                                        <div class="layui-input-inline">
+                                            <input type="text" name="money" lay-verify="required || number" placeholder="请输入实际收款" autocomplete="off" class="layui-input">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="layui-form-label" style="width: 120px;"></label>
+                                        <div style="color:rgba(212, 48, 48, 1)">
+                                            如是扣款，输入负数即可，扣除1块钱，就输入-1
+                                        </div>
+                                    </div>
+                                    <div class="layui-form-item layui-form-text">
+                                        <label class="layui-form-label" style="width: 120px;">收款凭证</label>
+                                        <div class="layui-upload" style="display:flex">
+                                            <div class="layui-upload-list" id="demo2" style="display:flex;flex-wrap: wrap"></div>
+                                            <img src="../src/images/upImg.png" id="test2" style="width:100px;height:100px;cursor:pointer"></img>
+                                        </div>
+                                    </div>
+                                    <div class="layui-form-item layui-form-text">
+                                        <label class="layui-form-label" style="width: 120px;">备注</label>
+                                        <div class="layui-input-block">
+                                            <textarea placeholder="请输入内容" name="remark" class="layui-textarea" style="width:350px"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="layui-inline">
+                                        <button class="layui-btn layui-btn-primary" style="background:#ccc;margin:0 100px 0 220px">取消</button>
+                                        <button class="layui-btn layui-btn-danger" lay-submit lay-filter="sure">确认</button>
+                                    </div>
+                                </div>
+                            </form>`,
+                    success: function() {
+                        //通过搜索手机号获取昵称余额
+                        $('.searchMsg').click(function() {
+                                var tel = $('.tel').val()
+                                if ($('.tel').val() == '') {
+                                    layer.msg("手机号码有误，请重填");
+                                    return false;
+                                } else {
+                                    admin.req({
+                                        url: layui.setter.requestUrl +
+                                            'api.php?c=consumption/getInfoByPhone',
+                                        data: {
+                                            phone: tel
+                                        },
+                                        success: function(res) {
+                                            if (res.code == 0) {
+                                                userId = res.data.userId
+                                                $('.userName').val(res.data
+                                                    .userName)
+                                                $('.cash').val(res.data.consumption /
+                                                    100)
+                                                return false;
+                                            } else {
+                                                layer.msg(res.msg)
+                                                $('.userName').val()
+                                                $('.cash').val()
+                                            }
+                                        }
+                                    })
+                                }
+                                return false;
+                            })
+                            //上传图片
+                        upload.render({
+                            elem: '#test2',
+                            url: layui.setter.requestUrl +
+                                'api.php?c=uploadImg/uploadImage' //改成您自己的上传接
+                                ,
+                            multiple: true,
+                            data: {
+                                module: ''
+                            },
+                            choose: function(obj) {
+                                //预读本地文件示例，不支持ie8
+                                obj.preview(function(index, file, result) {
+                                    $('#demo2').append(`
+                                        <img src="${result}" alt="${file.name}" class="layui-upload-img" style="width:100px;height:100px;margin-bottom:10px;">
+                                        <div class="del">x</div>
+                                        `)
+                                });
+                            },
+                            done: function(res) {
+                                //上传完毕
+                                if (res.code == 0) {
+                                    layer.msg('上传成功')
+                                    imgList.push(res.data);
+                                    imgStr = imgList.join(',')
+                                } else {
+                                    layer.msg('上传失败')
+                                }
+                            }
+                        });
+                        //删除图片得到最后上传成功的路径字符串
+                        $('#demo2').on('click', '.del', function() {
+                            var i = ($(this).index() - 1) / 2
+                            $(this).prev('img').remove()
+                            $(this).remove()
+                            imgList.splice(i, 1)
+                            imgStr = imgList.join(',')
+                        });
+
+                    }
+                });
+            })
+
+            // 监听提交
+            form.on('submit(sure)', function(data) {
+                if ($('.tel').val() == '') {
+                    layer.msg('请输入手机号查询')
+                } else if ((data.field.cash).trim() == '') {
+                    layer.msg('请输入充值金额 ')
+                } else if ((data.field.money).trim() == '') {
+                    layer.msg('请输入实际收款 ')
+                } else {
+                    layer.open({
+                        id: 1,
+                        type: 1,
+                        title: '请输入操作密码',
+                        area: ['300px', '180px'],
+                        content: '<input type="password" placeholder="请输入密码"  class="layui-input psd" style="margin:20px;width:200px">',
+                        btn: ['确定', '取消'],
+                        yes: function(index, layero) {
+                            //获取输入框里面的值
+                            var closeContent = $(".psd").val();
+                            if (closeContent) {
+                                admin.req({
+                                    url: layui.setter.requestUrl +
+                                        'api.php?c=consumption/consumptionRecharge',
+                                    data: {
+                                        userid: userId,
+                                        cash: data.field.cash,
+                                        remark: data.field.remark,
+                                        money: data.field.money,
+                                        image: imgStr,
+                                        md5_pwd: layui.md5(closeContent)
+                                    },
+                                    success: function(res) {
+                                        if (res.code == 0) {
+                                            layer.msg(res.msg)
+                                            setTimeout(() => {
+                                                layer.closeAll();
+                                                render_table(field);
+                                            }, 2000);
+                                        } else {
+                                            layer.msg(res.msg)
+                                        }
+                                    }
+                                })
+                            } else {
+                                layer.msg('请输入操作密码')
+                            }
+
+                        },
+                        no: function(index, layero) {
+                            layer.close(index);
+                        }
+                    });
+
+                }
+                return false;
+            });
+            //监听搜索
+            form.on('select(type)', function(data) {
+                console.log(data.value);
+                field.type = data.value
+            });
+            $('.download').click(function() {
+                var phone = $('.phone').val()
+                window.location.href =
+                    `
+            ${layui.setter.requestUrl}api.php?c=finance/cashRechargeList&is_excel=1&phone=${phone}&stime=${field.stime}&etime=${field.etime}&type=${field.type}`
+            })
+
+        });
+</script>

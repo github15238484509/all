@@ -1,0 +1,378 @@
+<style>
+    .label {
+        display: flex;
+        height: 35px;
+        line-height: 35px;
+        color: rgba(153, 153, 153, 1);
+    }
+
+    .label>div {
+        width: 50%;
+        color: rgba(153, 153, 153, 1);
+    }
+
+    .label span {
+        color: #000;
+    }
+
+    .imgs {
+        display: flex;
+        margin-bottom: 10px;
+    }
+
+    .imgs>div {
+        color: rgba(153, 153, 153, 1);
+    }
+
+    .left {
+        width: 90px;
+        text-align: right;
+        color: rgba(153, 153, 153, 1);
+        white-space: nowrap;
+    }
+
+    .right {
+        flex: 1;
+    }
+
+    .img1 {
+        width: 90px;
+        height: 90px;
+        margin-right: 10px;
+    }
+
+    .img2 {
+        width: 234px;
+        height: 100px;
+        margin-right: 10px;
+    }
+
+    .flex {
+        display: flex;
+    }
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <div class="label">
+        <div>
+            店铺名称：<span class="supplier_name"></span>
+        </div>
+        <div>
+            经营类目：<span class="supplier_scope_name"></span>
+        </div>
+    </div>
+    <div class="label">
+        <div>
+            法人/负责人姓名：<span class="supplier_contacts"></span>
+        </div>
+        <div>联系人：<span class="frequent_name"></span></div>
+    </div>
+    <div class="label">
+        <div>法人/负责人身份证号：<span class="card_number"></span></div>
+        <div>联系人手机号：<span class="frequent_phone"></span></div>
+    </div>
+    <div class="label">
+        店铺所属区域：<span class="address"></span>
+    </div>
+    <div class="label">
+        详细地址：<span class="supplier_address"></span>
+    </div>
+    <hr>
+    <div class="imgs">
+        <div class="left">商家logo：</div>
+        <div class="supplier_icon"></div>
+    </div>
+    <div class="imgs">
+        <div class="left">头部banner：</div>
+        <div class="supplier_banner"></div>
+    </div>
+    <div class="imgs">
+        <div style="width:50%" class="flex">
+            <div class="left">店铺视频：</div>
+            <div class="video_url"></div>
+        </div>
+        <div class="flex" style="width:50%">
+            <div class="">店铺视频封面：</div>
+            <div class="video_pic"></div>
+        </div>
+    </div>
+    <div class="imgs">
+        <div class="left">店铺简介：</div>
+        <div class="supplier_desp"></div>
+    </div>
+    <hr>
+    <div class="imgs">
+        <div style="width:50%" class="flex">
+            <div class="left">营业执照：</div>
+            <div class="license_image"></div>
+        </div>
+
+    </div>
+    <div class="imgs">
+        <div class="">其他证件：</div>
+        <div class="other_card"></div>
+    </div>
+    <div class="imgs">
+        <div style="width:50%" class="flex">
+            <div class="">营业执照有效期：</div>
+            <div class="license_indate"></div>
+        </div>
+    </div>
+    <hr>
+    <div class="imgs">
+        <div style="width:50%" class="flex">
+            <div class="">法人身份证国徽面：</div>
+            <div class="front_image"></div>
+        </div>
+        <div class="flex" style="width:50%">
+            <div class="">法人身份证国徽面：</div>
+            <div class="reverse_image"></div>
+        </div>
+    </div>
+    <div class="imgs">
+        <div class="flex" style="width:50%">
+            <div class="">法人身份证有效期：</div>
+            <div class="card_indate"></div>
+        </div>
+    </div>
+    <button class="layui-btn layui-btn-lg layui-btn sure" style="margin:20px 0 0 380px">确定</button>
+
+    <form class="layui-form checkShop" action="">
+        <div class="layui-form-item">
+            <label class="layui-form-label">审核状态：</label>
+            <div class="layui-input-block">
+                <input type="radio" name="type" value="1" title="通过" checked lay-filter="radio">
+                <input type="radio" name="type" value="2" title="拒绝" lay-filter="radio">
+            </div>
+        </div>
+        <div class="layui-form-item reason" style="display:none">
+            <label class="layui-form-label">拒绝原因：</label>
+            <div class="layui-input-block">
+                <textarea name="refuse_reason" id="" cols="30" rows="10" placeholder="输入拒绝原因"
+                    style="padding:10px"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item" style="">
+            <div class="layui-input-block" style="width:200px;margin-left:300px">
+                <button type="submit" class="layui-btn" style="width:100%;" lay-submit=""
+                    lay-filter="submit">确定</button>
+            </div>
+        </div>
+    </form>
+</script>
+<script>
+    layui.data.sendParams = function (params) {
+        layui.use(['admin', 'element', 'public', 'form'], function () {
+            var $ = layui.$;
+            var admin = layui.admin;
+            var form = layui.form;
+            var tool = layui.public.tool;
+            var detail = {};
+            var base = new layui.public.Base64();
+            form.render()
+            if (params.checkShop) {
+                $('.sure').css('display', 'none')
+                $('.checkShop').css('display', 'block')
+            } else {
+                $('.sure').css('display', 'block')
+                $('.checkShop').css('display', 'none')
+            }
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=supplier/getSupplierInfo',
+                data: {
+                    supplier_id: params.supplier_id
+                },
+                success: function (res) {
+                    if (res.code == 0) {
+                        detail = res.data
+                        $('.supplier_scope_name').html(res.data.supplier_scope_name ? res.data
+                            .supplier_scope_name : '暂无')
+                        $('.address').html(res.data.supplier_province_name + res.data
+                            .supplier_city_name + res.data.supplier_county_name)
+                        $('.supplier_address').html(res.data.supplier_address ? res.data
+                            .supplier_address : '暂无')
+                        $('.supplier_name').html(res.data.supplier_name ? res.data
+                            .supplier_name : '暂无')
+                        $('.supplier_contacts').html(res.data.supplier_contacts ? res.data
+                            .supplier_contacts : '暂无')
+                        $('.frequent_name').html(res.data.frequent_name ? res.data
+                            .frequent_name : '暂无')
+                        $('.frequent_phone').html(res.data.frequent_phone ? res.data
+                            .frequent_phone : '暂无')
+                        $('.card_number').html(res.data.card_number ? res.data.card_number :
+                            '暂无')
+                            $('.supplier_desp').html(res.data.supplier_desp ? base.decode(res.data
+                            .supplier_desp) : '暂无')
+                            
+                        $('.license_indate').html(res.data.license_indate == '0' ? '长期有效' : res
+                            .data.license_indate)
+                        $('.card_indate').html(res.data.card_indate == '0' ? '长期有效' : res.data
+                            .card_indate)
+                        //logo
+                        if (res.data.supplier_icon != '') {
+                            $('.supplier_icon').append(`
+                                    <img src="${layui.setter.CDN+res.data.supplier_icon}" class="img1">
+                                `)
+                        } else {
+                            $('.supplier_icon').append(`
+                                    <div>暂无</div>
+                                `)
+                        }
+                        //banner
+                        if (res.data.supplier_banner != '') {
+                            let banner = res.data.supplier_banner.split(',')
+                            console.log(banner);
+                            banner.forEach(item => {
+                                $('.supplier_banner').append(`
+                                        <img src="${layui.setter.CDN+item}" class="img2">
+                                    `)
+                            });
+                        } else {
+                            $('.supplier_banner').append(`
+                                    <div>暂无</div>
+                                `)
+                        }
+
+                        //视频
+                        if (res.data.video_url != '') {
+                            $('.video_url').append(`
+                                <video src="${layui.setter.CDN+res.data.video_url}" class="img2" controls="controls"></video>
+                            `)
+                        } else {
+                            $('.video_url').append(`
+                                    <div>暂无</div>
+                                `)
+                        }
+                        //视频封面
+                        if (res.data.video_pic != '') {
+                            $('.video_pic').append(`
+                                <img src="${layui.setter.CDN+res.data.video_pic}" class="img2">
+                            `)
+                        } else {
+                            $('.video_pic').append(`
+                                    <div>暂无</div>
+                                `)
+                        }
+                        //营业执照
+                        if (res.data.license_image != '') {
+                            $('.license_image').append(`
+                                <img src="${layui.setter.CDN+res.data.license_image}" class="img1">
+                            `)
+                        } else {
+                            $('.license_image').append(`
+                                    <div>暂无</div>
+                                `)
+                        }
+                        //其他证件
+                        if (res.data.other_card != '') {
+                            let other_card = res.data.other_card.split(',')
+                            if (other_card.length > 1) {
+                                other_card.forEach((item) => {
+                                    $('.other_card').append(`
+                                        <img src="${layui.setter.CDN+item}" class="img1">
+                                    `)
+
+                                })
+                            } else {
+                                $('.other_card').append(`
+                                        <img src="${layui.setter.CDN+res.data.other_card}" class="img1">
+                                    `)
+                            }
+
+                        } else {
+                            $('.other_card').append(`
+                                    <div>暂无</div>
+                                `)
+                        }
+                        //法人身份证头像
+                        if (res.data.front_image != '') {
+                            $('.front_image').append(`
+                                <img src="${layui.setter.CDN+res.data.front_image}" class="img2">
+                            `)
+                        } else {
+                            $('.front_image').append(`
+                                    <div>暂无</div>
+                                `)
+                        }
+                        //身份证国徽面
+                        if (res.data.reverse_image != '') {
+                            $('.reverse_image').append(`
+                                    <img src="${layui.setter.CDN+res.data.reverse_image}" class="img2">
+                                `)
+                        } else {
+                            $('.reverse_image').append(`
+                                    <div>暂无</div>
+                                `)
+                        }
+
+                    } else {
+                        layer.msg(res.msg);
+                    }
+                }
+            })
+            $('.sure').click(function () {
+                layer.closeAll()
+            })
+            $('.supplier_icon').click(function () {
+                lookImg(detail.supplier_icon)
+            })
+            $('.supplier_banner').click(function () {
+                lookImg(detail.supplier_banner)
+            })
+            $('.video_pic').click(function () {
+                lookImg(detail.video_pic)
+            })
+            $('.license_image').click(function () {
+                lookImg(detail.license_image)
+            })
+            $('.other_card').click(function () {
+                lookImg(detail.other_card)
+            })
+            $('.reverse_image').click(function () {
+                lookImg(detail.reverse_image)
+            })
+            $('.front_image').click(function () {
+                lookImg(detail.front_image)
+            })
+
+            function lookImg(image) {
+                tool.lookBigImg(image.split(','));
+            }
+
+
+
+            form.on('radio(radio)', function (data) {
+                if (data.value == 2) {
+                    $('.reason').css('display', 'block')
+                } else {
+                    $('.reason').css('display', 'none')
+                }
+            });
+            form.on('submit(submit)', function (data) {
+                if (data.field.type == 2 && data.field.refuse_reason == '') {
+                    layer.msg('请输入拒绝原因');
+                } else {
+                    let url = params.url
+                    let table = params.table
+                    params.type = data.field.type
+                    params.refuse_reason = data.field.refuse_reason
+                    delete params.url
+                    delete params.table
+                    admin.req({
+                        url: layui.setter.requestUrl + url,
+                        data: params,
+                        success: function (res) {
+                            if (res.code == 0) {
+                                layer.msg(res.msg);
+                                layer.closeAll();
+                                parent.layui.table.reload(table);
+                            } else {
+                                layer.msg(res.msg);
+                            }
+                        }
+                    })
+                }
+                return false;
+            });
+        })
+    }
+</script>

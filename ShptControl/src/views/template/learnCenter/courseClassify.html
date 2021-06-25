@@ -1,0 +1,264 @@
+<style>
+    .tabMsg {
+        display: flex;
+        padding: 20px;
+    }
+
+    .tabMsg>div {
+        width: 200px;
+        height: 30px;
+        text-align: center;
+        line-height: 30px;
+        font-size: 14px;
+        color: rgba(42, 130, 228, 1);
+        border: 1px solid rgba(42, 130, 228, 1);
+        cursor: pointer;
+        margin-left: -1px;
+    }
+
+    .tabMsg .current {
+        color: #fff;
+        background-color: rgba(42, 130, 228, 1);
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">首页</a>
+        <a><cite>学习中心</cite></a>
+        <a><cite>课程分类</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+<div class="layui-form layui-card-header layuiadmin-card-header-auto form" style="background: #fff;margin:10px 0">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">分类名称：</label>
+            <div class="layui-input-inline">
+                <input type="text" name="name" style="width:200px;" autocomplete="off" placeholder="请输入标签名称"
+                    class="layui-input">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">状态：</label>
+            <div class="layui-input-inline">
+                <select name="status">
+                    <option value="">全部</option>
+                    <option value="1">启用</option>
+                    <option value="2">禁用</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search">
+                <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>搜索
+            </button>
+        </div>
+    </div>
+</div>
+<div class="layui-fluid" style="background: #fff;">
+    <button type="button" class="layui-btn layui-btn-normal addCourseClassify">添加课程分类</button>
+
+</div>
+<table class="layui-hide" id="courseClassifyTable" lay-filter="courseClassifyTable"></table>
+<script type="text/html" id="switchTpl">
+    <input type="checkbox" name="status" value="{{d.classif_index}}" lay-skin="switch" lay-text="启用|禁用"
+        lay-filter="statusSwitch" {{ d.status == 1 ? 'checked' : '' }}>
+</script>
+<script>
+    layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'table', 'laydate', 'common', 'public',
+            'form'
+        ],
+        function () {
+            var $ = layui.$,
+                admin = layui.admin,
+                laydate = layui.laydate,
+                view = layui.view,
+                form = layui.form,
+                table = layui.table;
+            IsshowAnNiu = layui.common.IsshowAnNiu;
+            var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+            var brand_status = '1';
+            var checkStatus = [];
+            var tool = layui.public.tool;
+            var base = new layui.public.Base64();
+            var field = {
+                tag_name: '',
+                status: ''
+            }
+            form.render()
+            //搜索
+            form.on('submit(search)', function (data) {
+                render_table(data.field);
+            });
+
+            //添加
+            $('.addCourseClassify').click(function () {
+                admin.popup({
+                    id: 'addCourseClassify',
+                    title: '添加课程分类',
+                    area: ['600px', '450px'],
+                    success: function () {
+                        view(this.id).render('/template/learnCenter/addCourseClassify', {});
+                    }
+                });
+            })
+            //渲染表格数据
+            var render_table = function (data) {
+                table.render({
+                    elem: '#courseClassifyTable',
+                    url: layui.setter.requestUrl + 'api.php?c=course/CourseClassifList',
+                    method: 'post',
+                    where: data,
+                    cols: cols = [
+                        [{
+                                field: 'classif_index',
+                                title: 'ID',
+                                align: 'center',
+                                sort: true
+                            }, {
+                                field: 'name',
+                                title: '分类名称',
+                                align: 'center'
+                            }, {
+                                field: 'remarks',
+                                title: '备注说明',
+                                align: 'center',
+                                templet: function (d) {
+                                    return base.decode(d.remarks)
+                                }
+
+                            }, {
+                                field: 'count_course_id',
+                                title: '课程数量',
+                                align: 'center',
+
+                            }, {
+                                field: 'time',
+                                title: '创建时间',
+                                align: 'center',
+                                templet: function (d) {
+                                    return layui.common.createTime(d.time)
+                                }
+                            }, {
+                                field: 'status',
+                                title: '状态',
+                                align: 'center',
+                                templet: '#switchTpl'
+                            }, {
+                                field: 'sort',
+                                title: '排序',
+                                align: 'center',
+                                templet: function (d) {
+                                    var div = `<div>
+                                        <input style="text-align:center;width:60px" class="save" type="number" value='${d.sort}'>
+                                        <a class="layui-btn layui-btn-sm layui-btn-danger"  lay-event="saveSort">保存</a>
+                                       </div>`
+                                    return [div]
+                                }
+
+                            },
+                            {
+                                fixed: 'right',
+                                align: 'center',
+                                title: '操作',
+                                width: 150,
+                                templet: function (d) {
+                                    return `<button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-event = 'edit'>编辑</button>
+                                    <button type="button" class="layui-btn layui-btn-danger layui-btn-sm" lay-event = 'del'>删除</button>`
+                                }
+                            }
+                        ]
+                    ],
+                    page: true,
+                });
+            }
+            //先自调用请求渲染数据
+            render_table(field);
+
+
+            table.on('tool(courseClassifyTable)', function (obj) { //注：tool table 是 table  lay-filter="对应的值"
+                var data = obj.data; //获得当前行数据
+                var layEvent = obj.event; //获得 lay-event 对应的值
+                if (layEvent == 'edit') {
+                    admin.popup({
+                        id: 'addCourseClassify',
+                        title: '编辑课程分类',
+                        area: ['600px', '450px'],
+                        success: function () {
+                            view(this.id).render('/template/learnCenter/addCourseClassify',
+                                data);
+                        }
+                    });
+                } else if (layEvent == 'del') {
+                    tool.delTableLine({
+                        url: 'course/CourseClassifDel',
+                        param: {
+                            classif_index: data.classif_index
+                        },
+                        success: function (res) {
+                            table.reload('courseClassifyTable', {
+                                url: layui.setter.requestUrl +
+                                    'api.php?c=course/CourseClassifList'
+                            });
+                        }
+                    });
+                } else if (layEvent == 'saveSort') {
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=course/CourseClassifSort',
+                        data: {
+                            classif_index: data.classif_index,
+                            sort: $(this).siblings('.save').val()
+                        },
+                        success: function (res) {
+                            if (res.code == 0) {
+                                layer.msg(res.msg);
+                                table.reload('courseClassifyTable', {
+                                    url: layui.setter.requestUrl +
+                                        'api.php?c=course/CourseClassifList',
+                                    where: field
+                                });
+                            } else {
+                                layer.msg(res.msg);
+                            }
+                        }
+                    })
+                }
+            })
+            //监听操作
+            form.on('switch(statusSwitch)', function (obj) {
+                let type = ''
+                if (obj.elem.checked) {
+                    type = '1'
+                } else {
+                    type = '2'
+                }
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=course/CourseClassifStatus',
+                    data: {
+                        classif_index: obj.value,
+                        status: type
+                    },
+                    success: function (res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg);
+                            table.reload('courseClassifyTable', {
+                                url: layui.setter.requestUrl +
+                                    'api.php?c=course/CourseClassifList',
+                                where: field
+                            });
+                        } else {
+                            layer.msg(res.msg);
+                            table.reload('courseClassifyTable', {
+                                url: layui.setter.requestUrl +
+                                    'api.php?c=course/CourseClassifList',
+                                where: field
+                            });
+                        }
+                    }
+                })
+            });
+
+        });
+</script>

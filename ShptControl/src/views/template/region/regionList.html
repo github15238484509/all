@@ -1,0 +1,692 @@
+<style>
+  .layui-card-header {
+    line-height: 35px;
+  }
+</style>
+<div class="layui-card layadmin-header">
+  <div class="layui-breadcrumb" lay-filter="breadcrumb">
+    <a lay-href="">主页</a>
+    <a><cite>系统配置</cite></a>
+    <a><cite>地区管理</cite></a>
+    <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+        class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+        id="addBook">点击收藏</cite></a>
+  </div>
+</div>
+<div class="layui-fluid">
+  <div class="layui-card">
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+      <div class="layui-form-item">
+        <div class="layui-inline">
+          <label class="layui-form-label">归属省</label>
+          <div class="layui-input-inline">
+            <select name="type" lay-filter="ProvinceList" id="ProvinceList">
+              <option value="">请选择</option>
+            </select>
+          </div>
+        </div>
+        <div class="layui-inline">
+          <label class="layui-form-label">归属市</label>
+          <div class="layui-input-inline">
+            <select name="type" lay-filter="citySelect" id="citySelect">
+              <option value="">请选择</option>
+            </select>
+          </div>
+        </div>
+        <div class="layui-inline">
+          <label class="layui-form-label">归属县</label>
+          <div class="layui-input-inline">
+            <select name="type" lay-filter="CountryList" id="CountryList">
+              <option value="">请选择</option>
+            </select>
+          </div>
+        </div>
+        <div class="layui-inline">
+          <label class="layui-form-label">区域名称</label>
+          <div class="layui-input-inline">
+            <input type="text" name="name" placeholder="请输入名称" autocomplete="off" class="layui-input">
+          </div>
+        </div>
+        <div class="layui-inline">
+          <button class="layui-btn layuiadmin-btn-list" lay-submit lay-submit lay-filter="searchRegionList">
+            <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>搜索
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="layui-card-body">
+      <div style="padding-bottom: 10px;">
+        <button class="layui-btn layuiadmin-btn-list" data-type="add" id="addProvince">添加省</button>
+        <button class="layui-btn layuiadmin-btn-list" data-type="add" id="addCity">添加市</button>
+        <button class="layui-btn layuiadmin-btn-list" data-type="add" id="addCountry">添加区/县</button>
+      </div>
+      <table class="layui-hide" id="table" lay-filter="table"></table>
+      <script type="text/html" id="operation">
+        <a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="xiugai">修改</a>
+        <a class="layui-btn layui-btn-danger layui-btn-sm" lay-event="del">删除</a>
+        <a class="layui-btn layui-btn-danger layui-btn-sm" lay-event="addJunior">添加下级区域</a>
+      </script>
+    </div>
+  </div>
+</div>
+<script>
+  layui.use(['admin', 'table', 'form', 'common', 'public'], function () {
+    var setter = layui.setter,
+      $ = layui.jquery,
+      admin = layui.admin,
+      table = layui.table,
+      form = layui.form,
+      IsshowAnNiu = layui.common.IsshowAnNiu;
+    var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+    let ProvinceList = null; //所有的省份
+    let CityList = null; //所有的市
+    form.render();
+    var region_type = ''
+    var region_name = ''
+    var parent_id = '1'
+    //渲染表格数据
+    var render_table = function (type, name, id) {
+      table.render({
+        elem: '#table',
+        url: layui.setter.requestUrl + 'api.php?c=region/getRegionList',
+        where: {
+          region_type: type,
+          region_name: name,
+          parent_id: id
+        },
+        cellMinWidth: 80, //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+        cols: [
+          [{
+              field: 'left',
+              type: 'numbers',
+              title: '区域id',
+              align: 'center'
+            }, {
+              field: 'region_name',
+              title: '区域名称',
+              align: 'center'
+            },
+            {
+              field: 'upRegionName',
+              title: '上级区域',
+              align: 'center'
+            },
+            {
+              field: 'region_type',
+              title: '区域类型',
+              align: 'center',
+              templet: function (d) {
+                switch (d.region_type) {
+                  case '1':
+                    return '省'
+                    break;
+                  case '2':
+                    return '市'
+                    break;
+                  case '3':
+                    return '区/县'
+                    break;
+                  default:
+                    return '中国';
+                }
+              }
+            },
+            {
+              field: 'agency_id',
+              title: '拼写字母',
+              align: 'center'
+            },
+            {
+              fixed: 'right',
+              align: 'center',
+              title: '操作',
+              toolbar: '#operation',
+              width: 320
+            }
+          ]
+        ],
+        page: true
+      });
+    }
+    getProvinceList()
+    //获取省列表
+    function getProvinceList() {
+      admin.req({
+        url: layui.setter.requestUrl + 'api.php?c=region/getProvinceList',
+        type: 'get',
+        done: function (res) {
+          ProvinceList = res.data.list;
+          $('#ProvinceList').empty()
+          $('#ProvinceList').append(`
+            <option value="">请选择</option>
+          `)
+          res.data.list.forEach(item => {
+            $('#ProvinceList').append(`
+            <option value="${item.region_id}">${item.region_name}</option>
+          `)
+          })
+          form.render();
+        }
+      });
+    }
+    //获取所有的城市
+    getAllCityList();
+
+    function getAllCityList() {
+      admin.req({
+        url: layui.setter.requestUrl + 'api.php?c=region/getAllCityList',
+        type: 'get',
+        done: function (res) {
+          CityList = res.data.list;
+        }
+      });
+    }
+    form.on('select(ProvinceList)', function (data) {
+      getCity(data.value);
+      region_type = '1'
+      parent_id = data.value;
+      region_name = data.name;
+      render_table(2, region_name, parent_id);
+      $('#citySelect').html(``);
+    });
+    //根据省份获取相应的市级单位
+    function getCity(province_id) {
+      admin.req({
+        url: layui.setter.requestUrl + 'api.php?c=region/getCityList',
+        type: 'get',
+        data: {
+          province_id: province_id
+        },
+        done: function (res) {
+          $('#citySelect').append(`
+            <option value="">请选择</option>
+          `)
+          res.data.list.forEach(item => {
+            $('#citySelect').append(`
+            <option value="${item.region_id}">${item.region_name}</option>
+          `)
+          })
+          form.render();
+        }
+      });
+    };
+    form.on('select(citySelect)', function (data) {
+      getCountryList(data.value);
+      parent_id = data.value;
+      region_name = data.name;
+      render_table(3, region_name, parent_id);
+      $('#CountryList').html(``);
+    });
+    //获取区县
+    function getCountryList(city_id) {
+      admin.req({
+        url: layui.setter.requestUrl + 'api.php?c=region/getCountryList',
+        type: 'get',
+        data: {
+          city_id: city_id
+        },
+        done: function (res) {
+          $('#CountryList').append(`
+            <option value="">请选择</option>
+          `)
+          res.data.forEach(item => {
+            $('#CountryList').append(`
+             <option value="${item.region_id}">${item.region_name}</option>
+           `)
+          })
+          form.render();
+        }
+      });
+    };
+    form.on('select(CountryList)', function (data) {
+      getCountryList(data.value);
+      parent_id = data.value;
+      region_name = data.name;
+      render_table(region_type, region_name, parent_id);
+    });
+    //先自调用请求渲染数据
+    render_table(region_type, region_name, parent_id);
+    //添加地区弹框
+    $('#addProvince').on('click', function () {
+      layer.open({
+        type: 1,
+        title: '添加省份',
+        area: ['500px', '360px'],
+        shadeClose: true, //点击遮罩关闭
+        content: `<form class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="app-content-list">
+                                   <div style="height:50px">
+                                       <label class="layui-form-label" style="width: 120px;">区域ID：</label>
+                                       <span style="color:red;">添加成功后自动回显</span>
+                                   </div>
+                                   <div style="height:50px">
+                                       <label class="layui-form-label" style="width: 120px;">区域名称：</label>
+                                       <div class="layui-input-inline">
+                                           <input type="text" id='areaName' placeholder="请输入区域名称" class="layui-input cash">
+                                       </div>
+                                   </div>
+                                   <div style="height:50px">
+                                       <label class="layui-form-label" style="width: 120px;">区域类型：</label>
+                                       <span>省</span>
+                                   </div>
+                                   <div style="height:50px">
+                                     <label class="layui-form-label" style="width: 120px;">归属区域：</label>
+                                     <div class="layui-input-inline">
+                                       <select name="type" lay-filter="superior" id="superior">
+                                         <option value="1">中国</option>
+                                       </select>
+                                     </div>
+                                   </div>
+                                   <div style="height:50px">
+                                       <label class="layui-form-label" style="width: 120px;">首字母（排序）：</label>
+                                       <div class="layui-input-inline">
+                                           <input type="text" placeholder="请输入添加地区首字母" class="layui-input letter cash">
+                                       </div>
+                                   </div>
+                                   <div class="layui-form-item">
+                                      <div class="layui-input-block">
+                                        <button class="layui-btn" lay-submit  id="add">立即提交</button>
+                                        <button class="layui-btn layui-btn-primary" id="cancel">取消</button>
+                                      </div>
+                                    </div>
+                           </form>`,
+        success: function (layui, index) {
+          form.render()
+          //点击确定
+          $('#add').click(function () {
+            if ($('#areaName').val() == '') {
+              layer.msg('区域名称不能为空！')
+              return false
+            } else if ($('#superior').val() == '') {
+              layer.msg('您还未选择归属区域！')
+              return false
+            } else {
+              addRegion($('#superior').val(), 1, $('#areaName').val(), $('.letter').val(), '')
+            }
+            return false
+          })
+          //点击关闭
+          $('#cancel').click(function () {
+            layer.closeAll()
+            return false
+          })
+          form.render();
+        }
+      });
+    });
+    $('#addCity').on('click', function () {
+      layer.open({
+        type: 1,
+        title: '添加市',
+        area: ['500px', '360px'],
+        shadeClose: true, //点击遮罩关闭
+        content: `<form class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="app-content-list">
+                                   <div style="height:50px">
+                                       <label class="layui-form-label" style="width: 120px;">区域ID：</label>
+                                       <span style="color:red;">添加成功后自动回显</span>
+                                   </div>
+                                   <div style="height:50px">
+                                       <label class="layui-form-label" style="width: 120px;">区域名称：</label>
+                                       <div class="layui-input-inline">
+                                           <input type="text" placeholder="请输入区域名称" id='areaName' class="layui-input cash">
+                                       </div>
+                                   </div>
+                                   <div style="height:50px">
+                                       <label class="layui-form-label" style="width: 120px;">区域类型：</label>
+                                       <span>市</span>
+                                   </div>
+                                   <div style="height:50px">
+                                     <label class="layui-form-label" style="width: 120px;">归属区域：</label>
+                                     <div class="layui-input-inline">
+                                       <select name="type" lay-filter="CountryList" id="shangji">
+                                       </select>
+                                     </div>
+                                   </div>
+                                   <div style="height:50px">
+                                       <label class="layui-form-label" style="width: 120px;">首字母（排序）：</label>
+                                       <div class="layui-input-inline">
+                                           <input type="text" placeholder="请输入添加地区首字母" class="layui-input letter cash">
+                                       </div>
+                                   </div>
+                                   <div class="layui-form-item">
+                                      <div class="layui-input-block">
+                                        <button class="layui-btn" lay-submit  id="add">立即提交</button>
+                                        <button class="layui-btn layui-btn-primary" id="cancel">取消</button>
+                                      </div>
+                                    </div>
+                           </form>`,
+        success: function (layui, index) {
+          ProvinceList.forEach(item => {
+            $('#shangji').append(`
+                      <option value="${item.region_id}">${item.region_name}</option>
+                   `)
+          })
+          form.render();
+          //点击确定
+          $('#add').click(function () {
+            if ($('#areaName').val() == '') {
+              layer.msg('区域名称不能为空！')
+              return false
+            } else if ($('#shangji').val() == '') {
+              layer.msg('您还未选择归属区域！')
+              return false
+            } else {
+              addRegion($('#shangji').val(), 2, $("#areaName").val(), $('#letter').val(), '');
+            }
+            return false;
+          })
+          //点击关闭
+          $('#cancel').click(function () {
+            layer.closeAll()
+            return false
+          })
+        }
+      });
+    });
+    $('#addCountry').on('click', function () {
+      layer.open({
+        type: 1,
+        title: '添加区县',
+        area: ['500px', '500px'],
+        shadeClose: true, //点击遮罩关闭
+        content: `<form class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="app-content-list">
+                                   <div style="height:50px">
+                                       <label class="layui-form-label" style="width: 120px;">区域ID：</label>
+                                       <span style="color:red;">添加成功后自动回显</span>
+                                   </div>
+                                   <div style="height:50px">
+                                       <label class="layui-form-label" style="width: 120px;">区域名称：</label>
+                                       <div class="layui-input-inline">
+                                           <input type="text" placeholder="请输入区域名称" value="" class="layui-input areaName cash">
+                                       </div>
+                                   </div>
+                                   <div style="height:50px">
+                                       <label class="layui-form-label" style="width: 120px;">区域类型：</label>
+                                       <span>区县</span>
+                                   </div>
+                                   <div style="height:50px">
+                                     <label class="layui-form-label" style="width: 120px;">归属区域：</label>
+                                     <div class="layui-input-inline">
+                                       <select name="type" lay-filter="CountryList" id="superiorCicty">
+                                         
+                                       </select>
+                                     </div>
+                                   </div>
+                                   <div style="height:50px">
+                                       <label class="layui-form-label" style="width: 120px;">首字母（排序）：</label>
+                                       <div class="layui-input-inline">
+                                           <input type="text" placeholder="请输入添加地区首字母" class="layui-input letter cash">
+                                       </div>
+                                   </div>
+                                   <div class="layui-form-item">
+                                      <div class="layui-input-block">
+                                        <button class="layui-btn" lay-submit  id="add">立即提交</button>
+                                        <button class="layui-btn layui-btn-primary" id="cancel">取消</button>
+                                      </div>
+                                    </div>
+                           </form>`,
+        success: function (layui, index) {
+          if (CityList) {
+            CityList.forEach(item => {
+              $('#superiorCicty').append(`
+                <option value="${item.region_id}">${item.region_name}</option>
+            `)
+            })
+          }
+          form.render()
+          //点击确定
+          $('#add').click(function () {
+            if ($('.areaName').val() == '') {
+              layer.msg('区域名称不能为空！')
+              return false
+            } else if ($('#superiorCicty').val() == '') {
+              layer.msg('您还未选择归属区域！')
+              return false
+            } else {
+              addRegion($('#superiorCicty').val(), 3, $('.areaName').val(), $('.letter').val(), '');
+            }
+            return false
+          })
+          //点击关闭
+          $('#cancel').click(function () {
+            layer.closeAll()
+            return false
+          })
+          form.render();
+        }
+      });
+    });
+    //添加地区
+    function addRegion(parent_id, region_type, areaName, letter, region_id) {
+      admin.req({
+        url: layui.setter.requestUrl + 'api.php?c=region/region',
+        type: 'post',
+        data: {
+          parent_id: parent_id,
+          region_type: region_type,
+          region_name: areaName,
+          agency_id: letter,
+          region_id: region_id
+        },
+        success: function (res) {
+          console.log(res);
+          if (res.code == 0) {
+            layer.msg(res.msg, {
+              icon: 1
+            });
+            setTimeout(() => {
+              layer.closeAll();
+            }, 1000);
+            render_table(region_type, '', parent_id);
+          } else {
+            layer.msg(res.msg, {
+              icon: 1
+            });
+          }
+
+        }
+      });
+    }
+    //点击搜索按钮
+    form.on('submit(searchRegionList)', function (data) {
+      getProvinceList()
+      $('#citySelect').empty()
+      $('#CountryList').empty()
+      $('#citySelect').append(`
+            <option value="">请选择</option>
+          `)
+      $('#CountryList').append(`
+            <option value="">请选择</option>
+          `)
+      render_table('', data.field.name, '');
+    })
+    //table表格的操作事件
+    table.on('tool(table)', function (obj) { //注：tool table 是 table  lay-filter="对应的值"
+      var data = obj.data; //获得当前行数据
+      var layEvent = obj.event; //获得 lay-event 对应的值
+
+      if (layEvent === 'del') { //删除
+        layer.confirm('确定删除么，删除后不可恢复', {
+          title: '删除'
+        }, function (index) {
+          //向服务端发送删除指令
+          admin.req({
+            url: layui.setter.requestUrl + 'api.php?c=region/delRegion',
+            data: {
+              region_id: data.region_id
+            },
+            done: function (res) {
+              if (res.msg == '删除成功！') {
+                layer.msg(res.msg, {
+                  icon: 1
+                });
+                render_table(region_type, region_name, parent_id);
+              } else {
+                layer.msg(res.msg, {
+                  icon: 5
+                });
+              }
+            }
+          });
+        });
+      } else if (layEvent === 'xiugai') { //编辑
+        layer.open({
+          type: 1,
+          title: '修改地区',
+          area: ['500px', '500px'],
+          shadeClose: true, //点击遮罩关闭
+          content: `<form class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="app-content-list">
+                                   <div style="height:50px">
+                                       <label class="layui-form-label" style="width: 120px;">区域ID：</label>
+                                       <span style="color:red;">${data.region_id}</span>
+                                   </div>
+                                   <div style="height:50px">
+                                       <label class="layui-form-label" style="width: 120px;">区域名称：</label>
+                                       <div class="layui-input-inline">
+                                           <input type="text" value=${data.region_name} placeholder="请输入区域名称" class="layui-input areaName cash">
+                                       </div>
+                                   </div>
+                                   <div style="height:50px">
+                                       <label class="layui-form-label" style="width: 120px;">区域类型：</label>
+                                       <span id='region_type'></span>
+                                   </div>
+                                   <div style="height:50px">
+                                     <label class="layui-form-label" style="width: 120px;">归属区域：</label>
+                                     <div class="layui-input-inline">
+                                       <select name="type" lay-filter="superiorCicty"  id="superiorCicty">
+                                         
+                                       </select>
+                                     </div>
+                                   </div>
+                                   <div style="height:50px">
+                                       <label class="layui-form-label" style="width: 120px;">首字母（排序）：</label>
+                                       <div class="layui-input-inline">
+                                           <input type="text" placeholder="请输入添加地区首字母" class="layui-input letter cash">
+                                       </div>
+                                   </div>
+                                   <div class="layui-inline" style="display: flex;height:50px;">
+                                       <button class="layui-btn layui-btn-danger" lay-submit lay-filter="sure" id="add" style="margin:0 auto;">确认</button>
+                                   </div>
+                           </form>`,
+          success: function (layui, index) {
+            if (data.region_type == '1') {
+              $('#superiorCicty').append(`
+                <option value="1">中国</option>
+            `)
+              $('#region_type').html('省')
+            } else if (data.region_type == '2') {
+              ProvinceList.forEach(item => {
+                $('#superiorCicty').append(`
+                <option value="${item.region_id}">${item.region_name}</option>
+            `)
+              })
+              $('#region_type').html('市')
+            } else if (data.region_type == '3') {
+              CityList.forEach(item => {
+                $('#superiorCicty').append(`
+                <option value="${item.region_id}">${item.region_name}</option>
+            `)
+              })
+              $('#region_type').html('区/县')
+            }
+            $('#superiorCicty').val(data.parent_id);
+            form.render();
+            //点击确定
+            $('#add').click(function () {
+              if ($('#areaName').val() == '') {
+                layer.msg('区域名称不能为空！')
+                return false
+              } else if ($('#superiorCicty').val() == '') {
+                layer.msg('您还未选择归属区域！')
+                return false
+              } else {
+                addRegion($('#superiorCicty').val(), data.region_type, $('.areaName').val(), $(
+                  '.letter').val(), data.region_id, '');
+              }
+
+              return false;
+            })
+          }
+        });
+      } else if (layEvent === "addJunior") {
+        if (data.region_type == '3') {
+          return layer.msg('暂不可添加下级~');
+        }
+        layer.open({
+          type: 1,
+          title: '添加下级区域',
+          area: ['500px', '500px'],
+          shadeClose: true, //点击遮罩关闭
+          content: `<form class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="app-content-list">
+                                   <div style="height:50px">
+                                       <label class="layui-form-label" style="width: 120px;">区域ID：</label>
+                                       <span style="color:red;">添加成功后自动回显</span>
+                                   </div>
+                                   <div style="height:50px">
+                                       <label class="layui-form-label" style="width: 120px;">区域名称：</label>
+                                       <div class="layui-input-inline">
+                                           <input type="text"  placeholder="请输入区域名称" class="layui-input areaName cash">
+                                       </div>
+                                   </div>
+                                   <div style="height:50px">
+                                       <label class="layui-form-label" style="width: 120px;">区域类型：</label>
+                                       <span id='region_type'></span>
+                                   </div>
+                                   <div style="height:50px">
+                                     <label class="layui-form-label" style="width: 120px;">归属区域：</label>
+                                     <div class="layui-input-inline">
+                                       <select name="type" lay-filter="superiorCicty"  id="superiorCicty">
+                                         
+                                       </select>
+                                     </div>
+                                   </div>
+                                   <div style="height:50px">
+                                       <label class="layui-form-label" style="width: 120px;">首字母（排序）：</label>
+                                       <div class="layui-input-inline">
+                                           <input type="text" placeholder="请输入添加地区首字母" class="layui-input letter cash">
+                                       </div>
+                                   </div>
+                                   <div class="layui-inline" style="display: flex;height:50px;">
+                                       <button class="layui-btn layui-btn-danger" lay-submit lay-filter="sure" id="add" style="margin:0 auto;">确认</button>
+                                   </div>
+                           </form>`,
+          success: function (layui, index) {
+            if (data.region_type == '1') {
+              ProvinceList.forEach(item => {
+                $('#superiorCicty').append(`
+                <option value="${item.region_id}">${item.region_name}</option>
+            `)
+              })
+              $('#region_type').html('市')
+            } else if (data.region_type == '2') {
+              CityList.forEach(item => {
+                $('#superiorCicty').append(`
+                <option value="${item.region_id}">${item.region_name}</option>
+            `)
+              })
+              $('#region_type').html('区/县')
+            }
+            form.render();
+            $('#superiorCicty').val(data.region_id);
+            form.render();
+            //点击确定
+            $('#add').click(function () {
+              data.region_type = parseInt(data.region_type) + 1
+              if ($('#areaName').val() == '') {
+                layer.msg('区域名称不能为空！')
+                return false
+              } else if ($('#superiorCicty').val() == '') {
+                layer.msg('您还未选择归属区域！')
+                return false
+              } else {
+                addRegion($('#superiorCicty').val(), data.region_type, $('.areaName').val(), $(
+                  '.letter').val(), '');
+              }
+              return false
+            })
+
+          }
+        });
+      }
+    });
+  })
+</script>

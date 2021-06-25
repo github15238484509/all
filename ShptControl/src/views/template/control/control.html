@@ -1,0 +1,31 @@
+<style>
+    .ul {
+        width: 100%;
+        height: 100%;
+    }
+
+    .layui-layer-content {
+        padding: 0 20px;
+    }
+</style>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>富文本编辑器示例</cite></a>
+        <a><cite>富文本</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+<div id="mytextarea">
+
+</div>
+<script type="text/javascript">
+    layui.use(['form', 'layedit', 'table', 'laydate', 'element', 'layer', 'admin', 'upload', 'layedit', 'common'],
+        function () {
+
+        });
+    layui.use('checkTask', layui.factory('checkTask'));
+</script>

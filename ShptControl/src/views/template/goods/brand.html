@@ -1,0 +1,432 @@
+<style>
+    .tabMsg {
+        display: flex;
+        padding: 20px;
+    }
+
+    .tabMsg>div {
+        width: 200px;
+        height: 30px;
+        text-align: center;
+        line-height: 30px;
+        font-size: 14px;
+        color: rgba(42, 130, 228, 1);
+        border: 1px solid rgba(42, 130, 228, 1);
+        cursor: pointer;
+        margin-left: -1px;
+    }
+
+    .tabMsg .current {
+        color: #fff;
+        background-color: rgba(42, 130, 228, 1);
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">首页</a>
+        <a><cite>商品</cite></a>
+        <a><cite>品牌管理</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="tabMsg">
+            <div class="current">待审核品牌信息</div>
+            <div>使用中品牌信息</div>
+            <div>未通过品牌信息</div>
+        </div>
+    </div>
+    <button type="button" class="layui-btn layui-btn-normal addBrand">添加品牌</button>
+    <table class="layui-hide" id="brandTable" lay-filter="brandTable"></table>
+</div>
+
+<script>
+    layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'table', 'laydate', 'common', 'public'],
+        function () {
+            var $ = layui.$,
+                admin = layui.admin,
+                laydate = layui.laydate,
+                view = layui.view,
+                table = layui.table;
+            IsshowAnNiu = layui.common.IsshowAnNiu;
+            var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+            var base = new layui.public.Base64();
+            var brand_status = '1';
+            var cols = []
+            var tool = layui.public.tool;
+            $(".tabMsg>div").click(function () {
+                var index = $(".tabMsg div").index(this);
+                brand_status = index + 1
+                $(this).addClass('current').siblings().removeClass('current');
+                render_table();
+            });
+            $('.addBrand').click(function () {
+                admin.popup({
+                    id: 'addBrand',
+                    title: '添加品牌',
+                    zIndex: 10000,
+                    area: ['580px', '600px'],
+                    success: function () {
+                        view(this.id).render('/template/goods/addBrand', {});
+                    }
+                });
+            })
+            //渲染表格数据
+            var render_table = function () {
+                if (brand_status == '1') {
+                    cols = [
+                        [{
+                                field: 'brand_index',
+                                title: 'ID',
+                                align: 'center',
+                                width: 70,
+                                sort: true
+                            }, {
+                                field: 'brand_name',
+                                title: '品牌名称',
+                                align: 'center'
+                            }, {
+                                field: 'brand_logo',
+                                title: '品牌logo',
+                                align: 'center',
+                                height: '60px',
+                                templet: function (d) {
+                                    var src = layui.setter.CDN + d.brand_logo
+                                    var str =
+                                        `<img src = ${src} style="cursor:pointer;width:30px;height:30px" lay-event = 'enlarge' ></img>`
+                                    return str
+                                }
+                            }, {
+                                field: 'brand_cover',
+                                title: '品牌封面',
+                                align: 'center',
+                                height: '60px',
+                                templet: function (d) {
+                                    return `<button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-event = 'enlarge1'>查看</button>`
+                                }
+                            }, {
+                                field: 'brand_desp',
+                                align: 'center',
+                                title: '品牌简介',
+                                templet: function (d) {
+                                    return `<button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-event = 'look_des1'>查看</button>`
+                                }
+                            }, {
+                                field: 'brand_history',
+                                align: 'center',
+                                title: '品牌历程',
+                                templet: function (d) {
+                                    return `<button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-event = 'look_des2'>查看</button>`
+                                }
+                            }, {
+                                field: 'team_des',
+                                align: 'center',
+                                title: '团队介绍',
+                                templet: function (d) {
+                                    return `<button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-event = 'look_des3'>查看</button>`
+                                }
+                            }, {
+                                field: 'supplier_name',
+                                align: 'center',
+                                title: '提交商户',
+                            }, {
+                                field: 'add_time',
+                                align: 'center',
+                                title: '创建时间',
+                                templet: function (d) {
+                                    return layui.common.createTime(d.add_time)
+                                }
+                            },
+                            {
+                                fixed: 'right',
+                                align: 'center',
+                                title: '操作',
+                                templet: function (d) {
+                                    return `<button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-event = 'look'>查看</button>
+                                    <button type="button" class="layui-btn layui-btn-sm" lay-event = 'check'>审核</button>`
+                                }
+                            }
+                        ]
+                    ]
+                } else if (brand_status == '2') {
+                    cols = [
+                        [{
+                                field: 'brand_index',
+                                title: 'ID',
+                                align: 'center',
+                                width: 70,
+                                sort: true
+                            }, {
+                                field: 'brand_name',
+                                title: '品牌名称',
+                                align: 'center'
+                            }, {
+                                field: 'brand_logo',
+                                title: '品牌logo',
+                                align: 'center',
+                                height: '60px',
+                                templet: function (d) {
+                                    var src = layui.setter.CDN + d.brand_logo
+                                    var str =
+                                        `<img src = ${src} style="cursor:pointer;width:30px;height:30px" lay-event = 'enlarge'></img>`
+                                    return str
+                                }
+                            }, {
+                                field: 'brand_cover',
+                                title: '品牌封面',
+                                align: 'center',
+                                height: '60px',
+                                templet: function (d) {
+                                    return `<button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-event = 'enlarge1'>查看</button>`
+                                }
+                            }, {
+                                field: 'brand_focus_count',
+                                align: 'center',
+                                title: '品牌关注人数'
+                            }, {
+                                field: 'brand_desp',
+                                align: 'center',
+                                title: '品牌简介',
+                                templet: function (d) {
+                                    return `<button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-event = 'look_des1'>查看</button>`
+                                }
+                            }, {
+                                field: 'brand_history',
+                                align: 'center',
+                                title: '品牌历程',
+                                templet: function (d) {
+                                    return `<button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-event = 'look_des2'>查看</button>`
+                                }
+                            }, {
+                                field: 'team_des',
+                                align: 'center',
+                                title: '团队介绍',
+                                templet: function (d) {
+                                    return `<button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-event = 'look_des3'>查看</button>`
+                                }
+                            }, {
+                                field: 'num',
+                                align: 'center',
+                                title: '品牌下商品数量'
+                            }, {
+                                field: 'add_time',
+                                align: 'center',
+                                title: '创建时间',
+                                templet: function (d) {
+                                    return layui.common.createTime(d.add_time)
+                                }
+                            }, {
+                                field: 'supplier_name',
+                                align: 'center',
+                                title: '提交商户'
+                            },
+                            {
+                                fixed: 'right',
+                                align: 'center',
+                                title: '操作',
+                                width: 135,
+                                templet: function (d) {
+                                    return `<button type="button" class="layui-btn layui-btn-sm" lay-event = 'edit'>编辑</button>
+                            <button type="button" class="layui-btn layui-btn-danger layui-btn-sm" lay-event = 'delete'>删除</button>`
+                                }
+                            }
+                        ]
+                    ]
+                } else if (brand_status == '3') {
+                    cols = [
+                        [{
+                            field: 'brand_index',
+                            title: 'ID',
+                            align: 'center',
+                            width: 70,
+                            sort: true
+                        }, {
+                            field: 'brand_name',
+                            title: '品牌名称',
+                            align: 'center'
+                        }, {
+                            field: 'brand_logo',
+                            title: '品牌logo',
+                            align: 'center',
+                            height: '60px',
+                            templet: function (d) {
+                                var src = layui.setter.CDN + d.brand_logo
+                                var str =
+                                    `<img src = ${src} style="cursor:pointer;width:30px;height:30px" lay-event = 'enlarge'></img>`
+                                return str
+                            }
+                        }, {
+                            field: 'brand_cover',
+                            title: '品牌封面',
+                            align: 'center',
+                            height: '60px',
+                            templet: function (d) {
+                                return `<button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-event = 'enlarge1'>查看</button>`
+                            }
+                        }, {
+                            field: 'brand_desp',
+                            align: 'center',
+                            title: '品牌简介',
+                            templet: function (d) {
+                                return `<button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-event = 'look_des1'>查看</button>`
+                            }
+                        }, {
+                            field: 'brand_history',
+                            align: 'center',
+                            title: '品牌历程',
+                            templet: function (d) {
+                                return `<button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-event = 'look_des2'>查看</button>`
+                            }
+                        }, {
+                            field: 'team_des',
+                            align: 'center',
+                            title: '团队介绍',
+                            templet: function (d) {
+                                return `<button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-event = 'look_des3'>查看</button>`
+                            }
+                        }, {
+                            field: 'add_time',
+                            align: 'center',
+                            title: '创建时间',
+                            templet: function (d) {
+                                return layui.common.createTime(d.add_time)
+                            }
+                        }, {
+                            field: 'supplier_name',
+                            align: 'center',
+                            title: '提交商户',
+                        }, {
+                            field: 'check_time',
+                            align: 'center',
+                            title: '拒绝时间',
+                            templet: function (d) {
+                                return layui.common.createTime(d.check_time)
+                            }
+                        }, {
+                            field: 'refuse_reason',
+                            align: 'center',
+                            title: '拒绝原因',
+                            templet: function (d) {
+                                return d.refuse_reason ? base.decode(d.refuse_reason) : '暂无'
+                            }
+                        }]
+                    ]
+                }
+                table.render({
+                    elem: '#brandTable',
+                    url: layui.setter.requestUrl + 'api.php?c=brand/getBrandList',
+                    where: {
+                        type: brand_status
+                    },
+
+                    cols: cols,
+                    page: true,
+                    parseData: function (res) {
+                        return {
+                            "count": res.count, //解析接口状态
+                            "code": res.code, //解析接口状态
+                            "data": res.data.list //解析数据列表
+                        };
+                    },
+                });
+            }
+            //先自调用请求渲染数据
+            render_table();
+
+
+            table.on('tool(brandTable)', function (obj) { //注：tool table 是 table  lay-filter="对应的值"
+                var data = obj.data; //获得当前行数据
+                var layEvent = obj.event; //获得 lay-event 对应的值
+                if (layEvent == 'enlarge') {
+                    var src = layui.setter.CDN + data.brand_logo
+                    layer.open({
+                        type: 1,
+                        title: '品牌logo',
+                        area: ['600px', '400px'],
+                        shadeClose: true, //点击遮罩关闭
+                        content: `<img src = ${src} style="width:100%;height:100%"></img>`
+                    });
+                } else if (layEvent == 'enlarge1') {
+                    tool.lookBigImg(data.brand_cover.split(','));
+                } else if (layEvent == 'look') {
+                    admin.popup({
+                        id: 'lookBrand',
+                        title: '查看品牌信息',
+                        area: ['600px', '600px'],
+                        success: function () {
+                            view(this.id).render('/template/goods/lookBrand', data);
+                        }
+                    });
+                } else if (layEvent == 'edit') {
+                    admin.popup({
+                        id: 'addBrand',
+                        title: '编辑品牌信息',
+                        area: ['600px', '600px'],
+                        success: function () {
+                            view(this.id).render('/template/goods/addBrand', data);
+                        }
+                    });
+                } else if (layEvent == 'check') {
+                    data.check = true
+                    admin.popup({
+                        id: 'checkBrand',
+                        title: '品牌审核',
+                        area: ['600px', '600px'],
+                        success: function () {
+                            view(this.id).render('/template/goods/lookBrand', data);
+                        }
+                    });
+                } else if (layEvent == 'delete') {
+                    tool.delTableLine({
+                        url: 'brand/delBrand',
+                        param: {
+                            brand_index: data.brand_index
+                        },
+                        success: function (res) {
+                            table.reload('brandTable', {
+                                url: layui.setter.requestUrl +
+                                    'api.php?c=brand/getBrandList'
+                            });
+                        }
+                    });
+                } else if (layEvent == 'look_des1') {
+                    admin.popup({
+                        id: 'look',
+                        title: '查看品牌简介',
+                        area: ['600px', '300px'],
+                        success: function () {
+                            view(this.id).render('/template/goods/look', {
+                                content: data.brand_desp_base
+                            });
+                        }
+                    });
+                } else if (layEvent == 'look_des2') {
+                    admin.popup({
+                        id: 'look',
+                        title: '查看品牌历程',
+                        area: ['600px', '300px'],
+                        success: function () {
+                            view(this.id).render('/template/goods/look', {
+                                content: data.brand_history_base
+                            });
+                        }
+                    });
+                } else if (layEvent == 'look_des3') {
+                    admin.popup({
+                        id: 'look',
+                        title: '查看团队介绍',
+                        area: ['600px', '300px'],
+                        success: function () {
+                            view(this.id).render('/template/goods/look', {
+                                content: data.team_des_base
+                            });
+                        }
+                    });
+                }
+            })
+        });
+</script>

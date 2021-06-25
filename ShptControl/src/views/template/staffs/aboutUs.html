@@ -1,0 +1,1291 @@
+<style>
+    .layui-form-item {
+        margin-bottom: 50px;
+        margin: 20px 0;
+    }
+    
+    .layui-form-label {
+        width: 150px;
+    }
+    
+    .right {
+        position: absolute;
+        left: 150px;
+        top: 0px;
+    }
+    
+    p {
+        font-size: 12px;
+    }
+    
+    .layui-tab {
+        background: #fff;
+    }
+    
+    .del,
+    .delEwm1,
+    .delEwm2,
+    .delEwm3,
+    .delEwm4 {
+        width: 20px;
+        height: 20px;
+        line-height: 20px;
+        text-align: center;
+        background-color: rgb(128, 120, 120);
+        color: #fff;
+        font-size: 20px;
+        position: absolute;
+        top: -10px;
+        right: -3px;
+        border-radius: 50%;
+        display: none;
+        cursor: pointer;
+    }
+    
+    .box {
+        display: flex;
+        margin-bottom: 20px;
+    }
+    
+    .box .imgs {
+        margin: 0 10px;
+        width: 400px;
+        height: 200px;
+    }
+    
+    .imgs img {
+        width: 100%;
+        height: 100%;
+    }
+    
+    .btns div {
+        margin-top: 10px;
+    }
+    
+    .rightImg {
+        width: 375px;
+        height: auto;
+    }
+    
+    .rightImg img {
+        width: 100%;
+        height: 100%;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>系统配置</cite></a>
+        <a><cite>基础设置</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+<div class="layui-tab layui-tab-brief" lay-filter="tab">
+    <ul class="layui-tab-title">
+        <li class="layui-this">关于我们</li>
+        <li>分享配置</li>
+        <li>基础文案</li>
+        <li>金币说明</li>
+        <li>鸿运勋章说明</li>
+        <!-- <li>余额设置</li> -->
+        <!-- <li>自动复制内容管理</li> -->
+    </ul>
+    <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show">
+            <div style="height: 100%;">
+                <form class="layui-form" style="background:#fff;padding:10px 0 0 0" lay-filter="form">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">系统名称</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="project_name" placeholder="请输入内容" autocomplete="off" class="layui-input" style="width: 700px;">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">公司名称</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="company_name" placeholder="请输入内容" autocomplete="off" class="layui-input" style="width: 700px;">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">联系电话</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="service_phone" placeholder="请输入内容" autocomplete="off" class="layui-input" style="width: 700px;">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">联系邮箱</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="service_email" placeholder="请输入内容" autocomplete="off" class="layui-input" style="width: 700px;">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">联系地址</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="company_address" placeholder="请输入内容" autocomplete="off" class="layui-input" style="width: 700px;">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">官方网站</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="website" placeholder="请输入内容" autocomplete="off" class="layui-input" style="width: 700px;">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">版权声明</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="copyright" placeholder="请输入内容" autocomplete="off" class="layui-input" style="width: 700px;">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">简介</label>
+                        <div class="layui-input-block">
+                            <textarea type="text" name="des" placeholder="请输入内容" autocomplete="off" class="layui-input desc" style="width: 700px;padding:10px;height:100px"></textarea>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">安卓APP下载链接</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="android_url" placeholder="请输入内容" autocomplete="off" class="layui-input" style="width: 700px;">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">IOSAPP下载链接</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="ios_url" placeholder="请输入内容" autocomplete="off" class="layui-input" style="width: 700px;">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">微信公众号</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="public_wechat" placeholder="请输入内容" autocomplete="off" class="layui-input" style="width: 700px;">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">公众号二维码：</label>
+                        <div class="layui-input-inline" style="width:110px;position: relative;">
+                            <img id="test" style="width:90px;height:90px;cursor:pointer;position:relative" class="ewm"></img>
+                            <div class="delEwm1">×</div>
+                        </div>
+                        <div style="margin-left: 50px;">
+                            <p style="color:rgba(212, 48, 48, 1)"> 提示：公众号二维码用于扫码关注公众号</p>
+                            <p style="color:rgba(212, 48, 48, 1)">供货商关注公众号后可收到该店铺</p>
+                            <p style="color:rgba(212, 48, 48, 1)">订单提醒</p>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">LOGO</label>
+                        <div class="layui-input-inline" style="width:110px;position: relative;">
+                            <img id="test2" style="width:90px;height:90px;cursor:pointer" class="small_logo"></img>
+                            <div class="delEwm2">×</div>
+                        </div>
+                        <div style="margin-left: 50px;">
+                            <p style="color:rgba(212, 48, 48, 1)">注意事项：</p>
+                            <p style="color:rgba(212, 48, 48, 1)"> 1、请上传.png格式图片</p>
+                            <p style="color:rgba(212, 48, 48, 1)">2、图片宽高比要去：1：1</p>
+                            <p style="color:rgba(212, 48, 48, 1)">3、最低像素尺寸要求：256*256像素</p>
+                            <p style="color:rgba(212, 48, 48, 1)">4、图片文件大小控制在0.5MB以内</p>
+                        </div>
+
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">横幅 </label>
+                        <div class="layui-input-inline" style="display: flex;width:150px;height:90px;position: relative;">
+                            <img id="BrandLogo" style="width: 150px;height:56px;cursor:pointer" class="brandImg"></img>
+                            <div class="delEwm3">×</div>
+                        </div>
+                        <div style="margin-left: 50px;">
+                            <p style="color:rgba(212, 48, 48, 1)">注意事项：</p>
+                            <p style="color:rgba(212, 48, 48, 1)"> 1、请上传.png格式图片</p>
+                            <p style="color:rgba(212, 48, 48, 1)">2、最低像素尺寸要求：150*56</p>
+                            <p style="color:rgba(212, 48, 48, 1)">3、图片文件大小控制在0.5MB以内</p>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-input-block" style="width: 200px;margin: 50px 150px;">
+                            <button type="submit" style="width: 100%;" class="layui-btn layui-btn-danger" lay-submit lay-filter="submit">提交</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="layui-tab-item">
+            <form class="layui-form" action="">
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:160px">是否允许分享：</label>
+                    <div class="layui-input-block share_button">
+                        <input type="checkbox" name="share_button" lay-skin="switch" lay-text="ON|OFF">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:160px">默认分享链接：</label>
+                    <div class="layui-input-inline" style="width: auto;">
+                        <input type="text" name="share_url" min="0" lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_url" style="width:300px">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:160px">默认分享标题：</label>
+                    <div class="layui-input-inline" style="width: auto;">
+                        <input type="text" name="share_title" min="0" lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_title" style="width:300px">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:160px">默认分享描述：</label>
+                    <div class="layui-input-inline" style="width: auto;">
+                        <input type="text" name="share_desc" min="0" lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_desc" style="width:300px">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:160px">默认图片：</label>
+                    <div class="layui-upload layui-input-inline" style="width:110px;position: relative;">
+                        <img src="/ShptControl/src/images/upImg.png" class="layui-upload-img" id="uploadImg" style='width:96px;height:96px;cursor: pointer;'>
+                        <div class="del">×</div>
+                    </div>
+                    <div style="color:rgba(212, 48, 48, 1);display:inline-block">
+                        <p>注意事项：</p>
+                        <p>1、请上传.jpg或.png格式图片</p>
+                        <p>2、图片宽高比要去：1：1</p>
+                        <p>3、最低像素尺寸要求：256*256像素</p>
+                        <p>4、图片文件大小控制在0.5MB以内</p>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button type="submit" class="layui-btn" lay-submit="submit2" lay-filter="submit2" style="margin: 20px 0 0 200px;">确定</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="layui-tab-item">
+            <button type="button" class="layui-btn" id="addOfficial">添加文案</button>
+            <table class="layui-hide" id="basisCopy" lay-filter='basisCopy'></table>
+        </div>
+
+        <!-- //金币说明 -->
+        <div class="layui-tab-item">
+            <form class="layui-form" style="background:#fff;margin:10px 0;padding:10px 0 0 0">
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:80px">协议标题</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="agreement_title" required lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input agreement_title1" style="width: 700px;">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:80px"> 协议标题</label>
+                    <div class="layui-input-block" style="width:700px">
+                        <textarea class="layui-textarea agreement_content1" id="LAY_demo1" style="display: none;" placeholder="请输入内容"></textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block" style="text-align: center;">
+                        <button type="submit" class="layui-btn layui-btn-danger" lay-submit lay-filter="submit1">提交</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- 鸿运勋章说明 -->
+        <div class="layui-tab-item">
+            <form class="layui-form" style="background:#fff;margin:10px 0;padding:10px 0 0 0">
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:80px">协议标题</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="agreement_title" required lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input agreement_title2" style="width: 700px;">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:80px"> 协议标题</label>
+                    <div class="layui-input-block" style="width:700px">
+                        <textarea class="layui-textarea agreement_content2" id="LAY_demo2" style="display: none;" placeholder="请输入内容"></textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block" style="text-align: center;">
+                        <button type="submit" class="layui-btn layui-btn-danger" lay-submit lay-filter="submit20">提交</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- 余额设置 -->
+        <div class="layui-tab-item">
+            <form class="layui-form" action="">
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:300px">用户转赠到对方拼团本金账户，固定金额为：</label>
+                    <input type="text" name="key132" lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input key132" style="width:100px;margin-right:5px;display: inline-block;"> 元 ，对方账户 若金额大于<input type="text" name="limit_money"
+                        lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input limit_money" style="width:100px;margin-right:5px;display: inline-block;"> 元。则不能转赠
+
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button type="submit" class="layui-btn" lay-submit="submit7" lay-filter="submit7" style="margin: 20px 0 0 260px;">确定</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- <div class="layui-tab-item">
+            <form class="layui-form" action="" lay-filter="form3">
+                <div style="display: flex;flex-wrap: wrap;">
+                    <div class="layui-form-item layui-form-text" style="width: 33%;">
+                        <label class="layui-form-label" style="width:200px;text-align: left;">通用消费金复制内容：</label>
+                        <div class="layui-input-inline">
+                            <textarea placeholder="请输入内容" name="copy_1" class="layui-textarea copy_1"
+                                style="width:300px"></textarea>
+                        </div>
+                    </div>
+                    <div class="layui-form-item layui-form-text" style="width: 33%;">
+                        <label class="layui-form-label" style="width:200px;text-align: left;">首页复制内容：</label>
+                        <div class="layui-input-inline">
+                            <textarea placeholder="请输入内容" name="copy_2" class="layui-textarea copy_2"
+                                style="width:300px"></textarea>
+                        </div>
+                    </div>
+                    <div class="layui-form-item layui-form-text" style="width: 33%;">
+                        <label class="layui-form-label" style="width:200px;text-align: left;">个人中心复制内容：</label>
+                        <div class="layui-input-inline">
+                            <textarea placeholder="请输入内容" name="copy_3" class="layui-textarea copy_3"
+                                style="width:300px"></textarea>
+                        </div>
+                    </div>
+                    <div class="layui-form-item layui-form-text" style="width: 33%;">
+                        <label class="layui-form-label" style="width:200px;text-align: left;">消费金解锁页面复制内容：</label>
+                        <div class="layui-input-inline">
+                            <textarea placeholder="请输入内容" name="copy_4" class="layui-textarea copy_4"
+                                style="width:300px"></textarea>
+                        </div>
+                    </div>
+                    <div class="layui-form-item layui-form-text" style="width: 33%;">
+                        <label class="layui-form-label" style="width:200px;text-align: left;">线下用户消费金支付制内容：</label>
+                        <div class="layui-input-inline">
+                            <textarea placeholder="请输入内容" name="copy_5" class="layui-textarea copy_5"
+                                style="width:300px"></textarea>
+                        </div>
+                    </div>
+                    <div class="layui-form-item layui-form-text" style="width: 33%;">
+                        <label class="layui-form-label" style="width:200px;text-align: left;">线上商城支付成功复制内容：</label>
+                        <div class="layui-input-inline">
+                            <textarea placeholder="请输入内容" name="copy_6" class="layui-textarea copy_6"
+                                style="width:300px"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button type="submit" class="layui-btn" lay-submit="submit8" lay-filter="submit8"
+                            style="margin: 20px 0 0 400px;">确定</button>
+                    </div>
+                </div>
+            </form>
+        </div> -->
+    </div>
+</div>
+<script type="text/html" id="operation">
+    <a class="layui-btn layui-btn-sm" lay-event="edit">修改</a>
+    <a class="layui-btn layui-btn-sm layui-btn-danger" lay-event="del">删除</a>
+</script>
+<script>
+    layui.use(['form', 'table', 'layer', 'upload', 'common', 'element', 'public', 'layedit'], function() {
+        var admin = layui.admin,
+            setter = layui.setter,
+            $ = layui.jquery,
+            form = layui.form,
+            upload = layui.upload,
+            element = layui.element,
+            table = layui.table,
+            layer = layui.layer,
+            layedit = layui.layedit,
+            IsshowAnNiu = layui.common.IsshowAnNiu;
+        var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+        var agreement_index1 = ''
+        var agreement_index2 = ''
+        var index1 = layedit.build('LAY_demo1');
+        //构建一个默认的编辑器
+        layedit.set({
+            uploadImage: {
+                url: layui.setter.requestUrl + 'api.php?c=uploadImg/wbUploadImage&module=xieyi',
+                type: 'get' //默认post
+                    ,
+                success: function(res) {
+                    console.log(res.data)
+                }
+            }
+        });
+        var index2 = layedit.build('LAY_demo2');
+        layedit.set({
+            uploadImage: {
+                url: layui.setter.requestUrl + 'api.php?c=uploadImg/wbUploadImage&module=xieyi',
+                type: 'get' //默认post
+                    ,
+                success: function(res) {
+                    console.log(res.data)
+                }
+            }
+        });
+
+
+
+        var ewmImg = '';
+        var small_logo = '';
+        var platform_logo = '';
+        var long_logo = '';
+        var share_img = ''; //分享设置的默认图片
+        var aboutImgs = []; //关于集象上传的图片
+        var base = new layui.public.Base64();
+        //切换tabbar
+        element.on('tab(tab)', function(data) {
+            var index = data.index
+            if (index == 0) {
+                init1()
+                console.log(0);
+            } else if (index == 1) {
+                init2()
+                console.log(1);
+            } else if (index == 2) {
+                console.log(2);
+                renderTab();
+            } else if (index == 3) {
+                console.log(3);
+                init7()
+            } else if (index == 4) {
+                console.log(4);
+                init8()
+                    // init9()
+            } else if (index == 5) {
+                console.log(5);
+                init6()
+            } else if (index == 6) {
+                console.log(6);
+            } else if (index == 7) {
+                console.log(7);
+            }
+        });
+
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~关于我们~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        function init1() {
+            //页面渲染
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=configJson/getBaseConfig',
+                data: {
+                    key: 'project_name,company_name,service_phone,service_email,company_address,website,copyright,public_wechat,platform_logo,long_logo,small_logo,wx_code_url,des,android_url,ios_url'
+                },
+                success: function(res) {
+                    if (res.code == 0) {
+                        form.val("form", { //formTest 即 class="layui-form" 所在元素属性 lay-filter="" 对应的值
+                            "project_name": res.data.project_name,
+                            "company_name": res.data.company_name,
+                            "service_phone": res.data.service_phone,
+                            "service_email": res.data.service_email,
+                            "company_address": res.data.company_address,
+                            "website": res.data.website,
+                            "copyright": res.data.copyright,
+                            "public_wechat": res.data.public_wechat,
+                            "android_url": res.data.android_url,
+                            "ios_url": res.data.ios_url,
+                        });
+                        small_logo = res.data.small_logo;
+                        platform_logo = res.data.platform_logo;
+                        long_logo = res.data.long_logo;
+                        ewmImg = res.data.wx_code_url;
+                        $('.desc').val(base.decode(res.data.des))
+                        $('.small_logo').attr('src', layui.setter.CDN + res.data.small_logo + '?' +
+                            new Date().getTime());
+                        $('.platform_logo').attr('src', layui.setter.CDN + res.data.platform_logo +
+                            '?' +
+                            new Date().getTime());
+                        $('.brandImg').attr('src', layui.setter.CDN + res.data.long_logo + '?' +
+                            new Date().getTime());
+                        $('.ewm').attr('src', layui.setter.CDN + res.data.wx_code_url + '?' +
+                            new Date().getTime());
+                        $('.delEwm1').css('display', 'block')
+                        $('.delEwm2').css('display', 'block')
+                        $('.delEwm3').css('display', 'block')
+                        $('.delEwm4').css('display', 'block')
+                    }
+                }
+            })
+        }
+        init1()
+            //二维码上传
+        upload.render({
+            elem: '#test',
+            url: layui.setter.requestUrl + 'api.php?c=uploadImg/uploadImage',
+            data: {
+                module: 'news',
+                access_token: layui.data('ShptControl').access_token
+            },
+            before: function(obj) {
+                //预读本地文件示例，不支持ie8
+                obj.preview(function(index, file, result) {
+                    $('#test').attr('src', result); //图片链接（base64）
+                });
+            },
+            done: function(res) {
+                console.log(res);
+                //如果上传失败
+                if (res.code == 0) {
+                    layer.msg('上传成功');
+                    ewmImg = res.data;
+                    console.log(ewmImg);
+                    $('.delEwm1').css('display', 'block')
+                } else {
+                    return layer.msg('上传失败');
+                }
+            },
+            error: function() {
+                //演示失败状态，并实现重传
+                var demoText = $('#demoText');
+                demoText.html(
+                    '<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>'
+                );
+                demoText.find('.demo-reload').on('click', function() {
+                    uploadInst.upload();
+                });
+            }
+        });
+        //关于我们logo上传
+        upload.render({
+            elem: '#test2',
+            url: layui.setter.requestUrl + 'api.php?c=uploadImg/uploadLong&type=2',
+            data: {
+                module: 'news',
+                access_token: layui.data('ShptControl').access_token
+            },
+            before: function(obj) {
+                //预读本地文件示例，不支持ie8
+                obj.preview(function(index, file, result) {
+                    $('#test2').attr('src', result); //图片链接（base64）
+                });
+            },
+            done: function(res) {
+                //如果上传失败
+                if (res.code == 0) {
+                    layer.msg('上传成功');
+                    small_logo = res.data;
+                    $('.delEwm2').css('display', 'block')
+                } else {
+                    return layer.msg('上传失败');
+                }
+            },
+            error: function() {
+                //演示失败状态，并实现重传
+                var demoText = $('#demoText');
+                demoText.html(
+                    '<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>'
+                );
+                demoText.find('.demo-reload').on('click', function() {
+                    uploadInst.upload();
+                });
+            }
+        });
+        //applogo上传
+        upload.render({
+            elem: '#test3',
+            url: layui.setter.requestUrl + 'api.php?c=uploadImg/uploadImage',
+            data: {
+                module: 'news',
+                access_token: layui.data('ShptControl').access_token
+            },
+            before: function(obj) {
+                //预读本地文件示例，不支持ie8
+                obj.preview(function(index, file, result) {
+                    $('#test3').attr('src', result); //图片链接（base64）
+                });
+            },
+            done: function(res) {
+                //如果上传失败
+                if (res.code == 0) {
+                    layer.msg('上传成功');
+                    platform_logo = res.data;
+                    $('.delEwm4').css('display', 'block')
+                } else {
+                    return layer.msg('上传失败');
+                }
+            },
+            error: function() {
+                //演示失败状态，并实现重传
+                var demoText = $('#demoText');
+                demoText.html(
+                    '<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>'
+                );
+                demoText.find('.demo-reload').on('click', function() {
+                    uploadInst.upload();
+                });
+            }
+        });
+        //上传横幅
+        upload.render({
+            elem: '#BrandLogo',
+            url: layui.setter.requestUrl + 'api.php?c=uploadImg/uploadLong&type=1',
+            before: function(obj) {
+                //预读本地文件示例，不支持ie8
+                obj.preview(function(index, file, result) {
+                    $('#BrandLogo').attr('src', result); //图片链接（base64）
+                });
+            },
+            done: function(res) {
+                //如果上传失败
+                if (res.code == 0) {
+                    layer.msg('上传成功');
+                    long_logo = res.data
+                    $('.delEwm3').css('display', 'block')
+                } else {
+                    return layer.msg('上传失败');
+                }
+            },
+            error: function() {
+                //演示失败状态，并实现重传
+                var demoText = $('#demoText');
+                demoText.html(
+                    '<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>'
+                );
+                demoText.find('.demo-reload').on('click', function() {
+                    uploadInst.upload();
+                });
+            }
+        });
+        $('.delEwm1').click(function() {
+            ewmImg = ''
+            $('.ewm').attr('src', '/ShptControl/src/images/upImg.png');
+            $('.delEwm1').css('display', 'none')
+        })
+        $('.delEwm2').click(function() {
+            small_logo = ''
+            $('.small_logo').attr('src', '/ShptControl/src/images/upImg.png');
+            $('.delEwm2').css('display', 'none')
+        })
+        $('.delEwm4').click(function() {
+            platform_logo = ''
+            $('.platform_logo').attr('src', '/ShptControl/src/images/upImg.png');
+            $('.delEwm4').css('display', 'none')
+        })
+        $('.delEwm3').click(function() {
+                long_logo = ''
+                $('.brandImg').attr('src', '/ShptControl/src/images/upImg.png');
+                $('.delEwm3').css('display', 'none')
+
+            })
+            //提交
+        form.on('submit(submit)', function(data) {
+                if (ewmImg == '') {
+                    layer.msg('请上传公众号二维码')
+                    return false;
+                }
+                if (small_logo == '') {
+                    layer.msg('请上传LOGO')
+                    return false;
+                }
+                // if (platform_logo == '') {
+                //     layer.msg('请上传APPLOGO')
+                //     return false;
+                // }
+                if (long_logo == '') {
+                    layer.msg('请上传横幅')
+                    return false;
+                }
+                data.field.small_logo = small_logo;
+                // data.field.platform_logo = platform_logo;
+                data.field.long_logo = long_logo;
+                data.field.wx_code_url = ewmImg;
+                data.field.type = '1';
+                delete data.field.file
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=configJson/setBaseConfig',
+                    type: 'POST',
+                    data: data.field,
+                    success: function(res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg, {
+                                    icon: 1
+                                })
+                                // window.location.reload()
+                        }
+                    }
+                })
+                return false;
+            })
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~分享配置~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            //页面渲染
+        function init2() {
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=mall_set/getMallSet',
+                data: {
+                    type: '2'
+                },
+                success: function(res) {
+                    if (res.code == 0) {
+                        $('.share_button').empty()
+                        if (res.data.share_button == '0') {
+                            $('.share_button').append(
+                                `<input type="checkbox" name="share_button" lay-skin="switch" lay-text="ON|OFF">`
+                            )
+                        } else {
+                            $('.share_button').append(
+                                `<input type="checkbox" name="share_button" lay-skin="switch" lay-text="ON|OFF" checked="">`
+                            )
+                        }
+                        $('.share_title').val(res.data.share_title) //分享标题
+                        $('.share_desc').val(res.data.share_desc) //描述
+                        $('.share_url').val(res.data.share_url) //分享链接
+                        if (res.data.share_image != '') {
+                            $('#uploadImg').attr("src", layui.setter.CDN + res.data
+                                .share_image); //封面
+                            $('#uploadImg').css("border", '1px solid #ccc');
+                            $('.del').css('display', 'block')
+                            share_image = res.data.share_image
+                        }
+                        form.render()
+                    }
+                }
+            })
+        }
+        //分享上传图片
+        upload.render({
+            elem: '#uploadImg',
+            url: layui.setter.requestUrl + '/api.php?c=uploadImg/uploadImage',
+            data: {
+                module: 'share'
+            },
+            drag: true,
+            done: function(res, index, upload) { //上传后的回调
+                if (res.code == 0) {
+                    video_pic = res.data
+                    $('#uploadImg').attr("src", layui.setter.CDN + res.data);
+                    $('#uploadImg').css("border", '1px solid #ccc');
+                    $('.del').css('display', 'block')
+                    share_image = res.data
+                } else {
+                    layer.msg(res.msg);
+                };
+            }
+        });
+        // 删除上传的图片
+        $('.del').click(function() {
+                $('.del').css('display', 'none')
+                share_image = ''
+                $('#uploadImg').attr("src", '/ShptControl/src/images/upImg.png');
+            })
+            //提交
+        form.on('submit(submit2)', function(data) {
+                if (share_image == '') {
+                    layer.msg('请上传默认图片')
+                    return false
+                }
+                if (data.field.share_button == 'on') {
+                    data.field.share_button = 1
+                } else {
+                    data.field.share_button = 0
+                }
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=mall_set/setShareButton',
+                    data: {
+                        share_button: data.field.share_button,
+                        share_title: data.field.share_title,
+                        share_desc: data.field.share_desc,
+                        share_url: data.field.share_url,
+                        title_type: '0',
+                        desc_type: '0',
+                        image_type: '0',
+                        share_image: share_image
+                    },
+                    success: function(res) {
+                        layer.msg(res.msg)
+                    }
+                })
+                return false;
+            })
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~基础文案~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+        function renderTab() {
+            table.render({
+                elem: '#basisCopy',
+                url: layui.setter.requestUrl + 'api.php?c=configJson/getBaseList&type=3',
+                cols: [
+                    [{
+                        field: 'config_index',
+                        align: 'center',
+                        title: '文案标识'
+                    }, {
+                        field: 'config_key',
+                        align: 'center',
+                        title: '文案名称'
+                    }, {
+                        field: 'config_value',
+                        align: 'center',
+                        title: '文案内容'
+                    }, {
+                        field: 'config_des',
+                        align: 'center',
+                        title: '文案描述'
+                    }, {
+                        field: 'add_time',
+                        align: 'center',
+                        title: '创建时间',
+                        templet: function(d) {
+                            return `${layui.common.createTime(d.add_time)}`
+                        }
+                    }, {
+                        align: 'center',
+                        toolbar: '#operation',
+                        title: '功能操作'
+                    }]
+                ]
+            })
+        }
+        // 添加文案
+        $('#addOfficial').on('click', function() {
+            layer.open({
+                type: 1,
+                area: ['500px', '430px'],
+                shadeClose: 'true',
+                content: `
+                <form class="layui-form" lay-filter="form">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">文案名称</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="name" lay-verify="required"  placeholder="请输入文案名称" autocomplete="off"
+                                class="layui-input" style="width:300px;">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">文案内容</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="content" lay-verify="required" placeholder="请输入文案内容" autocomplete="off"
+                                class="layui-input" style="width: 300px;">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">文案描述</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="des" lay-verify="required" placeholder="请输入文案描述" autocomplete="off"
+                                class="layui-input" style="width: 300px;">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-input-block" style="width: 200px;margin: 50px 150px;">
+                            <button type="submit" class="layui-btn layui-btn-danger" style="width: 100%;" lay-submit
+                                lay-filter="submit_basis_share">提交</button>
+                        </div>
+                    </div>
+            </form>
+                `, //这里content是一个普通的String
+                success: function() {
+                    form.on('submit(submit_basis_share)', function(d) {
+                        admin.req({
+                            url: layui.setter.requestUrl +
+                                'api.php?c=configJson/addEditBaseAticle',
+                            type: 'POST',
+                            data: d.field,
+                            success: function(res) {
+                                if (res.code == 0) {
+                                    renderTab();
+                                    layer.msg(res.msg, {
+                                        icon: 1
+                                    });
+                                    setTimeout(function() {
+                                        layer.closeAll();
+                                    }, 500)
+                                }
+                            }
+                        })
+                        return false;
+                    })
+                }
+            });
+        });
+        table.on('tool(basisCopy)', function(d) {
+                var obj = d.data;
+                var event = d.event;
+                switch (event) {
+                    case 'edit':
+                        editBasis(obj);
+                        break;
+                    case 'del':
+                        delBasc(obj.config_index);
+                        break;
+                }
+            })
+            //编辑文案
+        function editBasis(d) {
+            layer.open({
+                type: 1,
+                area: ['500px', '430px'],
+                shadeClose: 'true',
+                content: `
+                <form class="layui-form" lay-filter="form">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">文案名称</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="name" value="${d.config_key}" placeholder="请输入文案名称" autocomplete="off"
+                                class="layui-input" style="width:300px;">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">文案内容</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="content" value="${d.config_value}" placeholder="请输入文案内容" autocomplete="off"
+                                class="layui-input" style="width: 300px;">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">文案描述</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="des" value="${d.config_des}" placeholder="请输入文案描述" autocomplete="off"
+                                class="layui-input" style="width: 300px;">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-input-block" style="width: 200px;margin: 50px 150px;">
+                            <button type="submit" class="layui-btn layui-btn-danger" style="width: 100%;" lay-submit
+                                lay-filter="submit_basis_share">提交</button>
+                        </div>
+                    </div>
+            </form>
+                `, //这里content是一个普通的String
+                success: function() {
+                    form.on('submit(submit_basis_share)', function(data) {
+                        data.field.config_index = d.config_index;
+                        admin.req({
+                            url: layui.setter.requestUrl +
+                                'api.php?c=configJson/addEditBaseAticle',
+                            type: 'POST',
+                            data: data.field,
+                            success: function(res) {
+                                if (res.code == 0) {
+                                    renderTab();
+                                    layer.msg(res.msg, {
+                                        icon: 1
+                                    });
+                                    setTimeout(function() {
+                                        layer.closeAll();
+                                    }, 500)
+                                }
+                            }
+                        })
+                        return false;
+                    })
+                }
+            });
+        };
+        //删除文案
+        function delBasc(config_index) {
+            layer.confirm('确认要删除吗？', {
+                icon: 3,
+                title: '删除'
+            }, function(index) {
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=configJson/delBaseAticle',
+                    type: 'get',
+                    data: {
+                        config_index: config_index
+                    },
+                    done: function(res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg);
+                            renderTab();
+                        } else {
+                            layer.msg(res.msg, {
+                                icon: 5
+                            });
+                        }
+                    }
+                });
+            })
+        }
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~关于集象~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        function init9() {
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=configJson/getBaseConfig',
+                data: {
+                    key: 'about_jixiang'
+                },
+                success: function(res) {
+                    aboutImgs = res.data.about_jixiang.split(',')
+                    $('.aboutImg').empty()
+                    $('.right_img').empty()
+                    aboutImgs.forEach(item => {
+                        $('.aboutImg').append(`
+                            <div class="box">
+                                <div class="imgs"><img src="${layui.setter.CDN+item}"></div>
+                                <div class="btns">
+                                    <div><button class="layui-btn layui-btn-normal up">上移</button></div>
+                                    <div><button class="layui-btn layui-btn-normal down">下移</button></div>
+                                    <div><button class="layui-btn layui-btn-normal delete">删除</button></div>
+                                </div>
+                            </div>
+                        `)
+                        $('.right_img').append(`
+                            <div class="rightImg"><img src="${layui.setter.CDN+item}"></div>
+                        `)
+                    })
+
+                }
+            })
+        }
+        //多图片上传
+        var load = ''
+        upload.render({
+            elem: '#addImg',
+            url: layui.setter.requestUrl + 'api.php?c=uploadImg/uploadImage' //改成您自己的上传接口
+                ,
+            data: {
+                module: 'pic',
+            },
+            multiple: true,
+            before: function(obj) {
+                load = layer.load(1);
+                //预读本地文件示例，不支持ie8
+                obj.preview(function(index, file, result) {
+                    // console.log(result);
+                });
+            },
+            done: function(res) {
+                layer.close(load);
+                aboutImgs.push(res.data)
+                $('.aboutImg').append(`
+                    <div class="box">
+                        <div class="imgs"><img src="${layui.setter.CDN+res.data}"></div>
+                        <div class="btns">
+                            <div><button class="layui-btn layui-btn-normal up">上移</button></div>
+                            <div><button class="layui-btn layui-btn-normal down">下移</button></div>
+                            <div><button class="layui-btn layui-btn-normal delete">删除</button></div>
+                        </div>
+                    </div>
+                `)
+                $('.right_img').append(`
+                    <div class="rightImg"><img src="${layui.setter.CDN+res.data}"></div>
+                `)
+            }
+        });
+
+        //上移
+        $('.aboutImg').on('click', '.box .up', function() {
+                let i = $(this).parent().parent().parent().index();
+                if (i == 0) {
+                    layer.msg('已经是第一张了')
+                } else {
+                    let img = aboutImgs.splice(i, 1)[0]
+                    aboutImgs.splice(i - 1, 0, img)
+                    $('.aboutImg').empty()
+                    $('.right_img').empty()
+                    aboutImgs.forEach(item => {
+                        $('.aboutImg').append(`
+                        <div class="box">
+                            <div class="imgs"><img src="${layui.setter.CDN+item}"></div>
+                            <div class="btns">
+                                <div><button class="layui-btn layui-btn-normal up">上移</button></div>
+                                <div><button class="layui-btn layui-btn-normal down">下移</button></div>
+                                <div><button class="layui-btn layui-btn-normal delete">删除</button></div>
+                            </div>
+                        </div>
+                    `)
+                        $('.right_img').append(`
+                        <div class="rightImg"><img src="${layui.setter.CDN+item}"></div>
+                    `)
+                    })
+                }
+            })
+            //下移
+        $('.aboutImg').on('click', '.box .down', function() {
+                let i = $(this).parent().parent().parent().index();
+                if (i == aboutImgs.length - 1) {
+                    layer.msg('已经是最后一张了')
+                } else {
+                    let img = aboutImgs.splice(i, 1)[0]
+                    aboutImgs.splice(i + 1, 0, img)
+                    $('.aboutImg').empty()
+                    $('.right_img').empty()
+                    aboutImgs.forEach(item => {
+                        $('.aboutImg').append(`
+                        <div class="box">
+                            <div class="imgs"><img src="${layui.setter.CDN+item}"></div>
+                            <div class="btns">
+                                <div><button class="layui-btn layui-btn-normal up">上移</button></div>
+                                <div><button class="layui-btn layui-btn-normal down">下移</button></div>
+                                <div><button class="layui-btn layui-btn-normal delete">删除</button></div>
+                            </div>
+                        </div>
+                    `)
+                        $('.right_img').append(`
+                        <div class="rightImg"><img src="${layui.setter.CDN+item}"></div>
+                    `)
+                    })
+                }
+            })
+            //删除
+        $('.aboutImg').on('click', '.box .delete', function() {
+            let i = $(this).parent().parent().parent().index();
+            aboutImgs.splice(i, 1)
+            $('.aboutImg').empty()
+            $('.right_img').empty()
+            aboutImgs.forEach(item => {
+                $('.aboutImg').append(`
+                    <div class="box">
+                        <div class="imgs"><img src="${layui.setter.CDN+item}"></div>
+                        <div class="btns">
+                            <div><button class="layui-btn layui-btn-normal up">上移</button></div>
+                            <div><button class="layui-btn layui-btn-normal down">下移</button></div>
+                            <div><button class="layui-btn layui-btn-normal delete">删除</button></div>
+                        </div>
+                    </div>
+                `)
+                $('.right_img').append(`
+                    <div class="rightImg"><img src="${layui.setter.CDN+item}"></div>
+                `)
+            })
+        })
+        $('.saveImg').click(function() {
+                if (aboutImgs.length == 0) {
+                    layer.msg('请上传图片')
+                    return false;
+                }
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=configJson/setBaseConfig',
+                    method: 'post',
+                    data: {
+                        about_jixiang: aboutImgs.join(','),
+                        type: '4',
+                    },
+                    success: function(res) {
+                        layer.msg(res.msg)
+                    }
+                })
+            })
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~会员规则~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        function init5() {
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=configJson/getBaseConfig',
+                data: {
+                    key: 'mem_des'
+                },
+                success: function(res) {
+                    $('.mem_des').val(base.decode(res.data.mem_des))
+                }
+            })
+        }
+        form.on('submit(submit5)', function(data) {
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=configJson/setBaseConfig',
+                    method: 'post',
+                    data: {
+                        mem_des: data.field.mem_des,
+                        type: '5',
+                    },
+                    success: function(res) {
+                        layer.msg(res.msg)
+                    }
+                })
+                return false;
+            })
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~奖励时长~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        function init6() {
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=configJson/getBaseConfig',
+                data: {
+                    key: 'send_money,limit_money'
+                },
+                success: function(res) {
+                    console.log(res.data.send_money / 100);
+                    $('.key132').val(res.data.send_money / 100)
+                    $('.limit_money').val(res.data.limit_money / 100)
+                    form.render()
+                }
+            })
+        }
+        form.on('submit(submit7)', function(data) {
+                console.log(data);
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=configJson/setBaseConfig',
+                    method: 'post',
+                    data: {
+                        send_money: data.field.key132 * 100,
+                        limit_money: data.field.limit_money * 100,
+                        type: '9',
+                    },
+                    success: function(res) {
+                        layer.msg(res.msg)
+                    }
+                })
+                return false;
+            })
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~金币返现~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        function init7() {
+            //反显数据
+            admin.req({
+                url: layui.setter.requestUrl +
+                    'api.php?c=client_agreement/getClientAgreement',
+                data: {
+                    agreement_type: '5'
+                },
+                success: function(res) {
+                    if (res.code == 0) {
+                        if (res.data.agreement_index != '') {
+                            agreement_index1 = res.data.agreement_index
+                        }
+                        $('.agreement_title1').val(res.data.agreement_title);
+                        layedit.setContent(index1, res.data.agreement_content);
+                    }
+                }
+            })
+        }
+        form.on('submit(submit1)', function(data) {
+                data.field.agreement_type = '5'
+                data.field.agreement_index = agreement_index1
+                data.field.agreement_content = layedit.getContent(index1)
+                delete data.field.file
+                admin.req({
+                    url: layui.setter.requestUrl +
+                        'api.php?c=client_agreement/addEditClientAgreement',
+                    data: data.field,
+                    type: 'POST',
+                    success: function(res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg, {
+                                icon: 1
+                            })
+                        }
+                    }
+                })
+                return false;
+            })
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~鸿运勋章
+        function init8() {
+            admin.req({
+                url: layui.setter.requestUrl +
+                    'api.php?c=client_agreement/getClientAgreement',
+                data: {
+                    agreement_type: '6'
+                },
+                success: function(res) {
+                    if (res.code == 0) {
+                        if (res.data.agreement_index != '') {
+                            agreement_index2 = res.data.agreement_index
+                        }
+                        $('.agreement_title2').val(res.data.agreement_title);
+                        layedit.setContent(index2, res.data.agreement_content);
+                    }
+                }
+            })
+        }
+        form.on('submit(submit20)', function(data) {
+            data.field.agreement_type = '6'
+            data.field.agreement_index = agreement_index2
+            data.field.agreement_content = layedit.getContent(index2)
+            delete data.field.file
+            admin.req({
+                url: layui.setter.requestUrl +
+                    'api.php?c=client_agreement/addEditClientAgreement',
+                data: data.field,
+                type: 'POST',
+                success: function(res) {
+                    if (res.code == 0) {
+                        layer.msg(res.msg, {
+                            icon: 1
+                        })
+                    }
+                }
+            })
+            return false;
+        })
+
+    });
+</script>

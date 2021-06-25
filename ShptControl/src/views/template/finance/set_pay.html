@@ -1,0 +1,1091 @@
+<style>
+    .box {
+        padding: 20px 0;
+        border-bottom: 1px solid #ccc;
+        /* margin-left: 30px; */
+    }
+
+    .title {
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .layui-form-label {
+        width: auto;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>财务管理</cite></a>
+        <a><cite>支付设置</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+
+<div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+    <ul class="layui-tab-title">
+        <li class="layui-this">APP微信支付</li>
+        <li>APP支付宝支付</li>
+        <li>账号余额支付</li>
+        <li>线下转账支付</li>
+    </ul>
+    <div class="layui-tab-content" style="height: 100px;">
+        <div class="layui-tab-item layui-show">
+            <div style="display: flex;flex-wrap: wrap;">
+                <div class="box">
+                    <div class="title">APP微信支付</div>
+                    <form class="layui-form" lay-filter="formTest1">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">是否开启：</label>
+                            <div class="layui-input-block check_switch1">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">APPid：</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="app_id1" autocomplete="off" lay-verify="required"
+                                        placeholder="请输入内容" class="layui-input" style="width:200px">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <label class="layui-form-label">微信商户号：</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="mch_id1" autocomplete="off" lay-verify="required"
+                                        placeholder="请输入内容" class="layui-input" style="width:200px">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <label class="layui-form-label">商户支付密钥：</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="secret1" autocomplete="off" lay-verify="required"
+                                        placeholder="请输入内容" class="layui-input" style="width:200px">
+                                </div>
+                            </div>
+                            <!-- <div class="layui-inline">
+                                <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="sure1"
+                                    style="margin-left: 20px;">
+                                    确定
+                                </button>
+                            </div> -->
+                        </div>
+                    </form>
+                    <a href="" style="color: rgba(42, 130, 228, 1);margin-left:20px">相关帮助：从哪里获取微信支付参数？</a>
+                </div>
+                <div class="box">
+                    <div class="title">微信Html支付</div>
+                    <form class="layui-form" lay-filter="formTest2">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">是否开启：</label>
+                            <div class="layui-input-inline check_switch2">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">APPid：</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="app_id2" autocomplete="off" lay-verify="required"
+                                        placeholder="请输入内容" class="layui-input" style="width:200px">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <label class="layui-form-label">微信商户号：</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="mch_id2" autocomplete="off" lay-verify="required"
+                                        placeholder="请输入内容" class="layui-input" style="width:200px">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <label class="layui-form-label">商户支付密钥：</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="secret2" autocomplete="off" lay-verify="required"
+                                        placeholder="请输入内容" class="layui-input" style="width:200px">
+                                </div>
+                            </div>
+                            <!-- <div class="layui-inline">
+                                <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="sure2"
+                                    style="margin-left: 20px;">
+                                    确定
+                                </button>
+                            </div> -->
+                        </div>
+                    </form>
+                    <a href="" style="color: rgba(42, 130, 228, 1);margin-left:20px">相关帮助：从哪里获取微信支付参数？</a>
+                </div>
+                <div class="box">
+                    <form class="layui-form" lay-filter="formTest3">
+                        <div class="title">微信公众号支付</div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">是否开启：</label>
+                            <div class="layui-input-inline check_switch3">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">APPid：</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="app_id3" autocomplete="off" lay-verify="required"
+                                        placeholder="请输入内容" class="layui-input" style="width:200px">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <label class="layui-form-label">微信商户号：</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="mch_id3" autocomplete="off" lay-verify="required"
+                                        placeholder="请输入内容" class="layui-input" style="width:200px">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <label class="layui-form-label">商户支付密钥：</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="secret3" autocomplete="off" lay-verify="required"
+                                        placeholder="请输入内容" class="layui-input" style="width:200px">
+                                </div>
+                            </div>
+                            <!-- <div class="layui-inline">
+                                <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="sure3"
+                                    style="margin-left: 20px;">
+                                    确定
+                                </button>
+                            </div> -->
+                        </div>
+                    </form>
+                    <a href="" style="color: rgba(42, 130, 228, 1);margin-left:20px">相关帮助：从哪里获取微信支付参数？</a>
+                </div>
+                <div class="box">
+                    <div class="title">微信小程序支付</div>
+                    <form class="layui-form" lay-filter="formTest4">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">是否开启：</label>
+                            <div class="layui-input-inline check_switch4">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">APPid：</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="app_id4" autocomplete="off" lay-verify="required"
+                                        placeholder="请输入内容" class="layui-input" style="width:200px">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <label class="layui-form-label">微信商户号：</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="mch_id4" autocomplete="off" lay-verify="required"
+                                        placeholder="请输入内容" class="layui-input" style="width:200px">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <label class="layui-form-label">商户支付密钥：</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="secret4" autocomplete="off" lay-verify="required"
+                                        placeholder="请输入内容" class="layui-input" style="width:200px">
+                                </div>
+                            </div>
+                            <!-- <div class="layui-inline">
+                                <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="sure4"
+                                    style="margin-left: 20px;">
+                                    确定
+                                </button>
+                            </div> -->
+                        </div>
+                    </form>
+                    <a href="" style="color: rgba(42, 130, 228, 1);margin-left:20px">相关帮助：从哪里获取微信支付参数？</a>
+                </div>
+                <div class="box">
+                    <div class="title">微信扫码支付（电脑端）</div>
+                    <form class="layui-form" lay-filter="formTest5">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">是否开启：</label>
+                            <div class="layui-input-block check_switch5">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">APPid：</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="app_id5" autocomplete="off" lay-verify="required"
+                                        placeholder="请输入内容" class="layui-input" style="width:200px">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <label class="layui-form-label">微信商户号：</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="mch_id5" autocomplete="off" lay-verify="required"
+                                        placeholder="请输入内容" class="layui-input" style="width:200px">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <label class="layui-form-label">商户支付密钥：</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="secret5" autocomplete="off" lay-verify="required"
+                                        placeholder="请输入内容" class="layui-input" style="width:200px">
+                                </div>
+                            </div>
+                            <!-- <div class="layui-inline">
+                                <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="sure5"
+                                    style="margin-left: 20px;">
+                                    确定
+                                </button>
+                            </div> -->
+                        </div>
+                    </form>
+                    <a href="" style="color: rgba(42, 130, 228, 1);margin-left:20px">相关帮助：从哪里获取微信支付参数？</a>
+                </div>
+            </div>
+        </div>
+        <div class="layui-tab-item">
+            <div style="display: flex;flex-wrap: wrap;">
+                <div class="box">
+                    <div class="title">APP支付宝支付</div>
+                    <form class="layui-form" lay-filter="formTest6">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">是否开启：</label>
+                            <div class="layui-input-block check_switch6">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">APPid：</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="app_id6" autocomplete="off" lay-verify="required"
+                                        placeholder="请输入内容" class="layui-input" style="width:200px">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <label class="layui-form-label">支付宝商户号：</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="mch_id6" autocomplete="off" lay-verify="required"
+                                        placeholder="请输入内容" class="layui-input" style="width:200px">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <label class="layui-form-label">商户支付密钥：</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="secret6" autocomplete="off" lay-verify="required"
+                                        placeholder="请输入内容" class="layui-input" style="width:200px">
+                                </div>
+                            </div>
+                            <!-- <div class="layui-inline">
+                                <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="sure6"
+                                    style="margin-left: 20px;">
+                                    确定
+                                </button>
+                            </div> -->
+                        </div>
+                    </form>
+                    <a href="" style="color: rgba(42, 130, 228, 1);margin-left:20px">相关帮助：从哪里获取微信支付参数？</a>
+                </div>
+                <div class="box">
+                    <div class="title">支付宝Html手机端支付</div>
+                    <form class="layui-form" lay-filter="formTest7">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">是否开启：</label>
+                            <div class="layui-input-block check_switch7">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">APPid：</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="app_id7" autocomplete="off" lay-verify="required"
+                                        placeholder="请输入内容" class="layui-input" style="width:200px">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <label class="layui-form-label">支付宝商户号：</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="mch_id7" autocomplete="off" lay-verify="required"
+                                        placeholder="请输入内容" class="layui-input" style="width:200px">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <label class="layui-form-label">商户支付密钥：</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="secret7" autocomplete="off" lay-verify="required"
+                                        placeholder="请输入内容" class="layui-input" style="width:200px">
+                                </div>
+                            </div>
+                            <!-- <div class="layui-inline">
+                                <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="sure7"
+                                    style="margin-left: 20px;">
+                                    确定
+                                </button>
+                            </div> -->
+                        </div>
+                    </form>
+                    <a href="" style="color: rgba(42, 130, 228, 1);margin-left:20px">相关帮助：从哪里获取微信支付参数？</a>
+                </div>
+                <div class="box">
+                    <div class="title">支付宝扫码支付（电脑端）</div>
+                    <form class="layui-form" lay-filter="formTest8">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">是否开启：</label>
+                            <div class="layui-input-block check_switch8">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">APPid：</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="app_id8" autocomplete="off" lay-verify="required"
+                                        placeholder="请输入内容" class="layui-input" style="width:200px">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <label class="layui-form-label">支付宝商户号：</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="mch_id8" autocomplete="off" lay-verify="required"
+                                        placeholder="请输入内容" class="layui-input" style="width:200px">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <label class="layui-form-label">商户支付密钥：</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="secret8" autocomplete="off" lay-verify="required"
+                                        placeholder="请输入内容" class="layui-input" style="width:200px">
+                                </div>
+                            </div>
+                            <!-- <div class="layui-inline">
+                                <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="sure8"
+                                    style="margin-left: 20px;">
+                                    确定
+                                </button>
+                            </div> -->
+                        </div>
+                    </form>
+                    <a href="" style="color: rgba(42, 130, 228, 1);margin-left:20px">相关帮助：从哪里获取微信支付参数？</a>
+                </div>
+            </div>
+        </div>
+        <div class="layui-tab-item">
+            <form class="layui-form" lay-filter="formTest9">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">是否余额支付：</label>
+                    <div class="layui-input-block check_switch9">
+                    </div>
+                </div>
+            </form>
+            <div style="padding:0 100px">
+                <p>余额是指平台会员在本系统内的虚拟数字资产，根据不同平台业务模式可通过分享佣金、充值、完成任务
+                    获得奖励等方式获得余额，开通余额支付后即代表余额可替代实际货币进行支付本平台的相关服务，在需
+                    要会员付款时，会员可根据自己的情况选择不同的付款方式进行付款操作。</p>
+                <h1 style="margin: 30px 0;">余额支付示例：</h1>
+                <img src="../src/images/pay.png" style="width: 372px;height: 390px">
+            </div>
+        </div>
+        <div class="layui-tab-item">
+            <div style="padding:30px">
+                <p>线下转账支付是指客户通过手动转账到平台预留收款账号，并提交转账凭证，由平台
+                    财务人员审核确认资金到账后进行发货或提供平台服务的支付方式，增加了平台收款
+                    的通道和灵活性。</p>
+            </div>
+            <form class="layui-form" lay-filter="formTest10">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">是否开启线下转账支付：</label>
+                    <div class="layui-inline check_switch10">
+                        <!-- <input type="checkbox" checked='' lay-skin="switch" lay-filter="switchTest2"> -->
+                    </div>
+                    <div class="layui-inline">
+                        <button class="layui-btn layui-btn-danger addNumber">添加收款账号</button>
+                    </div>
+                </div>
+            </form>
+            <table class="layui-hide" id="test" lay-filter="table"></table>
+            <script type="text/html" id="operate">
+                <a class="layui-btn layui-btn-xs" lay-event="set">设为默认收款账号</a>
+                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+            </script>
+        </div>
+    </div>
+</div>
+<script>
+    layui.use(['element', 'form', 'layer', 'table'], function () {
+        var setter = layui.setter,
+            $ = layui.jquery,
+            admin = layui.admin,
+            layer = layui.layer,
+            element = layui.element,
+            table = layui.table,
+            form = layui.form;
+        //监听状态开关
+        form.on('switch(switchTest1)', function (data) {
+            var is_open = this.checked ? '1' : '0'
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=pay_config/addEditPayConfig',
+                data: {
+                    app_id: form.val("formTest1").app_id1,
+                    mch_id: form.val("formTest1").mch_id1,
+                    secret: form.val("formTest1").secret1,
+                    is_open: is_open,
+                    pay_type: '1',
+                    type: '1',
+                },
+                success: function (res) {
+                    layer.msg(res.msg, {
+                        icon: 1
+                    })
+                }
+            })
+        });
+        //监听状态开关
+        form.on('switch(switchTest2)', function (data) {
+            var is_open = this.checked ? '1' : '0'
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=pay_config/addEditPayConfig',
+                data: {
+                    app_id: form.val("formTest2").app_id2,
+                    mch_id: form.val("formTest2").mch_id2,
+                    secret: form.val("formTest2").secret2,
+                    is_open: is_open,
+                    pay_type: '1',
+                    type: '2',
+                },
+                success: function (res) {
+                    layer.msg(res.msg, {
+                        icon: 1
+                    })
+                }
+            })
+        });
+        //监听状态开关
+        form.on('switch(switchTest3)', function (data) {
+            var is_open = this.checked ? '1' : '0'
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=pay_config/addEditPayConfig',
+                data: {
+                    app_id: form.val("formTest3").app_id3,
+                    mch_id: form.val("formTest3").mch_id3,
+                    secret: form.val("formTest3").secret3,
+                    is_open: is_open,
+                    pay_type: '1',
+                    type: '3',
+                },
+                success: function (res) {
+                    layer.msg(res.msg, {
+                        icon: 1
+                    })
+                }
+            })
+        });
+        //监听状态开关
+        form.on('switch(switchTest4)', function (data) {
+            var is_open = this.checked ? '1' : '0'
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=pay_config/addEditPayConfig',
+                data: {
+                    app_id: form.val("formTest4").app_id4,
+                    mch_id: form.val("formTest4").mch_id4,
+                    secret: form.val("formTest4").secret4,
+                    is_open: is_open,
+                    pay_type: '1',
+                    type: '4',
+                },
+                success: function (res) {
+                    layer.msg(res.msg, {
+                        icon: 1
+                    })
+                }
+            })
+        });
+        //监听状态开关
+        form.on('switch(switchTest5)', function (data) {
+            var is_open = this.checked ? '1' : '0'
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=pay_config/addEditPayConfig',
+                data: {
+                    app_id: form.val("formTest5").app_id5,
+                    mch_id: form.val("formTest5").mch_id5,
+                    secret: form.val("formTest5").secret5,
+                    is_open: is_open,
+                    pay_type: '1',
+                    type: '5',
+                },
+                success: function (res) {
+                    layer.msg(res.msg, {
+                        icon: 1
+                    })
+                }
+            })
+        });
+        //监听状态开关
+        form.on('switch(switchTest6)', function (data) {
+            var is_open = this.checked ? '1' : '0'
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=pay_config/addEditPayConfig',
+                data: {
+                    app_id: form.val("formTest6").app_id6,
+                    mch_id: form.val("formTest6").mch_id6,
+                    secret: form.val("formTest6").secret6,
+                    is_open: is_open,
+                    pay_type: '2',
+                    type: '1',
+                },
+                success: function (res) {
+                    layer.msg(res.msg, {
+                        icon: 1
+                    })
+                }
+            })
+        });
+        //监听状态开关
+        form.on('switch(switchTest7)', function (data) {
+            var is_open = this.checked ? '1' : '0'
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=pay_config/addEditPayConfig',
+                data: {
+                    app_id: form.val("formTest7").app_id7,
+                    mch_id: form.val("formTest7").mch_id7,
+                    secret: form.val("formTest7").secret7,
+                    is_open: is_open,
+                    pay_type: '2',
+                    type: '2',
+                },
+                success: function (res) {
+                    layer.msg(res.msg, {
+                        icon: 1
+                    })
+                }
+            })
+        });
+        //监听状态开关
+        form.on('switch(switchTest8)', function (data) {
+            var is_open = this.checked ? '1' : '0'
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=pay_config/addEditPayConfig',
+                data: {
+                    app_id: form.val("formTest8").app_id8,
+                    mch_id: form.val("formTest8").mch_id8,
+                    secret: form.val("formTest8").secret8,
+                    is_open: is_open,
+                    pay_type: '2',
+                    type: '5',
+                },
+                success: function (res) {
+                    layer.msg(res.msg, {
+                        icon: 1
+                    })
+                }
+            })
+        });
+        //监听状态开关
+        form.on('switch(switchTest9)', function (data) { 
+            var is_open = this.checked ? '1' : '0'
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=pay_config/addEditPayConfig',
+                data: {
+                    app_id: '',
+                    mch_id: '',
+                    secret: '',
+                    is_open: is_open,
+                    pay_type: '3',
+                    type: '1',
+                },
+                success: function (res) {
+                    layer.msg(res.msg, {
+                        icon: 1
+                    })
+                }
+            })
+        });
+
+        //监听状态开关
+        form.on('switch(switchTest10)', function (data) {
+            var is_open = this.checked ? '1' : '0'
+            if (is_open == '1') {
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=pay_config/addEditPayConfig',
+                    data: {
+                        app_id: '',
+                        mch_id: '',
+                        secret: '',
+                        is_open: is_open,
+                        pay_type: '4',
+                        type: '1',
+                    },
+                    success: function (res) {
+                        layer.msg(res.msg, {
+                            icon: 1
+                        })
+                        $('.layui-table-view').show()
+                    }
+                })
+            } else {
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=pay_config/addEditPayConfig',
+                    data: {
+                        app_id: '',
+                        mch_id: '',
+                        secret: '',
+                        is_open: is_open,
+                        pay_type: '4',
+                        type: '1',
+                    },
+                    success: function (res) {
+                        layer.msg(res.msg, {
+                            icon: 1
+                        })
+                        $('.layui-table-view').hide()
+                    }
+                })
+            }
+
+        });
+
+
+        //APP微信支付
+        admin.req({
+            url: layui.setter.requestUrl + 'api.php?c=pay_config/getPayConfig',
+            data: {
+                pay_type: '1',
+                type: '1'
+            },
+            success: function (res) {
+                if (res.msg == '获取成功！') {
+                    //判断开关按钮，0不开启关
+                    if (res.data.is_open == '1') {
+                        $('.check_switch1').html(
+                            `<input type="checkbox" checked='' lay-skin="switch" lay-filter="switchTest1">`
+                        )
+                    } else {
+                        $('.check_switch1').html(
+                            `<input type="checkbox" lay-skin="switch" lay-filter="switchTest1">`
+                        )
+                    }
+                    form.render()     
+                    //银行卡信息表单反显
+                    form.val("formTest1", {
+                        app_id1: res.data.app_id,
+                        mch_id1: res.data.mch_id,
+                        secret1: res.data.secret
+                    });
+                }
+            }
+        });
+        //微信Html支付：
+        admin.req({
+            url: layui.setter.requestUrl + 'api.php?c=pay_config/getPayConfig',
+            data: {
+                pay_type: '1',
+                type: '2'
+            },
+            success: function (res) {
+                if (res.msg == '获取成功！') {
+                    //判断开关按钮，0不开启关
+                    if (res.data.is_open == '1') {
+                        $('.check_switch2').html(
+                            `<input type="checkbox" checked='' lay-skin="switch" lay-filter="switchTest2">`
+                        )
+                    } else {
+                        $('.check_switch2').html(
+                            `<input type="checkbox" lay-skin="switch" lay-filter="switchTest2">`
+                        )
+                    }
+                    form.render()
+                    //银行卡信息表单反显
+                    form.val("formTest2", {
+                        app_id2: res.data.app_id,
+                        mch_id2: res.data.mch_id,
+                        secret2: res.data.secret
+                    });
+                }
+            }
+        });
+        //微信公众号支付：
+        admin.req({
+            url: layui.setter.requestUrl + 'api.php?c=pay_config/getPayConfig',
+            data: {
+                pay_type: '1',
+                type: '3'
+            },
+            success: function (res) {
+                if (res.msg == '获取成功！') {
+                    //判断开关按钮，0不开启关
+                    if (res.data.is_open == '1') {
+                        $('.check_switch3').html(
+                            `<input type="checkbox" checked='' lay-skin="switch" lay-filter="switchTest3">`
+                        )
+                    } else {
+                        $('.check_switch3').html(
+                            `<input type="checkbox" lay-skin="switch" lay-filter="switchTest3">`
+                        )
+                    }
+                    form.render()
+                    //银行卡信息表单反显
+                    form.val("formTest3", {
+                        app_id3: res.data.app_id,
+                        mch_id3: res.data.mch_id,
+                        secret3: res.data.secret
+                    });
+                }
+            }
+        });
+        //微信小程序支付：
+        admin.req({
+            url: layui.setter.requestUrl + 'api.php?c=pay_config/getPayConfig',
+            data: {
+                pay_type: '1',
+                type: '4'
+            },
+            success: function (res) {
+                if (res.msg == '获取成功！') {
+                    //判断开关按钮，0不开启关
+                    if (res.data.is_open == '1') {
+                        $('.check_switch4').html(
+                            `<input type="checkbox" checked='' lay-skin="switch" lay-filter="switchTest4">`
+                        )
+                    } else {
+                        $('.check_switch4').html(
+                            `<input type="checkbox" lay-skin="switch" lay-filter="switchTest4">`
+                        )
+                    }
+                    form.render()
+                    //银行卡信息表单反显
+                    form.val("formTest4", {
+                        app_id4: res.data.app_id,
+                        mch_id4: res.data.mch_id,
+                        secret4: res.data.secret
+                    });
+                }
+            }
+        });
+        //微信扫码支付（电脑端）：
+        admin.req({
+            url: layui.setter.requestUrl + 'api.php?c=pay_config/getPayConfig',
+            data: {
+                pay_type: '1',
+                type: '5'
+            },
+            success: function (res) {
+                if (res.msg == '获取成功！') {
+                    //判断开关按钮，0不开启关
+                    if (res.data.is_open == '1') {
+                        $('.check_switch5').html(
+                            `<input type="checkbox" checked='' lay-skin="switch" lay-filter="switchTest5">`
+                        )
+                    } else {
+                        $('.check_switch5').html(
+                            `<input type="checkbox" lay-skin="switch" lay-filter="switchTest5">`
+                        )
+                    }
+                    form.render()
+                    //银行卡信息表单反显
+                    form.val("formTest5", {
+                        app_id5: res.data.app_id,
+                        mch_id5: res.data.mch_id,
+                        secret5: res.data.secret
+                    });
+                }
+            }
+        });
+
+        //APP支付宝支付：
+        admin.req({
+            url: layui.setter.requestUrl + 'api.php?c=pay_config/getPayConfig',
+            data: {
+                pay_type: '2',
+                type: '1'
+            },
+            success: function (res) {
+                if (res.msg == '获取成功！') {
+                    //判断开关按钮，0不开启关
+                    if (res.data.is_open == '1') {
+                        $('.check_switch6').html(
+                            `<input type="checkbox" checked='' lay-skin="switch" lay-filter="switchTest6">`
+                        )
+                    } else {
+                        $('.check_switch6').html(
+                            `<input type="checkbox" lay-skin="switch" lay-filter="switchTest6">`
+                        )
+                    }
+                    form.render()
+                    //银行卡信息表单反显
+                    form.val("formTest6", {
+                        app_id6: res.data.app_id,
+                        mch_id6: res.data.mch_id,
+                        secret6: res.data.secret
+                    });
+                }
+            }
+        });
+        //支付宝Html手机端支付：
+        admin.req({
+            url: layui.setter.requestUrl + 'api.php?c=pay_config/getPayConfig',
+            data: {
+                pay_type: '2',
+                type: '2'
+            },  
+            success: function (res) {
+                if (res.msg == '获取成功！') {
+                    //判断开关按钮，0不开启关
+                    if (res.data.is_open == '1') {
+                        $('.check_switch7').html(
+                            `<input type="checkbox" checked='' lay-skin="switch" lay-filter="switchTest7">`
+                        )
+                    } else {
+                        $('.check_switch7').html(
+                            `<input type="checkbox" lay-skin="switch" lay-filter="switchTest7">`
+                        )
+                    }
+                    form.render()
+                    //银行卡信息表单反显
+                    form.val("formTest7", {
+                        app_id7: res.data.app_id,
+                        mch_id7: res.data.mch_id,
+                        secret7: res.data.secret
+                    });
+                }
+            }
+        });
+        //支付宝扫码支付（电脑端）：
+        admin.req({
+            url: layui.setter.requestUrl + 'api.php?c=pay_config/getPayConfig',
+            data: {
+                pay_type: '2',
+                type: '5'
+            },
+            success: function (res) {
+                if (res.msg == '获取成功！') {
+                    //判断开关按钮，0不开启关
+                    if (res.data.is_open == '1') {
+                        $('.check_switch8').html(
+                            `<input type="checkbox" checked='' lay-skin="switch" lay-filter="switchTest8">`
+                        )
+                    } else {
+                        $('.check_switch8').html(
+                            `<input type="checkbox" lay-skin="switch" lay-filter="switchTest8">`
+                        )
+                    }
+                    form.render()
+                    //银行卡信息表单反显
+                    form.val("formTest8", {
+                        app_id8: res.data.app_id,
+                        mch_id8: res.data.mch_id,
+                        secret8: res.data.secret
+                    });
+                }
+            }
+        });
+
+        //是否余额支付：
+        admin.req({
+            url: layui.setter.requestUrl + 'api.php?c=pay_config/getPayConfig',
+            data: {
+                pay_type: '3',
+                type: '1'
+            },
+            success: function (res) {
+                if (res.msg == '获取成功！') {
+                    //判断开关按钮，0不开启关
+                    console.log(res.data.is_open );
+                    if (res.data.is_open == '1') {
+                        $('.check_switch9').html(
+                            `<input type="checkbox" checked='' lay-skin="switch" lay-filter="switchTest9">`
+                        )
+                    } else {
+                        $('.check_switch9').html(
+                            `<input type="checkbox" lay-skin="switch" lay-filter="switchTest9">`
+                        )
+                        $('.layui-table-view').hide()
+                    }
+                    form.render()
+                }
+            }
+        })
+        //线下转账支付：
+        admin.req({
+            url: layui.setter.requestUrl + 'api.php?c=pay_config/getPayConfig',
+            data: {
+                pay_type: '4',
+                type: '1'
+            },
+            success: function (res) {
+                if (res.msg == '获取成功！') {
+                    //判断开关按钮，0不开启关
+                    if (res.data.is_open == '1') {
+                        $('.check_switch10').html(
+                            `<input type="checkbox" checked='' lay-skin="switch" lay-filter="switchTest10">`
+                        )
+                    } else {
+                        $('.check_switch10').html(
+                            `<input type="checkbox" lay-skin="switch" lay-filter="switchTest10">`
+                        )
+                    }
+                    form.render()
+                }
+            }
+        })
+
+        //线下转账支付表格渲染
+        var render_table = function () {
+            table.render({
+                elem: '#test',
+                url: layui.setter.requestUrl + 'api.php?c=mer_bank_card/getMerBankCardList',
+                where: {
+                    access_token: layui.data('layuiAdmin').access_token
+                },
+                cols: [
+                    [{
+                        field: 'card_user',
+                        align: 'center',
+                        title: '收款人'
+                    }, {
+                        field: 'card_number',
+                        align: 'center',
+                        title: '收款账号'
+                    }, {
+                        field: 'card_name',
+                        align: 'center',
+                        title: '收款银行'
+                    }, {
+                        field: 'is_default',
+                        align: 'center',
+                        title: '受否设为默认账号',
+                        templet: function (d) {
+                            return d.is_default == '0' ? '否' : '是'
+                        }
+                    }, {
+                        field: 'add_time',
+                        align: 'center',
+                        title: '添加时间',
+                        templet: function (d) {
+                            return layui.common.createTime(d.add_time)
+                        }
+                    }, {
+                        field: 'experience',
+                        align: 'center',
+                        title: '操作',
+                        toolbar: '#operate'
+                    }]
+                ],
+                page: true
+            });
+        }
+        render_table();
+        //table操作
+        table.on('tool(table)', function (obj) { //注：tool table 是 table  lay-filter="对应的值"
+            var data = obj.data; //获得当前行数据
+            var layEvent = obj.event; //获得 lay-event 对应的值
+            if (layEvent == 'set') {
+                layer.confirm('确定设为默认收款账号？', {
+                    btn: ['确定', '取消'] //按钮
+                }, function (index) {
+                    admin.req({
+                        url: layui.setter.requestUrl +
+                            'api.php?c=mer_bank_card/setMerBankCard',
+                        data: {
+                            card_id: data.card_id
+                        },
+                        success: function (res) {
+                            if (res.msg == '修改成功！') {
+                                layer.msg(res.msg)
+                                layer.close(index)
+                                render_table();
+                            } else {
+                                layer.close(index)
+                            }
+                        }
+                    })
+                }, function (index) {
+                    layer.close(index)
+                });
+            } else if (layEvent == 'del') {
+                layer.confirm('确定删除么？', {
+                    btn: ['确定', '取消'] //按钮
+                }, function (index) {
+                    admin.req({
+                        url: layui.setter.requestUrl +
+                            'api.php?c=mer_bank_card/delMerBankCard',
+                        data: {
+                            card_id: data.card_id
+                        },
+                        success: function (res) {
+                            if (res.msg == '删除成功！') {
+                                layer.msg(res.msg)
+                                layer.close(index)
+                                render_table();
+                            } else {
+                                layer.close(index)
+                            }
+                        }
+                    })
+                }, function (index) {
+                    layer.close(index)
+                });
+            }
+        });
+        //添加收款账号
+        $('.addNumber').click(function () {
+            layer.open({
+                type: 1,
+                title: '添加收款账号',
+                area: ['500px', '360px'],
+                shadeClose: true, //点击遮罩关闭
+                content: `<form class="layui-form" action="">
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">选择框</label>
+                                    <div class="layui-inline">
+                                        <select name="card_name" lay-verify="required">
+                                            <option value="工商银行">工商银行</option>
+                                            <option value="农业银行">农业银行</option>
+                                            <option value="浦发银行">浦发银行</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">收款人：</label>
+                                    <div class="layui-inline">
+                                        <input type="text" name="card_user" required  lay-verify="required" placeholder="请输入收款人" autocomplete="off" class="layui-input" style="width:200px">
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">收款账号：</label>
+                                    <div class="layui-inline">
+                                    <input type="text" name="card_number" required  lay-verify="required" placeholder="请输入收款账号" autocomplete="off" class="layui-input" style="width:200px">
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">是否设置为默认收款账号</label>
+                                    <div class="layui-inline">
+                                    <input type="checkbox" name="is_default" lay-skin="switch">
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <div class="layui-inline">
+                                    <button class="layui-btn cancel" type="reset" style="background:#999;margin:0 50px 0 160px">取消</button>
+                                    <button class="layui-btn layui-btn-danger" lay-submit lay-filter="sure">确定</button>
+                                    </div>
+                                </div>
+                            </form>`,
+                success: function (res, index) {
+                    $('.cancel').click(function () {
+                        layer.close(index)
+                    })
+                    form.on('submit(sure)', function (data) {
+                        if (data.field.is_default == 'on') {
+                            data.field.is_default = '1'
+                        } else {
+                            data.field.is_default = '0'
+                        }
+                        admin.req({
+                            url: layui.setter.requestUrl +
+                                'api.php?c=mer_bank_card/addEditMerBankCard',
+                            data: data.field,
+                            success: function (res) {
+                                layer.msg(res.msg)
+                                layer.close(index)
+                                render_table();
+                            }
+                        })
+                        return false;
+                    })
+                }
+            })
+            form.render();
+        })
+    })
+    layui.use('checkTask', layui.factory('checkTask'));
+</script>

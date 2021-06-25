@@ -1,0 +1,94 @@
+<style>
+    .layui-table-cell {
+        display: block;
+        height: auto !important;
+        line-height: 20px !important;
+    }
+
+    .getContent {
+        padding: 20px;
+        display: block;
+    }
+
+    .getContent img {
+        width: 100%;
+        height: 100%;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">首页</a>
+        <a><cite>学习中心</cite></a>
+        <a><cite>课程管理</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+<div class="layui-tab layui-tab-brief" lay-filter="tab">
+    <ul class="layui-tab-title">
+        <li class="layui-this status1">全部</li>
+        <li class="status2">已上架课程</li>
+        <li class="status3">未上架课程</li>
+    </ul>
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto form" style="background: #fff;margin:10px 0">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:100px;">课程名称：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="title" style="width:200px;" autocomplete="off" placeholder="请输入内容"
+                        class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:100px;">添加时间：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="time" class="layui-input" id="time" placeholder=" 开始时间-结束时间 ">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:100px;">课程分类：</label>
+                <div class="layui-input-inline">
+                    <select name="classif_id" class="classif_id">
+
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:100px">是否推荐热门：</label>
+                <div class="layui-input-inline">
+                    <select name="is_hot" lay-filter="type">
+                        <option value="">全部</option>
+                        <option value="1">是</option>
+                        <option value="2">否</option>
+
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search1">
+                    搜索
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="layui-inline button" style="margin-left:20px">
+        <button class="layui-btn add_jump_link" id='1'>添加视频课程</button>
+        <button class="layui-btn layui-btn-normal add_jump_link" id='2'>添加图文课程</button>
+    </div>
+    <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show">
+            <table class="layui-hide" id="courseTable1" lay-filter="courseTable1"></table>
+        </div>
+        <div class="layui-tab-item">
+            <table class="layui-hide" id="courseTable2" lay-filter="courseTable2"></table>
+        </div>
+        <div class="layui-tab-item">
+            <table class="layui-hide" id="courseTable3" lay-filter="courseTable3"></table>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    layui.use('courseManage', layui.factory('courseManage'));
+    layui.use('checkTask', layui.factory('checkTask'));
+</script>

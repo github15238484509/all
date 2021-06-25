@@ -1,0 +1,22 @@
+<style>
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+
+    <div class="content">
+        
+    </div>
+</script>
+    <script>
+        layui.data.sendParams = function (params) {
+            layui.use(['admin','element','upload','form','public'], function () {
+                var $ = layui.$;
+                var admin = layui.admin;
+                var element = layui.element;
+                var upload = layui.upload;
+                var form = layui.form;
+                var base = new layui.public.Base64();
+                $('.content').html(base.decode(params.content))
+            })
+        }
+    </script> 
+

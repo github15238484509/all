@@ -1,0 +1,156 @@
+<style>
+   
+    .form1 .layui-form-label{
+        width: 90px;
+    }
+   
+  
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <form class="layui-form form1" action="" style="padding:20px 0 0">
+        <div class="layui-form-item">
+            <label class="layui-form-label" >状态：</label>
+            <div class="layui-input-block status">
+                <input type="checkbox" name="status" lay-skin="switch" lay-text="启用|禁用">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" >跳转类型：</label>
+            <div class="layui-input-inline" style="width:300px;">
+                <select name="jump_type" id="option_type" lay-verify="required" lay-filter="select">
+                    <option value="">请选择</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item explain" style="display:none">
+            <label class="layui-form-label" ></label>
+            <div class="layui-input-inline" style="width:280px;background:rgba(245, 245, 245, 1);padding:10px">
+                <div class="explain1"></div>
+                <div class="explain2"></div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" >参数值：</label>
+            <div class="layui-input-block">
+                <input type="text" name="parameter" value="{{d.params.parameter?d.params.parameter:''}}" style="width:300px;" lay-verify="required" autocomplete="off" placeholder="请将获取到的跳转参数值输入此处" class="layui-input">
+            </div>
+        </div>
+       
+        <div class="layui-form-item">
+            <label class="layui-form-label" >广告位描述：</label>
+            <div class="layui-input-block">
+                <input type="text" name="describe" value="{{d.params.describe?d.params.describe:''}}" style="width:300px;" lay-verify="required" autocomplete="off" placeholder="请输入内容" class="layui-input">
+            </div>
+        </div>
+         <div class="layui-form-item">
+            <label class="layui-form-label" >排序：</label>
+            <div class="layui-input-block">
+                <input type="number" name="sort" value="{{d.params.sort?d.params.sort:''}}" style="width:300px;" lay-verify="required" autocomplete="off" placeholder="请输入内容" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="width:200px;margin:0 auto;">
+            <button type="submit" class="layui-btn" style="width:100%;" lay-submit="" lay-filter="submit">确定</button>
+            </div>
+        </div> 
+    </form>  
+</script>
+    <script>
+        layui.data.sendParams = function (params) {
+            layui.use(['admin','element','upload','form','table'], function () {
+                var $ = layui.$;
+                var admin = layui.admin;
+                var upload = layui.upload;
+                var upload = layui.upload;
+                var table = layui.table;
+                var form = layui.form;
+                var type=''// 传过来的上级分类
+                var jumpType=''//传过来的banner类型
+                var space_index='',jumpTypeList=[]
+                if(params.space_index){
+                    jumpType=params.jump_type
+                    space_index=params.space_index
+                    $('.explain').css('display','block')
+                    $('.status').empty()
+                    if(params.status=='0'){
+                        $('.status').append(`<input type="checkbox" name="status" lay-skin="switch" lay-text="启用|禁用" checked>`)
+                    }else{
+                        $('.status').append(`<input type="checkbox" name="status" lay-skin="switch" lay-text="启用|禁用">`)
+                    }
+                }
+               
+                //跳转类型
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=banner/jump/getJumpTypeList',
+                    success: function (res) {
+                        if (res.code == 0) {
+                            jumpTypeList=res.data
+                            if(params.space_index){
+                                res.data.forEach(item => {
+                                    $('.explain').css('display','block')
+                                    $('.explain1').html('参数说明：'+item.jump_parameter_des)
+                                    $('.explain2').html('跳转类型说明：'+item.jump_type_des)
+                                    if(jumpType == item.id){
+                                        $('#option_type').append(
+                                            `<option value="${item.id}" selected>${item.jump_type_name}</option>`
+                                        )
+                                    }else{
+                                        $('#option_type').append(
+                                            `<option value="${item.id}">${item.jump_type_name}</option>`
+                                        )
+                                    }
+                                });
+                            }else{
+                                res.data.forEach(item => {
+                                    $('#option_type').append(
+                                        `<option value="${item.id}">${item.jump_type_name}</option>`
+                                    )
+                                });
+                            }
+                            form.render()
+                        } else {
+                            layer.msg(res.msg);
+                        }
+                    }
+                })
+                //选择跳转类型显示跳转参数说明
+                form.on('select(select)', function (data) {
+                    jumpTypeList.forEach(item => {
+                        if(data.value==item.id){
+                            $('.explain').css('display','block')
+                            $('.explain1').html('参数说明：'+item.jump_parameter_des)
+                            $('.explain2').html('跳转类型说明：'+item.jump_type_des)
+                        }
+                    })
+                })
+                
+                //保存
+                form.on('submit(submit)', function (data) {
+                    if(data.field.status=='on'){
+                        data.field.status='0'
+                    }else{
+                        data.field.status='1'
+                    }
+                    data.field.space_index=space_index
+                    data.field.type=params.type
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=adspace/AdspacePlaceAdd',
+                        data: data.field,
+                        type:'post',
+                        success: function (res) {
+                            if (res.code == 0) {
+                                layer.msg(res.msg);
+                                layer.closeAll();
+                                parent.layui.table.reload("advert1");
+                                parent.layui.table.reload("advert2");
+                            } else {
+                                layer.msg(res.msg);
+                            }
+                        }
+                    })
+                    return false;
+                })
+            })
+        }
+    </script> 
+

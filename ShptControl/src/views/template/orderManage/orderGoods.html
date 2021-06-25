@@ -1,0 +1,137 @@
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <table class="layui-hide" id="orderTable" lay-filter="orderTable"></table>
+</script>
+<script>
+    layui.data.sendParams = function (params) {
+        layui.use(['admin', 'element', 'table', 'public'], function () {
+            var $ = layui.$;
+            var admin = layui.admin;
+            var table = layui.table;
+            var view = layui.view;
+            var tool = layui.public.tool;
+
+            var render_table = function (data) {
+                table.render({
+                    elem: '#orderTable',
+                    url: layui.setter.requestUrl + 'api.php?c=order/getOrderGoods',
+                    where: {
+                        order_index: params.order_index
+                    },
+                    cols: [
+                        [{
+                                field: 'order_id',
+                                title: '订单号',
+                                align: 'center',
+
+                            }, {
+                                field: 'goods_name',
+                                title: '商品名称及货号',
+                                align: 'center',
+                            }, {
+                                field: 'goods_icon',
+                                title: '商品图片',
+                                align: 'center',
+                                templet: function (d) {
+                                    var src = layui.setter.CDN + d.goods_icon
+                                    var str =
+                                        `<button type="button" class="layui-btn layui-btn-sm" lay-event = 'enlarge'>查看</button>`
+                                    return str
+                                }
+                            }, {
+                                field: 'sku',
+                                title: '商品属性',
+                                align: 'center',
+                                templet: function (d) {
+                                    if (d.sku_name) {
+                                        return d.sku_name
+                                    } else if (d.sku) {
+                                        return d.sku
+                                    } else {
+                                        return '暂无'
+                                    }
+                                }
+                            }, {
+                                field: 'goods_count',
+                                title: '商品数量',
+                                align: 'center',
+                            }, {
+                                field: 'goods_price',
+                                title: '商品单价',
+                                align: 'center',
+                                templet: function (d) {
+                                    var str = `<div>售价：${d.goods_price==''?'暂无':d.goods_price/100}</div>
+                                    <div>结算价：${d.order_supplier_coupon==''?'暂无':d.order_supplier_coupon/100}</div>`
+                                    return str
+                                }
+                            }, {
+                                field: 'express_number',
+                                title: '运单号',
+                                align: 'center',
+                                templet: function (d) {
+                                    return d.express_number == '' || d.express_number ==
+                                        null ? '暂无' : d.express_number
+                                }
+                            }, {
+                                field: 'goods_status',
+                                title: '商品状态',
+                                align: 'center',
+                                templet: function (d) {
+                                    return d.goods_status == 0 ? '未发货' : d
+                                        .goods_status == 1 ? '已发货' : d.goods_status ==
+                                        2 ? '待评价' : '已评价'
+                                }
+                            },
+                            {
+                                fixed: 'right',
+                                align: 'center',
+                                title: '操作',
+                                width: 120,
+                                templet: function (d) {
+                                    if (d.goods_status == '1') {
+                                        return `<div style="margin-top:5px"><button type="button" class="layui-btn layui-btn-sm" lay-event = 'look'>查看物流信息</button>`
+                                    } else {
+                                        return `<div style="margin-top:5px"><button type="button" class="layui-btn layui-btn-sm" style="background:#ccc">查看物流信息</button>`
+                                    }
+                                }
+                            }
+                        ]
+                    ],
+                    page: true,
+                });
+            }
+            //先自调用请求渲染数据
+            render_table();
+
+            table.on('tool(orderTable)', function (obj) { //注：tool table 是 table  lay-filter="对应的值"
+                var data = obj.data; //获得当前行数据
+                var layEvent = obj.event; //获得 lay-event 对应的值
+                if (layEvent == 'enlarge') {
+                    tool.lookBigImg(data.goods_icon.split(','));
+                } else if (layEvent == 'check') {
+                    admin.popup({
+                        id: 'checkGoods',
+                        title: '商品审核',
+                        area: ['500px', '450px'],
+                        success: function () {
+                            view(this.id).render('/template/goods/checkGoods', {
+                                goods_index: data.goods_index
+                            });
+                        }
+                    });
+                } else if (layEvent == 'look') {
+                    admin.popup({
+                        id: 'lookLogistics',
+                        title: '查看物流',
+                        area: ['600px', '500px'],
+                        success: function () {
+                            view(this.id).render(
+                                '/template/orderManage/lookLogistics', {
+                                    express_number: data.express_number
+                                });
+                        }
+                    });
+                }
+            })
+        })
+    }
+</script>

@@ -1,0 +1,362 @@
+<style>
+    .ul_record {
+        margin-left: 60px;
+    }
+    
+    .li_record {
+        width: 300px;
+        display: flex;
+        padding: 10px;
+        background-color: pink;
+    }
+    
+    .word_record {
+        margin-left: 20px;
+    }
+    
+    .money_record {
+        margin-top: 18px;
+    }
+    
+    .layui-table-cell {
+        height: 55px;
+    }
+    
+    .layui-laypage-limits {
+        display: none !important;
+    }
+    
+    .layui-table {
+        margin: auto !important;
+    }
+    
+    .layui-table-view,
+    .layui-table-header {
+        border: none !important;
+    }
+    
+    .layui-table-cell {
+        height: auto;
+        overflow: visible;
+        text-overflow: inherit;
+        white-space: normal;
+    }
+    
+    .color1 {
+        color: rgba(229, 6, 6, 1);
+    }
+    
+    .color2 {
+        color: rgba(31, 159, 83, 1);
+    }
+    
+    .wordStatus {
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        font-size: 18px;
+        transform: rotate(20deg);
+    }
+    
+    .member p {
+        margin: 10px 0 15px 0;
+    }
+    
+    .member p:last-child {
+        margin-bottom: 0;
+    }
+    
+    .right {
+        border-left: 1px solid #ccc;
+        width: 100%;
+    }
+    
+    .form {
+        margin: 0 0 0 50px
+    }
+    
+    .fankui {
+        margin-bottom: 20px;
+    }
+    
+    .layui-textarea {
+        width: 400px;
+    }
+    
+    .content ::-webkit-input-placeholder {
+        color: #666;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>会员管理</cite></a>
+        <a><cite>会员意见反馈管理</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+<form class="layui-form" style="background:#fff;margin:10px 0;padding:10px 0 0 0">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">反馈类型：</label>
+            <div class="layui-input-inline">
+                <select name="feedback_type" lay-filter="type" class="feedback_option">
+                    <option value="">请选择</option>
+                </select>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">手机号：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="phone" placeholder="请输入所查询内容" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">状态：</label>
+            <div class="layui-input-inline">
+                <select name="status" lay-filter="status">
+                    <option value="">请选择</option>
+                    <option value="2">已处理</option>
+                    <option value="1">未处理</option>
+                </select>
+            </div>
+        </div>
+        <button class="layui-btn layui-btn-danger" lay-submit lay-filter="search">查询</button>
+    </div>
+</form>
+<div style="display: flex;">
+    <div>
+        <table class="layui-hide" id="table" lay-filter="table"></table>
+    </div>
+    <div class="right">
+
+    </div>
+</div>
+<script>
+    layui.use(['element', 'table', 'form', 'upload', 'laypage', 'layer', 'laydate', 'common', 'public'], function() {
+        var setter = layui.setter,
+            $ = layui.jquery,
+            admin = layui.admin,
+            public = layui.public,
+            upload = layui.upload,
+            laypage = layui.laypage,
+            layer = layui.layer,
+            element = layui.element,
+            table = layui.table,
+            form = layui.form,
+            laydate = layui.laydate,
+            IsshowAnNiu = layui.common.IsshowAnNiu;
+        var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+        var base = new layui.public.Base64()
+            //初始化表单
+        form.render()
+            //获取反馈类型
+        admin.req({
+            url: layui.setter.requestUrl + 'api.php?c=news/feedbackTypeList',
+            done: function(res) {
+                console.log(res)
+                res.data.forEach(item => {
+                    $('.feedback_option').append(`
+                            <option value="${item.feedback_type}">${item.feedback_type}</option>
+                        `)
+                });
+                form.render()
+            }
+        });
+        //定义搜索数据
+        var field = {
+                feedback_type: '',
+                status: '',
+                feedback_phone: '',
+                access_token: layui.data('ShptMapi').access_token
+            }
+            //获取下拉框的值
+        form.on('select(type)', function(data) {
+            field.searchType = data.value
+        });
+        form.on('select(status)', function(data) {
+            field.orderStatus = data.value
+        });
+        //渲染表格数据
+        var render_table = function(data) {
+            table.render({
+                elem: '#table',
+                url: layui.setter.requestUrl + 'api.php?c=news/feedbackList',
+                where: data,
+                cols: [
+                    [{
+                        field: 'photo',
+                        width: '90',
+                        templet: function(d) {
+                            var src = d.photo.startsWith('http') ? d.photo : (layui.setter.CDN + d.photo)
+                            var str =
+                                `<img src = ${src} style="cursor:pointer;width:60px;height:60px" lay-event = 'enlarge'></img>`
+                            return str
+                        }
+                    }, {
+                        field: 'card_holder',
+                        width: '300',
+                        templet: function(d) {
+                            var str =
+                                `<div>昵称：${d.name}</div>
+                                        <div>反馈类型：${d.feedback_type}</div>
+                                        <div>反馈时间：${layui.common.createTime(d.feedback_addtime)}</div>
+                                        <div class="wordStatus ${d.status=='1' ? 'color1':'color2'}">${d.status=='1' ? '待处理':'已处理'}></div>`
+                            return str
+                        }
+                    }]
+                ],
+                page: true,
+                layout: ['page', 'count', 'skip'],
+                done: function(res, curr, count) {
+                    if (count != 0) {
+                        rightRender(res.data[0]);
+                    } else {
+                        $('.right').empty()
+                    }
+
+                    $('.layui-table .layui-table-cell > span').css({
+                        'font-weight': 'bold'
+                    }); //表头字体样式
+                    $('th').hide(); //表头隐藏的样式
+                    $('.layui-table-page').css('margin-top', '40px'); //页码部分的高度调整
+                }
+            });
+        }
+        render_table(field);
+        //监听搜索
+        form.on('submit(search)', function(data) {
+            data.field.access_token = layui.data('ShptMapi').access_token
+            render_table(data.field);
+            return false;
+        });
+        table.on('row(table)', function(obj) {
+            //标注选中样式
+            obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+            rightRender(obj.data);
+
+        });
+
+        function rightRender(data) {
+            $('.right').empty()
+            $('.right').append(`
+                    <div style="display: flex;margin: 30px 0;">
+                        <div style="margin: 0 30px;">
+                            <img src=${data.photo.startsWith('http')?data.photo:(layui.setter.CDN + data.phot)} style="width: 80px;height:80px">
+                            <p style="text-align: center;margin-top: 5px;">${data.name}</p>
+                        </div>
+                        <div class="member">
+                            <p>反馈类型：${data.feedback_type}</p>
+                            <p>注册手机号：${data.phone}</p>
+                            <p style="display:${data.feedback_contact?'block':'none'}">提交手机号：${data.feedback_contact}</p>
+                            <p style="display:${data.feedback_email?'block':'none'}">提交邮箱：${data.feedback_email}</p>
+                            <p>反馈时间：${layui.common.createTime(data.feedback_addtime)}</p>
+                        </div>  
+                    </div>
+                    <form class="layui-form form"> 
+                        <hr>
+                        <div class="layui-form-item layui-form-text">
+                            <div class="fankui">反馈信息：</div>
+                            <div class="content" style="display:flex">
+                                <div class="" style="width:80px">
+                                    反馈类型：
+                                </div>
+                                <div class="" >
+                                    ${data.feedback_type}
+                                </div>
+                            </div>
+                            <div class="content" style="display:flex;margin-top:10px">
+                                <div class="" style="width:80px">
+                                    反馈内容：
+                                </div>
+                                <div class="" style="flex:1">
+                                    ${base.decode(data.feedback_content)}
+                                </div>
+                            </div>
+                            <div class="content" style="display:flex;margin-top:10px">
+                                <div class="" style="width:80px">
+                                    邮  箱：
+                                </div>
+                                <div class="" style="flex:1">
+                                    ${data.feedback_email?data.feedback_email:'暂无'}
+                                </div>
+                            </div>
+                            <div class="content" style="display:flex;margin-top:10px">
+                                <div class="" style="width:80px">
+                                    其  他：
+                                </div>
+                                <div class="" style="flex:1">
+                                    ${data.feedback_phone?data.feedback_phone:'暂无'}
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                `)
+            if (data.status == '1') {
+                $('.form').append(`
+                        <hr>
+                        <div class="layui-form-item">
+                            <div class="layui-input-block">
+                                <button class="layui-btn layui-btn-normal layui-btn-lg" lay-submit lay-filter="submit">处理</button>
+                            </div>
+                        </div>
+                    `)
+            } else {
+                $('.form').append(`
+                        <hr>
+                        <div class="layui-form-item layui-form-text">
+                            <div class="fankui">平台回复：</div>
+                            <div class="content" style="color:rgba(255, 87, 51, 1)">
+                                ${base.decode(data.feedback_answer)}
+                            </div>
+                        </div>
+                    `)
+            }
+            form.on('submit(submit)', function() {
+                layer.open({
+                    type: 1,
+                    title: '回复客户反馈',
+                    area: ['500px', '300px'],
+                    shadeClose: true, //点击遮罩关闭
+                    content: `
+                            <form class="layui-form"> 
+                                <div class="layui-form-item" style="margin:30px 0">
+                                    <div class="">
+                                        <textarea placeholder="请输入内容" lay-verify="required" class="layui-textarea" name="option" style="margin:auto"></textarea>
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <div class="" style="text-align:center">
+                                        <button class="layui-btn" lay-submit lay-filter="submit1">确定</button>
+                                    </div>
+                                </div>
+                            </form>
+                        `,
+                    success: function() {
+                        form.on('submit(submit1)', function(item) {
+                            admin.req({
+                                url: layui.setter.requestUrl +
+                                    'api.php?c=news/feedbackAnswer',
+                                data: {
+                                    feedback_index: data.feedback_index,
+                                    feedback_answer: item.field.option
+                                },
+                                done: function(res) {
+                                    layer.msg(res.msg, {
+                                        icon: 1
+                                    });
+                                    render_table(field);
+                                    layer.closeAll()
+                                }
+                            });
+                            return false;
+                        })
+                    }
+                });
+                return false;
+            });
+        }
+    })
+</script>

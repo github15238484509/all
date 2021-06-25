@@ -1,0 +1,451 @@
+<style>
+    .tabMsg {
+        display: flex;
+        padding: 20px;
+    }
+    
+    .tabMsg>div {
+        width: 200px;
+        height: 30px;
+        text-align: center;
+        line-height: 30px;
+        font-size: 14px;
+        color: rgba(42, 130, 228, 1);
+        border: 1px solid rgba(42, 130, 228, 1);
+        cursor: pointer;
+        margin-left: -1px;
+    }
+    
+    .tabMsg .current {
+        color: #fff;
+        background-color: rgba(42, 130, 228, 1);
+    }
+    
+    .form {
+        background-color: #fff;
+    }
+    
+    .layui-table-cell {
+        height: auto !important;
+        line-height: 20px !important;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">首页</a>
+        <a><cite>商品</cite></a>
+        <a><cite>评价管理</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="tabMsg">
+            <div class="current wait_count"></div>
+            <div class="success_count"></div>
+            <div class="fail_count"></div>
+        </div>
+    </div>
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto form" lay-filter="app-content-list">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">评价时间</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="time" class="layui-input" id="testTime" placeholder=" 开始时间-结束时间 ">
+                </div>
+            </div>
+            <!-- <div class="layui-inline">
+                <label class="layui-form-label">审核时间</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="time1" class="layui-input" id="test2" placeholder=" 开始时间-结束时间 ">
+                </div>
+            </div> -->
+            <div class="layui-inline">
+                <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search">
+                    <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>搜索
+                </button>
+            </div>
+        </div>
+    </div>
+    <table class="layui-hide" id="commentTable" lay-filter="commentTable"></table>
+</div>
+
+<script>
+    layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'table', 'laydate', 'common', 'public',
+            'form'
+        ],
+        function() {
+            var $ = layui.$,
+                admin = layui.admin,
+                laydate = layui.laydate,
+                view = layui.view,
+                table = layui.table,
+                form = layui.form,
+                IsshowAnNiu = layui.common.IsshowAnNiu;
+            var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+            var base = new layui.public.Base64();
+            var cols = []
+            var tool = layui.public.tool;
+            var base = new layui.public.Base64();
+            var field = {
+                    type: '1', //审核状态
+                    start: '',
+                    end: '',
+                    pass_start: '',
+                    pass_end: ''
+                }
+                //tab切换
+            $(".tabMsg>div").click(function() {
+                var index = $(".tabMsg div").index(this);
+                field.type = index + 1
+                if (index != 0) {
+                    $('.form').css('display', 'block')
+                } else {
+                    $('.form').css('display', 'none')
+                }
+                $(this).addClass('current').siblings().removeClass('current');
+                render_table(field);
+            });
+
+            //日期范围
+            laydate.render({
+                elem: '#testTime',
+                type: 'datetime',
+                range: true,
+                trigger: 'click',
+                format: 'yyyy/M/d',
+                change: function(value, date, endDate) {
+
+                },
+                done: function(value, date, endDate) {
+                    if (!value) {
+                        $("input[name=testInput]").val("");
+                        field.start = '';
+                        field.end = '';
+                    } else {
+                        field.start = new Date(value.split('-')[0]).getTime() / 1000;
+                        field.end = new Date(value.split('-')[1]).getTime() / 1000;
+                    }
+                }
+            });
+            //日期范围
+            laydate.render({
+                elem: '#test2',
+                range: true,
+                format: 'yyyy/MM/dd',
+                done: function(value, date, endDate) {
+                    if (value != '') {
+                        field.pass_start = value.split('-')[0].trim()
+                        var date = new Date(field.pass_start);
+                        field.pass_start = date.getTime()
+                        field.pass_end = value.split('-')[1].trim()
+                        var date = new Date(field.pass_end);
+                        field.pass_end = date.getTime()
+                    } else {
+                        field.pass_start = ''
+                        field.pass_end = ''
+                    }
+                }
+            });
+            form.on('submit(search)', function(data) {
+                render_table(field);
+            });
+
+
+            //渲染表格数据
+            var render_table = function(data) {
+                    if (field.type == '1') {
+                        cols = [
+                            [{
+                                field: 'comment_index',
+                                title: 'ID',
+                                align: 'center',
+                                width: 70,
+                                sort: true
+                            }, {
+                                field: 'goods_name',
+                                title: '商品名称',
+                                align: 'center'
+                            }, {
+                                field: 'user_name',
+                                title: '评价用户',
+                                align: 'center',
+                                templet: function(d) {
+                                    return d.user_name || '当前用户已删除'
+                                }
+                            }, {
+                                field: 'comment_content',
+                                title: '评价内容',
+                                align: 'center',
+                                templet: function(d) {
+                                    return d.comment_content == '' ? '暂无' : base.decode(d
+                                        .comment_content)
+                                }
+                            }, {
+                                field: 'comment_images',
+                                align: 'center',
+                                title: '评价图片',
+                                height: '60px',
+                                templet: function(d) {
+                                    return `<button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-event = 'enlarge1'>查看</button>`
+                                }
+                            }, {
+                                field: 'comment_goods_score',
+                                align: 'center',
+                                title: '商品评分',
+                                templet: function(d) {
+                                    var str = `<div>商品：${d.comment_goods_score}</div>
+                                        <div>物流：${d.comment_express_score}</div>
+                                        <div>服务：${d.comment_service_score}</div>`
+                                    return str
+                                }
+                            }, {
+                                field: 'payment_time',
+                                align: 'center',
+                                title: '购买时间',
+                                templet: function(d) {
+                                    if (d.payment_time == '0') {
+                                        return `<div>暂无</div>`
+                                    } else {
+                                        return layui.common.createTime(d.payment_time)
+                                    }
+                                }
+                            }, {
+                                field: 'comment_time',
+                                align: 'center',
+                                title: '评价时间',
+                                templet: function(d) {
+                                    return layui.common.createTime(d.comment_time)
+                                }
+                            }, {
+                                fixed: 'right',
+                                align: 'center',
+                                title: '操作',
+                                templet: function(d) {
+                                    return ` <button type="button" class="layui-btn layui-btn-sm" lay-event = 'check'>审核</button>`
+                                }
+                            }]
+                        ]
+                    } else if (field.type == '2') {
+                        cols = [
+                            [{
+                                field: 'comment_index',
+                                title: 'ID',
+                                align: 'center',
+                                width: 70,
+                                sort: true
+                            }, {
+                                field: 'goods_name',
+                                title: '商品名称',
+                                align: 'center'
+                            }, {
+                                field: 'user_name',
+                                title: '评价用户',
+                                align: 'center',
+                            }, {
+                                field: 'comment_content',
+                                title: '评价内容',
+                                align: 'center',
+                                templet: function(d) {
+                                    return d.comment_content == '' ? '暂无' : base.decode(d
+                                        .comment_content)
+                                }
+                            }, {
+                                field: 'comment_images',
+                                align: 'center',
+                                title: '评价图片',
+                                height: '60px',
+                                templet: function(d) {
+                                    return `<button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-event = 'enlarge1'>查看</button>`
+                                }
+                            }, {
+                                field: 'comment_goods_score',
+                                align: 'center',
+                                title: '商品评分',
+                                // width:200,
+                                templet: function(d) {
+                                    var str = `<div>商品：${d.comment_goods_score}</div>
+                                        <div>物流：${d.comment_express_score}</div>
+                                        <div>服务：${d.comment_service_score}</div>`
+                                    return str
+                                }
+                            }, {
+                                field: 'payment_time',
+                                align: 'center',
+                                title: '购买时间',
+                                templet: function(d) {
+                                    if (d.payment_time == '0') {
+                                        return `<div>暂无</div>`
+                                    } else {
+                                        return layui.common.createTime(d.payment_time)
+                                    }
+                                }
+                            }, {
+                                field: 'comment_time',
+                                align: 'center',
+                                title: '评价时间',
+                                templet: function(d) {
+                                    return layui.common.createTime(d.comment_time)
+                                }
+                            }, {
+                                field: 'check_time',
+                                align: 'center',
+                                title: '审核通过时间',
+                                templet: function(d) {
+                                    return d.check_time == '0' ? '暂无' : layui.common.createTime(d
+                                        .check_time)
+                                }
+                            }, {
+                                fixed: 'right',
+                                align: 'center',
+                                title: '操作',
+                                templet: function(d) {
+                                    return ` <button type="button" class="layui-btn layui-btn-danger layui-btn-sm" lay-event = 'delete'>删除</button>`
+                                }
+                            }]
+                        ]
+                    } else if (field.type == '3') {
+                        cols = [
+                            [{
+                                field: 'comment_index',
+                                title: 'ID',
+                                align: 'center',
+                                width: 70,
+                                sort: true
+                            }, {
+                                field: 'goods_name',
+                                title: '商品名称',
+                                align: 'center'
+                            }, {
+                                field: 'user_name',
+                                title: '评价用户',
+                                align: 'center',
+                            }, {
+                                field: 'comment_content',
+                                title: '评价内容',
+                                align: 'center',
+                                templet: function(d) {
+                                    return d.comment_content == '' ? '暂无' : base.decode(d
+                                        .comment_content)
+                                }
+                            }, {
+                                field: 'comment_images',
+                                align: 'center',
+                                title: '评价图片',
+                                height: '60px',
+                                templet: function(d) {
+                                    return `<button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-event = 'enlarge1'>查看</button>`
+                                }
+                            }, {
+                                field: 'comment_goods_score',
+                                align: 'center',
+                                title: '商品评分',
+                                templet: function(d) {
+                                    var str = `<div>商品：${d.comment_goods_score}</div>
+                                        <div>物流：${d.comment_express_score}</div>
+                                        <div>服务：${d.comment_service_score}</div>`
+                                    return str
+                                }
+                            }, {
+                                field: 'payment_time',
+                                align: 'center',
+                                title: '购买时间',
+                                templet: function(d) {
+                                    if (d.payment_time == '0') {
+                                        return `<div>暂无</div>`
+                                    } else {
+                                        return layui.common.createTime(d.payment_time)
+                                    }
+                                }
+                            }, {
+                                field: 'comment_time',
+                                align: 'center',
+                                title: '评价时间',
+                                templet: function(d) {
+                                    return layui.common.createTime(d.comment_time)
+                                }
+                            }, {
+                                field: 'check_time',
+                                align: 'center',
+                                title: '拒绝时间',
+                                templet: function(d) {
+                                    return layui.common.createTime(d.check_time)
+                                }
+                            }, {
+                                field: 'comment_reason',
+                                align: 'center',
+                                title: '拒绝原因',
+                                templet: function(d) {
+                                    return d.comment_reason ? base.decode(d.comment_reason) : '暂无'
+                                }
+                            }, {
+                                fixed: 'right',
+                                align: 'center',
+                                title: '操作',
+                                templet: function(d) {
+                                    return ` <button type="button" class="layui-btn layui-btn-danger layui-btn-sm" lay-event = 'delete'>删除</button>`
+                                }
+                            }]
+                        ]
+                    }
+                    table.render({
+                        elem: '#commentTable',
+                        url: layui.setter.requestUrl + 'api.php?c=supplier/getCommentList',
+                        where: data,
+                        cols: cols,
+                        page: true,
+                        parseData: function(res) {
+                            console.log(res.data.success_count);
+                            $('.wait_count').html('待审核' + '&nbsp;' + res.data.wait_count)
+                            $('.success_count').html('已通过' + '&nbsp;' + res.data.success_count)
+                            $('.fail_count').html('未通过' + '&nbsp;' + res.data.fail_count)
+                            return {
+                                "count": res.count, //解析接口状态
+                                "code": res.code, //解析接口状态
+                                "data": res.data.list //解析数据列表
+                            };
+                        },
+                    });
+                }
+                //先自调用请求渲染数据
+            render_table(field);
+
+
+            table.on('tool(commentTable)', function(obj) { //注：tool table 是 table  lay-filter="对应的值"
+                var data = obj.data; //获得当前行数据
+                var layEvent = obj.event; //获得 lay-event 对应的值
+                if (layEvent == 'enlarge1') {
+                    tool.lookBigImg(data.comment_images.split(','));
+                } else if (layEvent == 'check') {
+                    admin.popup({
+                        id: 'checkComment',
+                        title: '评价审核',
+                        area: ['500px', '450px'],
+                        success: function() {
+                            view(this.id).render('/template/goods/checkComment', {
+                                comment_index: data.comment_index
+                            });
+                        }
+                    });
+                } else if (layEvent == 'delete') {
+                    tool.delTableLine({
+                        url: 'supplier/delComment',
+                        param: {
+                            comment_index: data.comment_index
+                        },
+                        success: function(res) {
+                            table.reload('commentTable', {
+                                url: layui.setter.requestUrl +
+                                    'api.php?c=supplier/getCommentList'
+                            });
+                        }
+                    });
+                }
+            })
+
+
+        });
+</script>

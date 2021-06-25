@@ -1,0 +1,513 @@
+<style>
+    .delVideo {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        line-height: 20px;
+        text-align: center;
+        border: 1px solid #ccc;
+        border-radius: 50%;
+        top: -10px;
+        right: -10px;
+        cursor: pointer;
+
+    }
+
+    .clearfix:after {
+        content: ".";
+        display: block;
+        height: 0;
+        clear: both;
+        visibility: hidden;
+
+    }
+
+    .imgBox {
+        width: 230px;
+        height: 90px;
+        cursor: pointer;
+        margin-right: 10px;
+        margin-top: 10px;
+        float: left;
+        position: relative;
+    }
+
+    .delEwm1 {
+        width: 20px;
+        height: 20px;
+        line-height: 20px;
+        text-align: center;
+        background-color: rgb(128, 120, 120);
+        color: #fff;
+        font-size: 20px;
+        position: absolute;
+
+        top: -10px;
+        right: -3px;
+        border-radius: 50%;
+        display: none;
+        cursor: pointer;
+    }
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <form class="layui-form form" style="margin-top: 20px">
+        <div class="layui-form-item">
+            <label class="layui-form-label">选择分类</label>
+            <div class="layui-input-inline">
+                <select name="headline_classify" lay-verify="required" class="headline_classify">
+
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">添加标签</label>
+            <div class="layui-input-inline">
+                <select name="label" class="label">
+
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-form-item">
+                <label class="layui-form-label">是否奖励:</label>
+                <div class="layui-input-inline is_reward" style="width:100px;">
+                    <input type="checkbox" name="is_reward" lay-skin="switch">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">奖励规则:</label>
+            <div class="layui-input-inline">
+                <input type="number" name="minute" value="{{d.params.minute?d.params.minute:''}}" autocomplete="off"
+                    placeholder="输入内容" class="layui-input share_url" style="width:100px;display: inline-block;">
+                分钟,解锁总先消费金的
+                <input type="number" name="consumption" value="{{d.params.consumption?d.params.consumption:''}}"
+                    autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                    style="width:100px;display: inline-block;">
+                %,最高可解锁
+                <input type="number" name="consumption_most"
+                    value="{{d.params.consumption_most?d.params.consumption_most/100:''}}" autocomplete="off"
+                    placeholder="输入内容" class="layui-input share_url"
+                    style="width:100px;margin:5px 0;display: inline-block;">
+                元消费金,最低可解锁
+                <input type="number" name="consumption_least"
+                    value="{{d.params.consumption_least?d.params.consumption_least/100:''}}" autocomplete="off"
+                    placeholder="输入内容" class="layui-input share_url" style="width:100px;display: inline-block;">
+                元消费金,或获得
+                <input type="number" name="cash" autocomplete="off" value="{{d.params.cash?d.params.cash/100:''}}"
+                    placeholder="输入内容" class="layui-input share_url" style="width:100px;display: inline-block;">
+                元佣金，最高可获得佣金
+                <input type="number" name="all_num" autocomplete="off" value="{{d.params.all_num?d.params.all_num:''}}"
+                    placeholder="输入内容" class="layui-input share_url" style="width:100px;display: inline-block;">
+                次
+            </div>
+        </div>
+        <div class="layui-form-item num" style="display:none">
+            <div class="layui-form-item">
+                <label class="layui-form-label"></label>
+                <div class="layui-input-inline left_num" style="width:400px;color:red">
+
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-form-item">
+                <label class="layui-form-label">循环奖励:</label>
+                <div class="layui-input-inline is_loop" style="width:100px;">
+                    <input type="checkbox" name="is_loop" lay-skin="switch">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">关联商品:</label>
+            <div class="layui-input-inline">
+                <input type="text" name="goods_id" value="{{d.params.goods_id?d.params.goods_id:''}}"
+                    style="width:300px;" autocomplete="off" placeholder="输入商品ID" class="layui-input">
+            </div>
+        </div>
+        <!-- <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">自动复制内容:</label>
+            <div class="layui-input-inline">
+                <textarea name="copy_content" cols="30" rows="10" style="width:280px;height:100px;padding:10px"
+                    placeholder="请输入内容">{{d.params.copy_content?d.params.copy_content:''}}</textarea>
+            </div>
+        </div> -->
+        <div class="layui-form-item">
+            <label class="layui-form-label">资讯标题:</label>
+            <div class="layui-input-inline">
+                <input type="text" name="title" value="{{d.params.title?d.params.title:''}}" style="width:300px;"
+                    lay-verify="required" autocomplete="off" placeholder="请输入内容" class="layui-input">
+            </div>
+        </div>
+        <div class='uploadVideo'>
+            <div class="layui-form-item layui-form-text ">
+                <label class="layui-form-label">上传视频</label>
+                <div class="layui-upload layui-input-inline" style="width:230px;position:relative">
+                    <img src="../src/images/upImg.png" id="test" style="width:230px;height:90px;cursor:pointer"></img>
+                    <video src="" controls="controls" style="width:230px;height:90px;display:none"
+                        class="video"></video>
+                    <div class="delVideo" style="display:none">×</div>
+                </div>
+                <div style="color:rgba(212, 48, 48, 1);display:inline-block">
+                    <p>1.建议视频比例为16：9</p>
+                </div>
+            </div>
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">视频封面</label>
+                <div class="layui-upload layui-input-inline" style="width:230px">
+                    <img src="../src/images/upImg.png" id="test1" style="width:230px;height:90px;cursor:pointer"></img>
+                </div>
+                <div style="color:rgba(212, 48, 48, 1);display:inline-block">
+                    <p>1.建议图片比例为16：9,尺寸:750*421</p>
+                    <p>2.上传图片不大于5M </p>
+                </div>
+            </div>
+        </div>
+        <div class='text'>
+            <div class="layui-form-item layui-form-text ">
+                <label class="layui-form-label">资讯内容</label>
+                <div class="layui-upload layui-input-inline" style="width:500px">
+                    <div id="content"></div>
+                </div>
+            </div>
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">展示封面</label>
+                <div class="layui-upload layui-input-inline clearfix" style="width: 500px;">
+                    <div class="imgpush">
+
+                    </div>
+                    <img src="../src/images/upImg.png" id="picture"
+                        style="width:230px;height:90px;cursor:pointer;margin-right:10px;position: relative;top:10px;flaot:right;"></img>
+
+                </div>
+                <div style="color:rgba(212, 48, 48, 1);display:inline-block;margin-left: 130px;margin-top: 10px;">
+                    <p>1.建议图片比例为16：9,尺寸:750*421</p>
+                    <p>2.上传图片不大于5M </p>
+                    <p>3.图片最多上传5张</p>
+                </div>
+            </div>
+        </div>
+        <div style="padding-bottom: 10px;text-align:center;margin-top:30px">
+            <button class="layui-btn" lay-submit lay-filter="formDemo">提交</button>
+        </div>
+    </form>
+</script>
+<script>
+    layui.data.sendParams = function (params) {
+        layui.use(['admin', 'element', 'view', 'form', 'public', 'upload', 'laydate'], function () {
+            var $ = layui.$;
+            var admin = layui.admin;
+            var element = layui.element;
+            var view = layui.view;
+            var form = layui.form;
+            var laydate = layui.laydate;
+            var upload = layui.upload;
+            var public = layui.public;
+            var tool = layui.public.tool;
+            var base = new layui.public.Base64();
+            var xmSelect = layui.xmSelect;
+            var tagNames = [],
+                video_pic_url = '',
+                video_url = '',
+                time_long = ''; //视频时长
+            var picture = []
+            if (params.type == '2' || params.jump_id == '2') {
+                var edit1 = new layui.public.Edit({
+                    el: '#content',
+                    success: function () {
+                        console.log(params.content)
+                        edit1.setContent(params.content ? base.decode(params.content) :
+                            '')
+                    }
+                })
+            }
+            if (params.jump_id == '3') {
+                $('.text').css('display', 'none')
+            } else if (params.jump_id == '2') {
+                $('.uploadVideo').css('display', 'none')
+
+            }
+            //视频资讯反显
+            if (params.headlines_id) {
+                $('.is_reward').empty()
+                $('.is_loop').empty()
+                if (params.is_reward == '2') {
+                    $('.is_reward').append(
+                        `<input type="checkbox" name="is_reward" lay-skin="switch" lay-text="ON|OFF">`)
+                } else {
+                    $('.is_reward').append(
+                        `<input type="checkbox" name="is_reward" lay-skin="switch" lay-text="ON|OFF" checked="">`
+                    )
+                }
+                if (params.is_loop == '2') {
+                    $('.is_loop').append(
+                        `<input type="checkbox" name="is_loop" lay-skin="switch" lay-text="ON|OFF">`)
+                } else {
+                    $('.is_loop').append(
+                        `<input type="checkbox" name="is_loop" lay-skin="switch" lay-text="ON|OFF" checked="">`
+                    )
+                }
+                $('.num').css('display', 'block')
+                $('.left_num').append(`<p>剩余可获得佣金次数：${params.left_num}</p>
+                    <p>提示：修改可获得佣金次数后，可获得佣金次数将会重置</p>`)
+                if (params.type == '3') {
+                    $('.text').css('display', 'none')
+                    $('.video').css('display', 'block')
+                    $('#test').css('display', 'none')
+                    $('.delVideo').css('display', 'block')
+                    $('#test1').attr('src', layui.setter.CDN + params.video_pic_url)
+                    $('.video').attr('src', layui.setter.CDN + params.video_url)
+                    video_url = params.video_url
+                    video_pic_url = params.video_pic_url
+                } else {
+                    // var edit1 = new layui.public.Edit({
+                    //     el:'#content',
+                    //     success:function(){
+                    //         edit1.setContent(base.decode(params.content))
+                    //     }
+                    // })
+                    $('.uploadVideo').css('display', 'none')
+                    // $('#picture').attr('src', layui.setter.CDN + params.picture)
+                    // $('#content').html(params.content)
+                    picture = params.picture.split(',')
+
+                    if (picture.length == 3) {
+                        $('#picture').css('display', 'none')
+                    }
+                    for (let i = 0; i < picture.length; i++) {
+                        $('.imgpush').append(`
+                            <div class="imgBox">
+                                <img style="width:100%;height:100%;" src="${layui.setter.CDN + picture[i]}" alt="">
+                                <div class="delEwm1">×</div>
+                            </div>
+                           
+                        `)
+                    }
+                    $('.delEwm1').css('display', 'block')
+                }
+            }
+            $('.imgpush').on('click', '.delEwm1', function (data, index) {
+                let del = picture
+                var index = $(this).parent('.imgBox').index();
+                del.splice(index, 1);
+                $(this).parent('.imgBox').remove();
+                picture = del
+                if (picture.length < 3) {
+                    $('.imgpush').show();
+                }
+                $('#picture').css('display', 'block');
+            })
+            //分类
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=headline/getHeadlineClassifyList',
+                success: function (res) {
+                    if (res.code == 0) {
+                        $('.headline_classify').empty()
+                        $('.headline_classify').append(`<option value="">请选择</option>`)
+                        var dataList = res.data
+                        dataList.forEach(items => {
+                            if (params.class_name == items.class_name) {
+                                $('.headline_classify').append(`
+                                    <option value="${items.class_index}" selected>${items.class_name}</option>
+                                `)
+                            } else {
+                                $('.headline_classify').append(`
+                                    <option value="${items.class_index}">${items.class_name}</option>
+                                `)
+                            }
+                        });
+                        layui.form.render("select");
+                    }
+                }
+            })
+            //显示标签
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=goods_tag/getGoodsTagList',
+                data: {
+                    is_able: '0'
+                },
+                success: function (res) {
+                    if (res.code == 0) {
+                        var data = res.data
+                        $('.label').empty()
+                        $('.label').append(`
+                            <option value="" selected>请选择</option>
+                        `)
+                        data.forEach(items => {
+                            if (params.label == items.tag_index) {
+                                $('.label').append(`
+                                    <option value="${items.tag_index}" selected>${items.tag_name}</option>
+                                `)
+                            } else {
+                                $('.label').append(`
+                                    <option value="${items.tag_index}">${items.tag_name}</option>
+                                `)
+                            }
+                        })
+                        layui.form.render("select");
+                    }
+                }
+            })
+
+            form.render()
+            // 上传视频
+            public.uploadVideo({
+                elem: '#test',
+                url: layui.setter.requestUrl + 'api.php?c=uploadImg/uploadImage',
+                data: {
+                    module: 'video',
+                },
+                getTimes: function (time) {
+                    time_long = time.minute + ':' + time.second
+                },
+                done: function (res, index, upload) {
+                    video_url = res.data
+                    $('#test').css('display', 'none')
+                    $('.video').css('display', 'block')
+                    $('.video').attr('src', layui.setter.CDN + res.data)
+                    $('.delVideo').css('display', 'block')
+                }
+            })
+            $('.delVideo').click(function () {
+                video_url = ''
+                time_long = ''
+                $('#test').css('display', 'block')
+                $('.video').css('display', 'none')
+                $('.delVideo').css('display', 'none')
+            })
+            //上传封面
+            upload.render({
+                elem: '#test1',
+                url: layui.setter.requestUrl + 'api.php?c=uploadImg/uploadImage' //改成您自己的上传接
+                    ,
+                multiple: false,
+                data: {
+                    module: ''
+                },
+                before: function (obj) {
+                    //预读本地文件示例，不支持ie8
+                    obj.preview(function (index, file, result) {
+                        $('#test1').attr('src', result)
+                    });
+                },
+                done: function (res) {
+                    //上传完毕
+                    if (res.code == 0) {
+                        layer.msg('上传成功')
+                        video_pic_url = res.data
+                    } else {
+                        layer.msg('上传失败')
+                    }
+                }
+            });
+            //上传展示封面
+            upload.render({
+                elem: '#picture',
+                url: layui.setter.requestUrl + 'api.php?c=uploadImg/uploadImage' //改成您自己的上传接
+                    ,
+                multiple: false,
+                data: {
+                    module: ''
+                },
+                before: function (obj) {
+                    //预读本地文件示例，不支持ie8
+                    obj.preview(function (index, file, result) {
+
+                        $('.imgpush').append(`
+                            <div class="imgBox">
+                                <img style="width:100%;height:100%;" src="${result}" alt="">
+                                <div class="delEwm1">×</div>
+                            </div>
+                           
+                        `)
+                        $('.delEwm1').css('display', 'block')
+                        // $('#picture').attr('src', result)
+                    });
+                },
+                done: function (res) {
+                    //上传完毕
+                    if (res.code == 0) {
+                        layer.msg('上传成功')
+                        let imgAll = res.data
+                        picture.push(imgAll)
+                        if (picture.length == 3) {
+                            $('#picture').css('display', 'none')
+                        }
+                    } else {
+                        layer.msg('上传失败')
+                    }
+                }
+            });
+            //时间选择
+            laydate.render({
+                elem: '#time1', //指定元素
+            });
+            form.on('submit(formDemo)', function (data) {
+                if ($('.uploadVideo').css('display') == 'block' && video_url == '') {
+                    layer.msg('请上传视频')
+                    return false;
+                }
+                if ($('.uploadVideo').css('display') == 'block' && video_pic_url == '') {
+                    layer.msg('请上传视频封面图')
+                    return false;
+                }
+                if ($('.text').css('display') == 'block') {
+                    if (edit1.getContent(0) == '') {
+                        layer.msg('请输入资讯内容')
+                        return false;
+                    }
+                }
+                var data = data.field
+                data.consumption_most = data.consumption_most * 100
+                data.consumption_least = data.consumption_least * 100
+                data.cash = data.cash * 100
+                delete data.file
+                data.video_pic_url = video_pic_url;
+                data.video_url = video_url;
+
+                if (data.is_reward == 'on') {
+                    data.is_reward = '1'
+                } else {
+                    data.is_reward = '2'
+                }
+                if (data.is_loop == 'on') {
+                    data.is_loop = '1'
+                } else {
+                    data.is_loop = '2'
+                }
+                if (params.headlines_id) {
+                    data.headlines_id = params.headlines_id
+                    data.type = params.type
+                } else {
+                    data.type = params.jump_id
+
+                }
+                if (params.type == '2' || params.jump_id == '2') {
+                    data.content = edit1.getContent(0);
+                } else {
+                    data.content = ''
+                }
+                data.time_long = time_long
+                data.picture = picture.join(',');
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=headline/addEditHeadline',
+                    data: data,
+                    type: 'post',
+                    success: function (res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg, {
+                                icon: 1
+                            })
+                            layer.closeAll()
+                            parent.layui.table.reload("infoTable1");
+                            parent.layui.table.reload("infoTable2");
+                        }
+                    }
+                })
+                return false;
+            })
+
+        })
+
+    }
+</script>

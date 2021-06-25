@@ -1,0 +1,232 @@
+<style>
+    .delVideo{
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        line-height: 20px;
+        text-align: center;
+        border: 1px solid #ccc;
+        border-radius: 50%;
+        top: -10px;
+        right: -10px;
+        cursor: pointer;
+    }
+
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <form class="layui-form form" style="margin-top: 20px">
+        <div class="layui-form-item">
+            <label class="layui-form-label">跳转类型：</label>
+            <div class="layui-input-inline jump_type" style="width:100px;line-height:38px">
+                无跳转
+            </div>
+        </div>
+        <div class="layui-form-item link">
+            <label class="layui-form-label">跳转链接：</label>
+            <div class="layui-input-inline" style="width:300px;">
+                <input type="text" name="parameter" value="{{d.params.parameter?d.params.parameter:''}}" autocomplete="off" placeholder="输入内容" class="layui-input"> 
+            </div>
+        </div>
+        <div class="layui-form-item layui-form-text ">
+            <label class="layui-form-label">上传视频</label>
+            <div class="layui-upload layui-input-inline" style="width:230px;position:relative">
+                <img src="../src/images/upImg.png" id="test" style="width:230px;height:90px;cursor:pointer"></img>
+                <video src="" controls="controls" style="width:230px;height:90px;display:none" class="video"></video>
+                <div class="delVideo" style="display:none">×</div>
+            </div>
+            <div style="color:rgba(212, 48, 48, 1);display:inline-block">
+                <p>1.建议视频比例为16：9</p>
+                <p>2.建议视频大小不超过20M</p>
+            </div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">上传视频封面</label>
+            <div class="layui-upload layui-input-inline" style="width:230px">
+                <img src="../src/images/upImg.png" id="test1" style="width:230px;height:90px;cursor:pointer"></img>
+            </div>
+            <div style="color:rgba(212, 48, 48, 1);display:inline-block">
+                <p>1.建议图片比例为16：9</p>
+                <p>2.建议图片尺寸为690*388</p>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">广告位描述：</label>
+            <div class="layui-input-inline" style="width:300px;">
+                <input type="text" name="describe" value="{{d.params.describe?d.params.describe:''}}" autocomplete="off" placeholder="输入内容" class="layui-input"> 
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">是否奖励:</label>
+            <div class="layui-input-inline is_reward" style="width:300px;">
+                <input type="checkbox" name="is_reward" lay-skin="switch">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">奖励规则:</label>
+            <div class="layui-input-inline" style="width:500px">
+                浏览15秒后，解锁总先消费金的
+                <input type="number" name="consumption" value="{{d.params.consumption?d.params.consumption:''}}" placeholder="输入内容" class="layui-input share_url" style="width:100px;display: inline-block;"> 
+                %,最高可解锁
+                <input type="number" name="consumption_most" value="{{d.params.consumption_most?d.params.consumption_most/100:''}}" placeholder="输入内容" class="layui-input share_url" style="width:100px;display: inline-block;"> 
+                元消费金,最低可解锁
+                <input type="number" name="consumption_least" value="{{d.params.consumption_least?d.params.consumption_least/100:''}}" placeholder="输入内容" class="layui-input share_url" style="width:100px;display: inline-block;margin:5px 0;"> 
+                元消费金,或获得
+                <input type="number" name="cash" value="{{d.params.cash?d.params.cash/100:''}}" placeholder="输入内容" class="layui-input share_url" style="width:100px;display: inline-block;"> 
+                元佣金，最高可获得佣金
+                <input type="number" name="all_num" value="{{d.params.all_num?d.params.all_num:''}}" placeholder="输入内容" class="layui-input share_url" style="width:100px;display: inline-block;"> 
+                次
+            </div>
+        </div>
+        <div class="layui-form-item num" style="display:none">
+            <label class="layui-form-label"></label>
+            <div class="layui-input-inline left_num" style="width:400px;color:red">
+                
+            </div>
+        </div>
+        <div style="padding-bottom: 10px;text-align:center;margin-top:30px">
+            <button class="layui-btn" lay-submit lay-filter="formDemo">提交</button>
+        </div>
+    </form>
+</script>
+<script>
+     
+    layui.data.sendParams = function (params) {
+        layui.use(['admin', 'element', 'view', 'form', 'public','upload','laydate'], function () {
+            var $ = layui.$;
+            var admin = layui.admin;
+            var element = layui.element;
+            var view = layui.view;
+            var form = layui.form;
+            var laydate  = layui.laydate ;
+            var upload = layui.upload;
+            var public = layui.public;
+            var tool = layui.public.tool;
+            var xmSelect = layui.xmSelect;
+            var tagNames=[],
+            video_picture='',
+            video='';
+            $('.jump_type').html(params.jump_name)
+            if(params.jump_id=='1'){
+                $('.link').css('display','none')
+            }
+            if(params.space_index){
+                if(params.jump_type=='1'){
+                    $('.link').css('display','none')
+                }
+                $('.delVideo').css('display','block')
+                $('#test').css('display','none')
+                $('.video').css('display','block')
+                $('#test1').attr('src',layui.setter.CDN+params.video_picture)
+                $('.video').attr('src',layui.setter.CDN+params.video)
+                video=params.video
+                video_picture=params.video_picture
+                $('.is_reward').empty()
+                $('.is_loop').empty()
+                if(params.is_reward=='1'){
+                    $('.is_reward').append(`<input type="checkbox" name="is_reward" lay-skin="switch" lay-text="ON|OFF">`)
+                }else{
+                    $('.is_reward').append(`<input type="checkbox" name="is_reward" lay-skin="switch" lay-text="ON|OFF" checked="">`)
+                }
+                $('.num').css('display','block')
+                $('.left_num').append(`<p>剩余可获得佣金次数：${params.left_num}</p>
+                    <p>提示：修改可获得佣金次数后，剩余可获得次数将会被重置</p>`)
+                    
+            }
+
+            form.render()
+            // 上传视频
+            public.uploadVideo({
+                elem:'#test',
+                url:layui.setter.requestUrl + 'api.php?c=uploadImg/uploadImage',
+                data:{
+                    module:'video',
+                },
+                getTimes:function(time){
+                     time_long=time.minute+':'+time.second
+                 },
+               done:function(res, index, upload){
+                    video=res.data
+                    $('#test').css('display','none')
+                    $('.video').css('display','block')
+                    $('.video').attr('src',layui.setter.CDN+res.data)
+                    $('.delVideo').css('display','block')
+                } 
+          })
+          $('.delVideo').click(function(){
+                video=''
+                $('#test').css('display','block')
+                $('.video').css('display','none')
+                $('.delVideo').css('display','none')
+          })
+            //上传封面
+            upload.render({
+                elem: '#test1'
+                ,url: layui.setter.requestUrl + 'api.php?c=uploadImg/uploadImage' //改成您自己的上传接
+                ,multiple: false
+                ,data:{
+                    module: ''
+                }
+                ,before: function(obj){
+                    //预读本地文件示例，不支持ie8
+                    obj.preview(function(index, file, result){
+                        $('#test1').attr('src',result)
+                    });
+                }
+                ,done: function(res){
+                    //上传完毕
+                    if(res.code==0){
+                        layer.msg('上传成功')
+                        video_picture = res.data
+                    }else{
+                        layer.msg('上传失败')
+                    }
+                }
+            });
+            form.on('submit(formDemo)',function(data){
+                if(video == ''){
+                    layer.msg('请上传视频')
+                    return false;
+                }
+                if(video_picture == ''){
+                    layer.msg('请上传视频封面图')
+                    return false;
+                }
+                var data = data.field
+                data.consumption_most=data.consumption_most*100
+                data.consumption_least=data.consumption_least*100
+                data.cash=data.cash*100
+                delete data.file
+                data.video_picture = video_picture;
+                data.video = video;
+                if(data.is_reward=='on'){
+                    data.is_reward = '0'
+                }else{
+                    data.is_reward = '1'
+                }
+                if(params.space_index){
+                    data.space_index=params.space_index
+                    data.jump_type=params.jump_type
+                }else{
+                    data.jump_type=params.jump_id
+                }
+                data.type=params.type
+                admin.req({
+                    url:layui.setter.requestUrl+'api.php?c=adspace/AdspaceAdd',
+                    type:'post',
+                    data:data,
+                    success:function(res){
+                        if(res.code==0){
+                            layer.msg(res.msg,{icon:1})
+                            layer.closeAll()
+                            parent.location.reload();
+                        }
+                    }
+                })
+                return false;
+                    
+            })
+
+        })
+
+    }
+</script>

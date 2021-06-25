@@ -1,0 +1,72 @@
+
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <form class="layui-form" action=" lay-filter="zoneForm"">
+        <div class="layui-form-item">
+            <label class="layui-form-label" >标签名称：</label>
+            <div class="layui-input-block">
+            <input type="text" name="tag_name" value="{{d.params.tag_name?d.params.tag_name:''}}" style="width:300px;" lay-verify="required" autocomplete="off" placeholder="请输入标签名称" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" >标签含义：</label>
+            <div class="layui-input-block">
+                <textarea name="tag_des" class="tag_des" cols="30" rows="10" style="width:280px;height:100px;padding:10px" lay-verify="required" placeholder="请输入内容"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" >标签状态：</label>
+            <div class="layui-input-block">
+                <input type="checkbox" name="is_able" lay-skin="switch" lay-text="启用|禁用" lay-filter="" {{ d.params.is_able == 0 ? 'checked' : '' }}>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="width:200px;margin:0 auto;">
+            <button type="submit" class="layui-btn" style="width:100%;" lay-submit="" lay-filter="submit">确定</button>
+            </div>
+        </div> 
+    </form>  
+</script>
+    <script>
+        layui.data.sendParams = function (params) {
+            layui.use(['admin','form','public'], function () {
+                var $ = layui.$;
+                var admin = layui.admin;
+                var form = layui.form;
+                var tag_index='';
+                var base = new layui.public.Base64();
+                tag_index=params.tag_index
+               form.render()
+               if(tag_index){
+                   $('.tag_des').html(base.decode(params.tag_des))
+               }
+                //保存品牌基本信息
+                form.on('submit(submit)', function (data) {
+                    if(data.field.is_able){
+                        data.field.is_able='0'
+                    }else{
+                        data.field.is_able='1'
+                    }
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=goods_tag/addEditTag',
+                        data: {
+                            tag_index:tag_index,
+                            tag_name:data.field.tag_name,
+                            tag_des:data.field.tag_des,
+                            is_able:data.field.is_able,
+                        },
+                        success: function (res) {
+                            if (res.code == 0) {
+                                layer.msg(res.msg);
+                                layer.closeAll();
+                                parent.layui.table.reload("labelTable");
+                            } else {
+                                layer.msg(res.msg);
+                            }
+                        }
+                    })
+                    return false;
+                })
+            })
+        }
+    </script> 
+

@@ -1,0 +1,180 @@
+<style>
+    /* .label{
+        display: flex;
+        height: 35px;
+        line-height: 35px;
+        color: rgba(153, 153, 153, 1);
+    } */
+    /* .label1{
+        display: flex;
+        margin-top: 10px;
+    } */
+    /* .label>div{
+        width: 50%;
+        color: rgba(153, 153, 153, 1);
+    } */
+    /* .label span{
+        color: #000;
+    } */
+    .imgs {
+        display: flex;
+        margin-bottom: 10px;
+    }
+
+    .imgs>div {
+        color: rgba(153, 153, 153, 1);
+    }
+
+    .left {
+        width: 90px;
+        text-align: right;
+        color: rgba(153, 153, 153, 1);
+    }
+
+    .right {
+        flex: 1;
+    }
+
+    .img1 {
+        width: 90px;
+        height: 90px;
+    }
+
+    .img2 {
+        width: 234px;
+        height: 100px;
+        margin-right: 10px;
+    }
+
+    .flex {
+        display: flex;
+    }
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <form class="layui-form" action="" id="formId">
+        <div class="layui-row" style="font-size: 16px;font-weight: bold;">收货信息</div>
+        <div class="layui-row">
+            <div class="layui-col-xs6">用户昵称：<span class="merchant_name">{{d.params.name}}</span></div>
+            <div class="layui-col-xs6">用户手机号：<span class="merchant_contacts">{{d.params.phone}}</span></div>
+        </div>
+        <div class="layui-row">
+            <div class="layui-col-xs6">收货人：<span class="merchant_tel">{{d.params.order_contacts}}</span></div>
+            <div class="layui-col-xs6">联系电话：<span
+                    class="merchant_tel">{{d.params.order_phone=''?'暂无':d.params.order_phone}}</span></div>
+        </div>
+        <div class="layui-row">
+            <div class="layui-col-xs12">收货地址：<span class="merchant_worktime_end">{{d.params.order_address}}</span></div>
+        </div>
+        <hr>
+        <div class="layui-row" style="font-size: 16px;font-weight: bold;">订单信息</div>
+        <div class="layui-row">
+            <div class="layui-col-xs6">订单编号：<span class="">{{d.params.order_id}}</span></div>
+            <div class="layui-col-xs6">订单状态：<span class="">{{d.params.profit_status=='0'?'未结算':'已结算'}}</span></div>
+        </div>
+        <div class="layui-row">
+            <div class="layui-col-xs6">商品总数：<span class="">{{d.params.goods_count==''?'暂无':d.params.goods_count}}</span>
+            </div>
+            <div class="layui-col-xs6">商品总价：<span
+                    class="">{{d.params.order_total_price==''?'暂无':d.params.order_total_price/100}}</span></div>
+        </div>
+        <div class="layui-row">
+            <div class="layui-col-xs6">邮费：<span
+                    class="">{{d.params.order_freight_price==''?'暂无':d.params.order_freight_price/100}}</span></div>
+            <div class="layui-col-xs6">代金券抵扣：<span
+                    class="">{{d.params.order_deduct_price==''?'暂无':d.params.order_deduct_price/100}}</span></div>
+        </div>
+        <div class="layui-row">
+            <div class="layui-col-xs6">实际支付：<span
+                    class="">{{d.params.order_total_price==''?'暂无':d.params.order_total_price/100}}</span></div>
+            <div class="layui-col-xs6">创建时间：<span class="order_time"></span></div>
+        </div>
+        <div class="layui-row">
+            <div class="layui-col-xs6">支付时间：<span class="payment_time"></span></div>
+            <div class="layui-col-xs6">发货时间：<span class="fahuo_time"></span></div>
+        </div>
+        <div class="layui-row">
+            <div class="layui-col-xs6">收货时间：<span class="confirm_time"></span></div>
+            <div class="layui-col-xs6">支付方式：<span
+                    class="merchant_worktime_end">{{d.params.order_payment=='0'?'余额支付':d.params.order_payment=='1'?'支付宝app':d.params.order_payment=='2'?'微信app':d.params.order_payment=='3'?'微信h5':d.params.order_payment=='4'?'微信公众号':d.params.order_payment=='8'?'未支付':'支付宝web'}}</span>
+            </div>
+        </div>
+        <div class="layui-row">
+            <div class="layui-col-xs12">备注信息：<span class="beizhu"></span></div>
+        </div>
+        <hr>
+        <div class="layui-row" style="font-size: 16px;font-weight: bold;">物流信息</div>
+        <div class="layui-row express_number">
+        </div>
+        <hr>
+        <div class="layui-row" style="font-size: 16px;font-weight: bold;">商品信息</div>
+        <div class="goods layui-row">
+        </div>
+    </form>
+    <button class="layui-btn layui-btn-lg layui-btn sure" style="margin:20px 0 0 300px">确定</button>
+</script>
+<script>
+    layui.data.sendParams = function (params) {
+        console.log(params);
+        console.log(params.order_payment=='8');
+        layui.use(['admin', 'element', 'public'], function () {
+            var $ = layui.$;
+            var base = new layui.public.Base64();
+            var admin = layui.admin;
+            if (params.print == '1') {
+                $('.sure').text('打印订单')
+            } else {
+                $('.sure').text('确定')
+            }
+            $('.beizhu').html(base.decode(params.order_remark))
+            $('.order_time').html(params.order_time == '0' ? '暂无' : layui.common.createTime(params
+                .order_time))
+            $('.payment_time').html(params.payment_time == '0' ? '暂无' : layui.common.createTime(params
+                .payment_time))
+            $('.fahuo_time').html(params.fahuo_time == '0' ? '暂无' : layui.common.createTime(params
+                .fahuo_time))
+            $('.confirm_time').html(params.confirm_time == '0' ? '暂无' : layui.common.createTime(params
+                .confirm_time))
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=order/getOrderGoods',
+                data: {
+                    order_index: params.order_index,
+                },
+                success: function (res) {
+                    if (res.code == 0) {
+                        res.data.forEach(item => {
+                            $('.goods').append(`
+                                    <div class="label1 layui-col-xs12">
+                                        ${item.goods_name}
+                                        <span style="float: right;margin:0 50px 0 30px;">×${item.goods_count}</span>
+                                    </div>
+                                `)
+                        });
+                        $('.express_number').append(`
+                                <div class="layui-col-xs6">快递公司：<span class="">${res.data[0].express_info=='' || res.data[0].express_info==null?'暂无':res.data[0].express_info}</span></div>
+                                <div class="layui-col-xs6">运单号：<span class="">${res.data[0].express_number=='' || res.data[0].express_number==null?'暂无':res.data[0].express_number}</span></div>
+                            `)
+                    } else {
+                        layer.msg(res.msg);
+                    }
+                }
+            })
+            $('.sure').click(function () {
+                if (params.print == '1') {
+                    print('#formId')
+                    return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+                } else {
+                    layer.closeAll()
+                }
+            })
+
+            function print(tablelayid) {
+                var v = document.createElement("div");
+                var h = window.open("打印窗口", "_blank");
+                h.document.write($(tablelayid).prop("outerHTML"));
+                h.document.close();
+                h.print();
+                h.close();
+            }
+        })
+    }
+</script>

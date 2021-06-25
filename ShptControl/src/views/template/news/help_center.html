@@ -1,0 +1,176 @@
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>系统配置</cite></a>
+        <a><cite>帮助中心分类管理</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+
+<button class="layui-btn layui-btn-danger add" style="margin: 20px;">添加</button>
+<table id="demo" lay-filter="test"></table>
+<script type="text/html" id="operate">
+    <button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="edit">编辑</button>
+    <button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="del">删除</button>
+</script>
+<script>
+    layui.use(['table', 'form', 'layer', 'public'], function () {
+        var setter = layui.setter,
+            $ = layui.jquery,
+            admin = layui.admin,
+            layer = layui.layer,
+            table = layui.table,
+            form = layui.form;
+        var base = new layui.public.Base64()
+        var fl_id = ''
+        var table_render = function () {
+            table.render({
+                elem: '#demo',
+                url: layui.setter.requestUrl + 'api.php?c=news/news_class/getNewsClassList',
+                where: {
+                    type: '2'
+                },
+                cols: [
+                    [{
+                            field: 'id',
+                            title: '序号',
+                            align: 'center'
+                        },
+                        {
+                            field: 'news_class_name',
+                            title: '分类名称',
+                            align: 'center'
+                        },
+                        {
+                            field: 'news_class_des',
+                            title: '分类描述',
+                            align: 'center',
+                            templet: function (d) {
+                                return base.decode(d.news_class_des)
+                            }
+                        },
+                        {
+                            field: '',
+                            title: '操作',
+                            align: 'center',
+                            toolbar: '#operate'
+                        }
+                    ]
+                ]
+            })
+        }
+        table_render()
+        //监听工具条 
+        table.on('tool(test)', function (data) {
+            console.log(data);
+
+            var obj = data.data; //获得当前行数据
+            var layEvent = data.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+            if (layEvent === 'edit') { //编辑
+                fl_id = obj.id
+                layer.open({
+                    type: 1,
+                    title: '编辑分类管理',
+                    area: ['500px', '300px'],
+                    shadeClose: true, //点击遮罩关闭
+                    content: `<form class="layui-form"  style="margin-top: 20px;">
+                            <div class="layui-form-item ">
+                                <label class="layui-form-label" style="width:100px;">分类名称</label>
+                                <div class="layui-input-inline" style="width:250px;">
+                                    <input type="text" name="news_class_name" value=${obj.news_class_name} required lay-verify="required" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label" style="width:100px;">分类描述</label>
+                                <div class="layui-input-inline" style="width:250px;">
+                                    <textarea name="news_class_des" required lay-verify="required"  placeholder="请输入" class="layui-textarea">${base.decode(obj.news_class_des)}</textarea>
+                                </div>
+                            </div>
+                            <div style="padding-bottom: 10px;text-align:center;margin-top:30px">
+                                <button class="layui-btn" lay-submit lay-filter="add_edit">提交</button>
+                            </div>
+                        </form>`
+                });
+            }else{
+                layer.confirm('确定删除么，删除后不可恢复', { title: '删除' }, function (index) {
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=news/news_class/delNewsClass',
+                        data: {
+                            id: obj.id
+                        },
+                        done: function (res) {
+                            layer.msg(res.msg, { icon: 1 });
+                            table_render()
+                        }
+                    });
+                });
+            }
+        });
+        $('.add').click(function () {
+            layer.open({
+                type: 1,
+                title: '添加分类管理',
+                area: ['500px', '300px'],
+                shadeClose: true, //点击遮罩关闭
+                content: `<form class="layui-form"  style="margin-top: 20px;">
+                        <div class="layui-form-item ">
+                            <label class="layui-form-label" style="width:100px;">分类名称</label>
+                            <div class="layui-input-inline" style="width:250px;">
+                                <input type="text" name="news_class_name" required lay-verify="required" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label" style="width:100px;">分类描述</label>
+                            <div class="layui-input-inline" style="width:250px;">
+                                <textarea name="news_class_des" required lay-verify="required"  placeholder="请输入" class="layui-textarea"></textarea>
+                            </div>
+                        </div>
+                        <div style="padding-bottom: 10px;text-align:center;margin-top:30px">
+                            <button class="layui-btn" lay-submit lay-filter="formDemo">提交</button>
+                        </div>
+                    </form>`
+            });
+        })
+
+        form.on('submit(formDemo)', function (data) {
+            var data = data.field
+            data.type = '2'
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=news/news_class/addNewsClass',
+                data: data,
+                success: function (res) {
+                    if (res.code == 0) {
+                        layer.msg('添加成功', {
+                                icon: 1
+                            }),
+                            layer.closeAll('page')
+                        table_render()
+                    }
+                }
+            })
+            return false
+        })
+        form.on('submit(add_edit)', function (data) {
+            var data = data.field
+            data.type = '2';
+            data.id = fl_id
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=news/news_class/addNewsClass',
+                data: data,
+                success: function (res) {
+                    if (res.code == 0) {
+                        layer.msg('修改成功', {
+                                icon: 1
+                            }),
+                            layer.closeAll('page')
+                        table_render()
+                    }
+                }
+            })
+            return false
+        })
+    })
+    layui.use('checkTask', layui.factory('checkTask'));
+</script>

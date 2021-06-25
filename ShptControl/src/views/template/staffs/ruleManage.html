@@ -1,0 +1,692 @@
+<style>
+
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>系统配置</cite></a>
+        <a><cite>规则设置</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+<div class="layui-tab layui-tab-brief">
+    <ul class="layui-tab-title">
+        <li class="layui-this">普通用户升级会员</li>
+        <li>普通用户升级超级会员</li>
+        <li>会员</li>
+        <li>超级会员</li>
+        <li>商家</li>
+        <li>服务分站</li>
+        <li>商城二次消费分润</li>
+    </ul>
+    <div class="layui-tab-content" style="padding-left: 30px;">
+        <!-- 普通用户升级会员 -->
+        <div class="layui-tab-item layui-show">
+            <form class="layui-form" action="" lay-filter="formRule1">
+                <div class="layui-form-item" style="margin: 20px 0;">一、升级规则</div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:auto">1.新人专享专区单笔消费满</label>
+                    <div class="layui-input-inline" style="width:auto">
+                        <input type="number" onkeyup="value=zhzs(this.value)" min="0" value="" name="rule_1"
+                            lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        元，可升级为会员
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button type="submit" class="layui-btn" lay-submit="submitRule1" lay-filter="submitRule1"
+                            style="margin: 20px 0 0 260px;">确定</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- 普通用户升级超级会员  -->
+        <div class="layui-tab-item">
+            <form class="layui-form" action="" lay-filter="formRule2">
+                <div class="layui-form-item" style="margin: 20px 0;">一、升级规则</div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:auto">1.新人专享专区单笔消费满</label>
+                    <div class="layui-input-inline" style="width:auto">
+                        <input type="number" onkeyup="value=zhzs(this.value)" min="0" value="" name="rule_2"
+                            lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        元，可升级为超级会员
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button type="submit" class="layui-btn" lay-submit="submitRule2" lay-filter="submitRule2"
+                            style="margin: 20px 0 0 260px;">确定</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- 会员 -->
+        <div class="layui-tab-item">
+            <form class="layui-form" action="" lay-filter="form1">
+                <div class="layui-form-item" style="margin: 20px 0;">
+                    一、分润设置 <span style="color: rgba(255, 87, 51, 1);margin-left: 20px;">提示：请输入大于零的整数</span>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:auto">1.直推一个会员，奖励</label>
+                    <div class="layui-input-inline" style="width:auto">
+                        <input type="number" onkeyup="value=zhzs(this.value)" min="0" value="" name="key_1"
+                            lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        积分。上级分站奖励
+                        <input type="number" onkeyup="value=zhzs(this.value)" min="0" value="" name="key_2"
+                            lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        积分。
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:auto">2.直推一个超级会员，奖励</label>
+                    <div class="layui-input-inline" style="width:auto">
+                        <input type="number" onkeyup="value=zhzs(this.value)" min="0" value="" name="key_3"
+                            lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        积分。上级分站奖励
+                        <input type="number" onkeyup="value=zhzs(this.value)" min="0" value="" name="key_4"
+                            lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        积分。
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:auto">3.直推一个商家，奖励</label>
+                    <div class="layui-input-inline" style="width:auto">
+                        <input type="number" onkeyup="value=zhzs(this.value)" min="0" value="" name="key_5"
+                            lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        积分。上级分站奖励 <input type="number" onkeyup="value=zhzs(this.value)" min="0" value="" name="key_6"
+                            lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        积分。
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:auto">4.直推一个服务站，奖励</label>
+                    <div class="layui-input-inline" style="width:auto">
+                        <input type="number" onkeyup="value=zhzs(this.value)" min="0" value="" name="key_7"
+                            lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        积分。上级分站奖励 <input type="number" onkeyup="value=zhzs(this.value)" min="0" value="" name="key_8"
+                            lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        积分。
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button type="submit" class="layui-btn" lay-submit="submit1" lay-filter="submit1"
+                            style="margin: 20px 0 0 260px;">确定</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- 超级会员 -->
+        <div class="layui-tab-item">
+            <form class="layui-form" action="" lay-filter="form2">
+                <div class="layui-form-item" style="margin: 20px 0;">
+                    一、分润设置 <span style="color: rgba(255, 87, 51, 1);margin-left: 20px;">提示：请输入大于零的整数</span>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:auto">1.直推一个会员，奖励</label>
+                    <div class="layui-input-inline" style="width:auto">
+                        <input type="number" onkeyup="value=zhzs(this.value)" min="0" value="" name="key_1"
+                            lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        积分。上级分站奖励
+                        <input type="number" onkeyup="value=zhzs(this.value)" min="0" value="" name="key_2"
+                            lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        积分。
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:auto">2.直推一个超级会员，奖励</label>
+                    <div class="layui-input-inline" style="width:auto">
+                        <input type="number" onkeyup="value=zhzs(this.value)" min="0" value="" name="key_3"
+                            lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        积分。上级分站奖励
+                        <input type="number" onkeyup="value=zhzs(this.value)" min="0" value="" name="key_4"
+                            lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        积分。
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:auto">3.直推一个商家，奖励</label>
+                    <div class="layui-input-inline" style="width:auto">
+                        <input type="number" onkeyup="value=zhzs(this.value)" min="0" value="" name="key_5"
+                            lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        积分。上级分站奖励 <input type="number" onkeyup="value=zhzs(this.value)" min="0" value="" name="key_6"
+                            lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:auto">4.直推一个服务站，奖励</label>
+                    <div class="layui-input-inline" style="width:auto">
+                        <input type="number" onkeyup="value=zhzs(this.value)" min="0" value="" name="key_7"
+                            lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        积分。上级分站奖励 <input type="number" onkeyup="value=zhzs(this.value)" min="0" value="" name="key_8"
+                            lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button type="submit" class="layui-btn" lay-submit="submit2" lay-filter="submit2"
+                            style="margin: 20px 0 0 260px;">确定</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- 商家 -->
+        <div class="layui-tab-item">
+            <form class="layui-form" action="" lay-filter="form3">
+                <div class="layui-form-item" style="margin: 20px 0;">
+                    一、分润设置 <span style="color: rgba(255, 87, 51, 1);margin-left: 20px;">提示：请输入大于零的整数</span>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:auto">1.直推一个会员，奖励</label>
+                    <div class="layui-input-inline" style="width:auto">
+                        <input type="number" onkeyup="value=zhzs(this.value)" min="0" value="" name="key_1"
+                            lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        积分。上级分站奖励
+                        <input type="number" onkeyup="value=zhzs(this.value)" min="0" value="" name="key_2"
+                            lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        积分。
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:auto">2.直推一个超级会员，奖励</label>
+                    <div class="layui-input-inline" style="width:auto">
+                        <input type="number" onkeyup="value=zhzs(this.value)" min="0" value="" name="key_3"
+                            lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        积分。上级分站奖励
+                        <input type="number" onkeyup="value=zhzs(this.value)" min="0" value="" name="key_4"
+                            lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        积分。
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:auto">3.直推一个商家，奖励</label>
+                    <div class="layui-input-inline" style="width:auto">
+                        <input type="number" onkeyup="value=zhzs(this.value)" min="0" value="" name="key_5"
+                            lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        积分。上级分站奖励 <input type="number" onkeyup="value=zhzs(this.value)" min="0" value="" name="key_6"
+                            lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:auto">4.直推一个服务站，奖励</label>
+                    <div class="layui-input-inline" style="width:auto">
+                        <input type="number" onkeyup="value=zhzs(this.value)" min="0" value="" name="key_7"
+                            lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        积分。上级分站奖励 <input type="number" onkeyup="value=zhzs(this.value)" min="0" value="" name="key_8"
+                            lay-verify="required" autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button type="submit" class="layui-btn" lay-submit="submit3" lay-filter="submit3"
+                            style="margin: 20px 0 0 260px;">确定</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- 服务分站 -->
+        <div class="layui-tab-item">
+            <form class="layui-form" action="" lay-filter="form4">
+                <div class="layui-form-item" style="margin: 20px 0;">
+                    一、分润设置 <span style="color: rgba(255, 87, 51, 1);margin-left: 20px;">提示：请输入大于零的整数</span>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:auto">1.直推一个会员，奖励</label>
+                    <div class="layui-input-inline" style="width:auto">
+                        <input type="number" onkeyup="value=zhzs(this.value)" min="0" name="key_1" lay-verify="required"
+                            autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        积分。
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:auto">2.直推一个超级会员，奖励</label>
+                    <div class="layui-input-inline" style="width:auto">
+                        <input type="number" onkeyup="value=zhzs(this.value)" min="0" name="key_2" lay-verify="required"
+                            autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        积分。
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:auto">2.直推一个商家，奖励</label>
+                    <div class="layui-input-inline" style="width:auto">
+                        <input type="number" onkeyup="value=zhzs(this.value)" min="0" name="key_3" lay-verify="required"
+                            autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        积分。
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button type="submit" class="layui-btn" lay-submit="submit4" lay-filter="submit4"
+                            style="margin: 20px 0 0 260px;">确定</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- 商城二次消费分润 -->
+        <div class="layui-tab-item">
+            <form class="layui-form" action="" lay-filter="form5">
+                <div class="layui-form-item" style="margin: 20px 0;">
+                    一、分润设置（第四层为消费者） <span style="color: rgba(255, 87, 51, 1);margin-left: 20px;">提示：请输入大于零的整数</span>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:auto">1.第一级获得第三级分润收入的</label>
+                    <div class="layui-input-inline" style="width:auto">
+                        <input type="number" onkeyup="value=zhzs(this.value)" min="0" name="key_1" lay-verify="required"
+                            autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        %
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:auto">2.第二级获得第三级分润收入的</label>
+                    <div class="layui-input-inline" style="width:auto">
+                        <input type="number" onkeyup="value=zhzs(this.value)" min="0" name="key_2" lay-verify="required"
+                            autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        %
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:auto">3.第三级获得第四级消费纯利润的</label>
+                    <div class="layui-input-inline" style="width:auto">
+                        <input type="number" onkeyup="value=zhzs(this.value)" min="0" name="key_3" lay-verify="required"
+                            autocomplete="off" placeholder="输入内容" class="layui-input share_url"
+                            style="width:100px;margin-right:5px;display: inline-block;">
+                        %
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button type="submit" class="layui-btn" lay-submit="submit5" lay-filter="submit5"
+                            style="margin: 20px 0 0 260px;">确定</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/html" id="operation">
+    <a class="layui-btn layui-btn-sm" lay-event="edit">修改</a>
+    <a class="layui-btn layui-btn-sm layui-btn-danger" lay-event="del">删除</a>
+</script>
+<script>
+    function zhzs(value) {
+        value = value.replace(/[^\d]/g, '');
+        console.log(value)
+        if ('' != value) {
+            value = parseInt(value);
+        }
+        return value;
+    }
+    layui.use(['form', 'table', 'layer', 'upload', 'common'], function () {
+        var admin = layui.admin,
+            setter = layui.setter,
+            $ = layui.jquery,
+            form = layui.form,
+            upload = layui.upload,
+            table = layui.table,
+            layer = layui.layer,
+            IsshowAnNiu = layui.common.IsshowAnNiu;
+        var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+        var small_logo = '';
+        var long_logo = '';
+        var share_img = ''; //分享设置的默认图片
+        var aboutImgs = []; //关于集象上传的图片
+
+        //*****************************************************************普通用户升级会员*********************************************************
+        //提交
+        form.on('submit(submitRule1)', function (data) {
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=user_rank/editRankMsg',
+                type: 'POST',
+                data: {
+                    key_1: data.field.rule_1 * 100,
+                    rank: '1'
+                },
+                success: function (res) {
+                    console.log(res)
+                    if (res.code == 0) {
+                        layer.msg(res.msg, {
+                            icon: 1
+                        })
+                    }
+                }
+            })
+            return false;
+        })
+        //反显
+        admin.req({
+            url: layui.setter.requestUrl + 'api.php?c=user_rank/getUserRankMsg',
+            data: {
+                rank: '1'
+            },
+            success: function (res) {
+                console.log(res)
+                if (res.code == 0) {
+                    form.val("formRule1", { //formTest 即 class="layui-form" 所在元素属性 lay-filter="form1" 对应的值
+                        "rule_1": res.data.key_1 / 100,
+                    });
+                }
+            }
+        })
+        //*****************************************************************普通用户升级会员end*********************************************************
+
+        //*****************************************************************普通用户升级超级会员*********************************************************
+        //提交
+        form.on('submit(submitRule2)', function (data) {
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=user_rank/editRankMsg',
+                type: 'POST',
+                data: {
+                    key_2: data.field.rule_2 * 100,
+                    rank: '1'
+                },
+                success: function (res) {
+                    console.log(res)
+                    if (res.code == 0) {
+                        layer.msg(res.msg, {
+                            icon: 1
+                        })
+                    }
+                }
+            })
+            return false;
+        })
+        //反显
+        admin.req({
+            url: layui.setter.requestUrl + 'api.php?c=user_rank/getUserRankMsg',
+            data: {
+                rank: '1'
+            },
+            success: function (res) {
+                console.log(res)
+                if (res.code == 0) {
+                    form.val("formRule2", { //formTest 即 class="layui-form" 所在元素属性 lay-filter="form1" 对应的值
+                        "rule_2": res.data.key_2 / 100,
+                    });
+                }
+            }
+        })
+
+        //*****************************************************************普通用户升级超级会员end*********************************************************
+
+        //*****************************************************************会员*********************************************************
+        //提交
+        form.on('submit(submit1)', function (data) {
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=user_rank/editRankMsg',
+                type: 'POST',
+                data: {
+                    key_1: data.field.key_1 * 100,
+                    key_2: data.field.key_2 * 100,
+                    key_3: data.field.key_3 * 100,
+                    key_4: data.field.key_4 * 100,
+                    key_5: data.field.key_5 * 100,
+                    key_6: data.field.key_6 * 100,
+                    key_7: data.field.key_7 * 100,
+                    key_8: data.field.key_8 * 100,
+                    rank: '2'
+                },
+                success: function (res) {
+                    console.log(res)
+                    if (res.code == 0) {
+                        layer.msg(res.msg, {
+                            icon: 1
+                        })
+                    }
+                }
+            })
+            return false;
+        })
+
+        //会员升级规则
+        admin.req({
+            url: layui.setter.requestUrl + 'api.php?c=user_rank/getUserRankMsg',
+            data: {
+                rank: '2'
+            },
+            success: function (res) {
+                // console.log(res)
+                if (res.code == 0) {
+                    form.val("form1", { //formTest 即 class="layui-form" 所在元素属性 lay-filter="form1" 对应的值
+                        "key_1": res.data.key_1 / 100,
+                        "key_2": res.data.key_2 / 100,
+                        "key_3": res.data.key_3 / 100,
+                        "key_4": res.data.key_4 / 100,
+                        "key_5": res.data.key_5 / 100,
+                        "key_6": res.data.key_6 / 100,
+                        "key_7": res.data.key_7 / 100,
+                        "key_8": res.data.key_8 / 100,
+                    });
+                }
+            }
+        })
+        // *****************************************************************会员end*********************************************************
+
+
+        //*****************************************************************超级会员*********************************************************
+        //提交
+        form.on('submit(submit2)', function (data) {
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=user_rank/editRankMsg',
+                type: 'POST',
+                data: {
+                    key_1: data.field.key_1 * 100,
+                    key_2: data.field.key_2 * 100,
+                    key_3: data.field.key_3 * 100,
+                    key_4: data.field.key_4 * 100,
+                    key_5: data.field.key_5 * 100,
+                    key_6: data.field.key_6 * 100,
+                    key_7: data.field.key_7 * 100,
+                    key_8: data.field.key_8 * 100,
+                    rank: '3'
+                },
+                success: function (res) {
+                    console.log(res)
+                    if (res.code == 0) {
+                        layer.msg(res.msg, {
+                            icon: 1
+                        })
+                    }
+                }
+            })
+            return false;
+        })
+
+        //超级会员升级规则
+        admin.req({
+            url: layui.setter.requestUrl + 'api.php?c=user_rank/getUserRankMsg',
+            data: {
+                rank: '3'
+            },
+            success: function (res) {
+                // console.log(res)
+                if (res.code == 0) {
+                    form.val("form2", { //formTest 即 class="layui-form" 所在元素属性 lay-filter="form1" 对应的值
+                        "key_1": res.data.key_1 / 100,
+                        "key_2": res.data.key_2 / 100,
+                        "key_3": res.data.key_3 / 100,
+                        "key_4": res.data.key_4 / 100,
+                        "key_5": res.data.key_5 / 100,
+                        "key_6": res.data.key_6 / 100,
+                        "key_7": res.data.key_7 / 100,
+                        "key_8": res.data.key_8 / 100,
+                    });
+                }
+            }
+        })
+        // *****************************************************************超级会员end*********************************************************
+
+        //*****************************************************************商家*********************************************************
+        //提交
+        form.on('submit(submit3)', function (data) {
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=user_rank/editRankMsg',
+                type: 'POST',
+                data: {
+                    key_1: data.field.key_1 * 100,
+                    key_2: data.field.key_2 * 100,
+                    key_3: data.field.key_3 * 100,
+                    key_4: data.field.key_4 * 100,
+                    key_5: data.field.key_5 * 100,
+                    key_6: data.field.key_6 * 100,
+                    key_7: data.field.key_7 * 100,
+                    key_8: data.field.key_8 * 100,
+                    rank: '6'
+                },
+                success: function (res) {
+                    console.log(res)
+                    if (res.code == 0) {
+                        layer.msg(res.msg, {
+                            icon: 1
+                        })
+                    }
+                }
+            })
+            return false;
+        })
+
+        //超级会员升级规则
+        admin.req({
+            url: layui.setter.requestUrl + 'api.php?c=user_rank/getUserRankMsg',
+            data: {
+                rank: '6'
+            },
+            success: function (res) {
+                // console.log(res)
+                if (res.code == 0) {
+                    form.val("form3", { //formTest 即 class="layui-form" 所在元素属性 lay-filter="form1" 对应的值
+                        "key_1": res.data.key_1 / 100,
+                        "key_2": res.data.key_2 / 100,
+                        "key_3": res.data.key_3 / 100,
+                        "key_4": res.data.key_4 / 100,
+                        "key_5": res.data.key_5 / 100,
+                        "key_6": res.data.key_6 / 100,
+                        "key_7": res.data.key_7 / 100,
+                        "key_8": res.data.key_8 / 100,
+                    });
+                }
+            }
+        })
+        // *****************************************************************商家end*********************************************************
+
+        //*****************************************************************服务分站*********************************************************
+        //提交
+        form.on('submit(submit4)', function (data) {
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=user_rank/editRankMsg',
+                type: 'POST',
+                data: {
+                    key_1: data.field.key_1 * 100,
+                    key_2: data.field.key_2 * 100,
+                    key_3: data.field.key_3 * 100,
+                    rank: '7'
+                },
+                success: function (res) {
+                    console.log(res)
+                    if (res.code == 0) {
+                        layer.msg(res.msg, {
+                            icon: 1
+                        })
+                    }
+                }
+            })
+            return false;
+        })
+
+        //服务分站升级规则
+        admin.req({
+            url: layui.setter.requestUrl + 'api.php?c=user_rank/getUserRankMsg',
+            data: {
+                rank: '7'
+            },
+            success: function (res) {
+                // console.log(res)
+                if (res.code == 0) {
+                    form.val("form4", { //formTest 即 class="layui-form" 所在元素属性 lay-filter="form1" 对应的值
+                        "key_1": res.data.key_1 / 100,
+                        "key_2": res.data.key_2 / 100,
+                        "key_3": res.data.key_3 / 100,
+                    });
+                }
+            }
+        })
+        // *****************************************************************服务分站end*********************************************************
+
+        //*****************************************************************商城二次消费分润*********************************************************
+        //提交
+        form.on('submit(submit5)', function (data) {
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=user_rank/editRankMsg',
+                type: 'POST',
+                data: {
+                    key_1: data.field.key_1,
+                    key_2: data.field.key_2,
+                    key_3: data.field.key_3,
+                    rank: '8'
+                },
+                success: function (res) {
+                    console.log(res)
+                    if (res.code == 0) {
+                        layer.msg(res.msg, {
+                            icon: 1
+                        })
+                    }
+                }
+            })
+            return false;
+        })
+
+        //商城二次消费分润
+        admin.req({
+            url: layui.setter.requestUrl + 'api.php?c=user_rank/getUserRankMsg',
+            data: {
+                rank: '8'
+            },
+            success: function (res) {
+                // console.log(res)
+                if (res.code == 0) {
+                    form.val("form5", { //formTest 即 class="layui-form" 所在元素属性 lay-filter="form1" 对应的值
+                        "key_1": res.data.key_1,
+                        "key_2": res.data.key_2,
+                        "key_3": res.data.key_3,
+                    });
+                }
+            }
+        })
+        // *****************************************************************商城二次消费分润end*********************************************************
+
+    });
+</script>

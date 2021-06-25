@@ -1,0 +1,54 @@
+
+
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    
+    <div id="note"></div>
+    <button class="layui-btn sure" style="margin:50px 0 0 250px">确定</button>
+</script>
+   
+
+<script>
+    layui.data.sendParams = function (params) {
+        layui.use(['admin','element','form','public'], function () {
+            var admin = layui.admin;
+            var form = layui.form;
+            var $ = layui.jquery,element = layui.element;
+            var base = new layui.public.Base64();
+            var note = new layui.public.Edit({
+                el:'#note',
+                success:function(){
+                    if(params.merchant_id){
+                        if(params.jump_type=='1'){
+                            note.setContent(base.decode(params.level_des))
+                        }else{
+                            note.setContent(base.decode(params.level_des_base))
+
+                        }
+                    }
+                }
+            })
+            
+            $(".sure").click(function(){
+                admin.req({
+                    url:layui.setter.requestUrl + 'api.php?c=merchant/setLevelDes',
+                    data:{
+                        merchant_id: params.merchant_id,
+                        des:note.getContent(0),
+                    },
+                    success:function(res){
+                        if(res.code==0){
+                            layer.msg(res.msg)
+                            layer.closeAll();
+                            parent.layui.table.reload("tableShop2");
+                            parent.layui.table.reload("merchantTable");
+                        }
+                    }
+                })
+            })
+
+        })
+    }
+    
+    
+
+</script>

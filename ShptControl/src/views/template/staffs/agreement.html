@@ -1,0 +1,403 @@
+<style>
+    .layui-tab {
+        background-color: #fff;
+        height: 100%;
+    }
+    .layui-layedit {
+        width: 700px;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>系统配置</cite></a>
+        <a><cite>相关协议</cite></a>
+    </div>
+</div>
+<div class="layui-tab layui-tab-brief" lay-filter="demo">
+    <ul class="layui-tab-title">
+        <li class="layui-this">会员注册协议</li>
+        <li>商家入驻协议</li>
+        <li>用户隐私协议</li>
+        <li>产品预售协议</li>
+        <li>商品定制协议</li>
+    </ul>
+    <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show">
+            <form class="layui-form" style="background:#fff;margin:10px 0;padding:10px 0 0 0">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">协议标题</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="agreement_title" required lay-verify="required" placeholder="请输入标题"
+                            autocomplete="off" class="layui-input agreement_title1" style="width: 700px;">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">协议内容</label>
+                    <div class="layui-input-block">
+                        <textarea class="layui-textarea agreement_content" id="LAY_demo1" style="display: none;"
+                            placeholder="请输入内容"></textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block" style="text-align: center;">
+                        <button type="submit" class="layui-btn layui-btn-danger" lay-submit
+                            lay-filter="submit1">提交</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="layui-tab-item">
+            <form class="layui-form" style="background:#fff;margin:10px 0;padding:10px 0 0 0">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">协议标题</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="agreement_title" required lay-verify="required" placeholder="请输入标题"
+                            autocomplete="off" class="layui-input agreement_title2" style="width: 700px;">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">协议内容</label>
+                    <div class="layui-input-block">
+                        <textarea class="layui-textarea agreement_content" id="LAY_demo2" style="display: none;"
+                            placeholder="请输入内容"></textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block" style="text-align: center;">
+                        <button type="submit" class="layui-btn layui-btn-danger" lay-submit
+                            lay-filter="submit2">提交</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="layui-tab-item">
+            <form class="layui-form" style="background:#fff;margin:10px 0;padding:10px 0 0 0">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">协议标题</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="agreement_title" required lay-verify="required" placeholder="请输入标题"
+                            autocomplete="off" class="layui-input agreement_title3" style="width: 700px;">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">协议内容</label>
+                    <div class="layui-input-block">
+                        <textarea class="layui-textarea agreement_content" id="LAY_demo3" style="display: none;"
+                            placeholder="请输入内容"></textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block" style="text-align: center;">
+                        <button type="submit" class="layui-btn layui-btn-danger" lay-submit
+                            lay-filter="submit3">提交</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="layui-tab-item">
+            <form class="layui-form" style="background:#fff;margin:10px 0;padding:10px 0 0 0">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">协议标题</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="agreement_title" required lay-verify="required" placeholder="请输入标题"
+                            autocomplete="off" class="layui-input agreement_title4" style="width: 700px;">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">协议内容</label>
+                    <div class="layui-input-block">
+                        <textarea class="layui-textarea agreement_content" id="LAY_demo4" style="display: none;"
+                            placeholder="请输入内容"></textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block" style="text-align: center;">
+                        <button type="submit" class="layui-btn layui-btn-danger" lay-submit
+                            lay-filter="submit4">提交</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="layui-tab-item">
+            <form class="layui-form" style="background:#fff;margin:10px 0;padding:10px 0 0 0">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">协议标题</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="agreement_title" required lay-verify="required" placeholder="请输入标题"
+                            autocomplete="off" class="layui-input agreement_title5" style="width: 700px;">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">协议内容</label>
+                    <div class="layui-input-block">
+                        <textarea class="layui-textarea agreement_content" id="LAY_demo5" style="display: none;"
+                            placeholder="请输入内容"></textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block" style="text-align: center;">
+                        <button type="submit" class="layui-btn layui-btn-danger" lay-submit
+                            lay-filter="submit5">提交</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    //注意：选项卡 依赖 element 模块，否则无法进行功能性操作
+    layui.use(['element','layedit', 'form', 'layer'], function () {
+        var admin = layui.admin,
+            setter = layui.setter,
+            $ = layui.jquery,
+            form = layui.form,
+            element = layui.element,
+            layedit = layui.layedit,
+            layer = layui.layer;
+            var agreement_index1=''
+            var agreement_index2=''
+            var agreement_index3=''
+            var agreement_index4=''
+            var agreement_index5=''
+        //构建一个默认的编辑器
+        layedit.set({
+            uploadImage: {
+                url: layui.setter.requestUrl + 'api.php?c=uploadImg/wbUploadImage&module=xieyi',
+                type: 'get' //默认post
+                ,success: function (res) {
+                    console.log(res.data)
+                }
+            }
+        });
+        var index1 = layedit.build('LAY_demo1');
+        layedit.set({
+            uploadImage: {
+                url: layui.setter.requestUrl + 'api.php?c=uploadImg/wbUploadImage&module=xieyi',
+                type: 'get' //默认post
+                    ,
+                success: function (res) {
+                    console.log(res.data)
+                }
+            }
+        });
+        var index2 = layedit.build('LAY_demo2');
+        layedit.set({
+            uploadImage: {
+                url: layui.setter.requestUrl + 'api.php?c=uploadImg/wbUploadImage&module=xieyi',
+                type: 'get' //默认post
+                    ,
+                success: function (res) {
+                    console.log(res.data)
+                }
+            }
+        });
+        var index3 = layedit.build('LAY_demo3');
+
+        layedit.set({
+            uploadImage: {
+                url: layui.setter.requestUrl + 'api.php?c=uploadImg/wbUploadImage&module=xieyi',
+                type: 'get' //默认post
+                    ,
+                success: function (res) {
+                    console.log(res.data)
+                }
+            }
+        });
+        var index4 = layedit.build('LAY_demo4');
+        layedit.set({
+            uploadImage: {
+                url: layui.setter.requestUrl + 'api.php?c=uploadImg/wbUploadImage&module=xieyi',
+                type: 'get' //默认post
+                    ,
+                success: function (res) {
+                    console.log(res.data)
+                }
+            }
+        });
+        var index5 = layedit.build('LAY_demo5');
+
+        //反显数据
+        admin.req({
+            url: layui.setter.requestUrl +
+                'api.php?c=client_agreement/getClientAgreement',
+            data: {
+                agreement_type: '1'
+            },
+            success: function (res) {
+                if (res.code == 0) {
+                    if(res.data.agreement_index!=''){
+                        agreement_index1 = res.data.agreement_index
+                    }
+                    $('.agreement_title1').val(res.data.agreement_title);
+                    layedit.setContent(index1, res.data.agreement_content);
+                }
+            }
+        })
+        form.on('submit(submit1)', function (data) {
+            data.field.agreement_type='1'
+            data.field.agreement_index=agreement_index1
+            data.field.agreement_content = layedit.getContent(index1)
+            delete data.field.file
+            admin.req({
+                url: layui.setter.requestUrl +
+                    'api.php?c=client_agreement/addEditClientAgreement',
+                data: data.field,
+                success: function (res) {
+                    if (res.code == 0) {
+                        layer.msg(res.msg,{icon:1})
+                        // window.location.reload()
+                    }
+                }
+            })
+            return false;
+        })
+         //反显数据
+         admin.req({
+            url: layui.setter.requestUrl +
+                'api.php?c=client_agreement/getClientAgreement',
+            data: {
+                agreement_type: '2'
+            },
+            success: function (res) {
+                if (res.code == 0) {
+                    if(res.data.agreement_index!=''){
+                        agreement_index2 = res.data.agreement_index
+                    }
+                    $('.agreement_title2').val(res.data.agreement_title)
+                    layedit.setContent(index2, res.data.agreement_content);
+                }
+            }
+        })
+        form.on('submit(submit2)', function (data) {
+            data.field.agreement_type='2'
+            data.field.agreement_index=agreement_index2
+            data.field.agreement_content = layedit.getContent(index2)
+            delete data.field.file
+            admin.req({
+                url: layui.setter.requestUrl +
+                    'api.php?c=client_agreement/addEditClientAgreement',
+                data: data.field,
+                success: function (res) {
+                    if (res.code == 0) {
+                        layer.msg(res.msg,{icon:1})
+                        window.location.reload()
+                    }
+                }
+            })
+            return false;
+        })
+         //反显数据
+         admin.req({
+            url: layui.setter.requestUrl +
+                'api.php?c=client_agreement/getClientAgreement',
+            data: {
+                agreement_type: '3'
+            },
+            success: function (res) {
+                if (res.code == 0) {
+                    if(res.data.agreement_index!=''){
+                        agreement_index3 = res.data.agreement_index
+                    }
+                    $('.agreement_title3').val(res.data.agreement_title)
+                    layedit.setContent(index3, res.data.agreement_content);
+                }
+            }
+        })
+        form.on('submit(submit3)', function (data) {
+            data.field.agreement_type='3'
+            data.field.agreement_index=agreement_index3
+            data.field.agreement_content = layedit.getContent(index3)
+            delete data.field.file
+            admin.req({
+                url: layui.setter.requestUrl +
+                    'api.php?c=client_agreement/addEditClientAgreement',
+                data: data.field,
+                success: function (res) {
+                    if (res.code == 0) {
+                        layer.msg(res.msg,{icon:1})
+                        // window.location.reload()
+                    }
+                }
+            })
+            return false;
+        })
+         //反显数据
+         admin.req({
+            url: layui.setter.requestUrl +
+                'api.php?c=client_agreement/getClientAgreement',
+            data: {
+                agreement_type: '4'
+            },
+            success: function (res) {
+                if (res.code == 0) {
+                    if(res.data.agreement_index!=''){
+                        agreement_index4 = res.data.agreement_index
+                    }
+                    $('.agreement_title4').val(res.data.agreement_title)
+                    layedit.setContent(index4, res.data.agreement_content);
+                }
+            }
+        })
+        form.on('submit(submit4)', function (data) {
+            data.field.agreement_type='4'
+            data.field.agreement_index=agreement_index4
+            data.field.agreement_content = layedit.getContent(index4)
+            delete data.field.file
+            admin.req({
+                url: layui.setter.requestUrl +
+                    'api.php?c=client_agreement/addEditClientAgreement',
+                data: data.field,
+                success: function (res) {
+                    if (res.code == 0) {
+                        layer.msg(res.msg,{icon:1})
+                        // window.location.reload()
+                    }
+                }
+            })
+            return false;
+        })
+         //反显数据
+         admin.req({
+            url: layui.setter.requestUrl +
+                'api.php?c=client_agreement/getClientAgreement',
+            data: {
+                agreement_type: '5'
+            },
+            success: function (res) {
+                if (res.code == 0) {
+                    if(res.data.agreement_index!=''){
+                        agreement_index5 = res.data.agreement_index
+                    }
+                    $('.agreement_title5').val(res.data.agreement_title)
+                    layedit.setContent(index5, res.data.agreement_content);
+                }
+            }
+        })
+        form.on('submit(submit5)', function (data) {
+            data.field.agreement_type='5'
+            data.field.agreement_index=agreement_index5
+            data.field.agreement_content = layedit.getContent(index5)
+            delete data.field.file
+            admin.req({
+                url: layui.setter.requestUrl +
+                    'api.php?c=client_agreement/addEditClientAgreement',
+                data: data.field,
+                success: function (res) {
+                    if (res.code == 0) {
+                        layer.msg(res.msg,{icon:1})
+                        // window.location.reload()
+                    }
+                }
+            })
+            return false;
+        })
+        //切换反显数据
+        // element.on('tab(demo)', function (data) {
+        //     getData(data.index + 1);
+        // });
+
+        
+    });
+</script>

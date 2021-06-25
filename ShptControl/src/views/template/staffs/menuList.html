@@ -1,0 +1,55 @@
+<div class="layui-card layadmin-header">
+  <div class="layui-breadcrumb" lay-filter="breadcrumb">
+    <!-- <a lay-href="javascript:;">系统配置</a> -->
+    <a><cite>系统配置</cite></a>
+    <a><cite>菜单管理</cite></a>
+    <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+        class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+        id="addBook">点击收藏</cite></a>
+  </div>
+</div>
+<div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+  <ul class="layui-tab-title">
+    <li class="layui-this">菜单分类管理</li>
+    <li>功能菜单管理</li>
+    <!-- <li>系统管理</li> -->
+  </ul>
+  <div class="layui-tab-content" style="height: 100px;">
+    <div class="layui-tab-item  layui-show">
+      <button type="button" class="layui-btn addMenuClassification">添加菜单分类</button>
+      <table id="menu_classification" lay-filter="menu_classification"></table>
+    </div>
+    <div class="layui-tab-item">
+      <form class="layui-form" action="">
+        <div class="layui-form-item">
+          <div class="layui-inline">
+            <label class="layui-form-label">归属菜单：</label>
+            <div class="layui-input-inline">
+              <select name="search_type" lay-filter="attribution_menu" id="attribution_menu">
+                <option value="">全部</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </form>
+      <button type="button" class="layui-btn addFuntionMenu">添加功能菜单</button>
+      <table id="menu_function" lay-filter="menu_function"></table>
+    </div>
+
+    <!-- <div class="layui-tab-item">
+      <button type="button" class="layui-btn addSystem">添加系统</button>
+      <table id="system" lay-filter="system"></table>
+    </div> -->
+  </div>
+</div>
+<script type="text/html" id="sorting">
+  <a class="layui-btn layui-btn-xs layui-btn-warm" lay-event="upward">上移</a>
+  <a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="down">下移</a>
+</script>
+<script type="text/html" id="operation">
+  <a class="layui-btn layui-btn-sm" lay-event="edit">修改</a>
+  <a class="layui-btn layui-btn-sm layui-btn-danger" lay-event="del">删除</a>
+</script>
+<script>
+  layui.use('menuList', layui.factory('menuList'));
+</script>

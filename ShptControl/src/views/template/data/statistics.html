@@ -1,0 +1,700 @@
+<style>
+    .btn1 .layui-table-cell {
+        display: block;
+        height: 50px !important;
+    }
+    
+    .tabMsg {
+        display: flex;
+        padding: 20px;
+    }
+    
+    .tabMsg>div {
+        padding: 0px 5px;
+        text-align: center;
+        line-height: 30px;
+        font-size: 14px;
+        color: rgba(42, 130, 228, 1);
+        border: 1px solid rgba(42, 130, 228, 1);
+        cursor: pointer;
+        margin-left: -1px;
+    }
+    
+    .tabMsg .current {
+        color: #fff;
+        background-color: rgba(42, 130, 228, 1);
+    }
+    
+    .tabMsg1 {
+        display: flex;
+        padding: 20px;
+    }
+    
+    .tabMsg1>div {
+        padding: 0px 5px;
+        text-align: center;
+        line-height: 30px;
+        font-size: 14px;
+        color: rgba(42, 130, 228, 1);
+        border: 1px solid rgba(42, 130, 228, 1);
+        cursor: pointer;
+        margin-left: -1px;
+    }
+    
+    .tabMsg1 .current {
+        color: #fff;
+        background-color: rgba(42, 130, 228, 1);
+    }
+    
+    .tabMsg2 {
+        display: flex;
+        padding: 20px;
+    }
+    
+    .tabMsg2>div {
+        padding: 0px 5px;
+        text-align: center;
+        line-height: 30px;
+        font-size: 14px;
+        color: rgba(42, 130, 228, 1);
+        border: 1px solid rgba(42, 130, 228, 1);
+        cursor: pointer;
+        margin-left: -1px;
+    }
+    
+    .tabMsg2 .current {
+        color: #fff;
+        background-color: rgba(42, 130, 228, 1);
+    }
+    
+    .commodityList {
+        display: flex;
+        align-items: center;
+        padding: 5px;
+    }
+    /* 下拉多级选择 */
+    
+    .layui-rc-cascader {
+        position: relative;
+        font-size: 14px;
+        line-height: 40px;
+    }
+    
+    .cascader-input {
+        cursor: pointer;
+        position: relative;
+        width: 100%;
+    }
+    
+    .cascader-input>input {
+        cursor: pointer;
+        user-select: none;
+    }
+    
+    .cascader-input__inner {
+        text-overflow: ellipsis;
+    }
+    
+    .cascader-input--suffix>.cascader-input__inner {
+        padding-right: 32px;
+    }
+    
+    .cascader-input.focus .cascader-input__inner {
+        border-color: #5FB878 !important;
+    }
+    
+    .cascader-input__suffix {
+        position: absolute;
+        width: 36px;
+        height: 100%;
+        right: 0;
+        top: 0;
+        text-align: center;
+        color: #c0c4cc;
+        transition: all .3s;
+        pointer-events: none;
+        cursor: pointer;
+    }
+    
+    .cascader-input.focus .cascader-input__suffix {
+        transform: rotate(180deg);
+    }
+    
+    .cascader-dropdown {
+        display: none;
+        position: absolute;
+        left: 0;
+        top: 42px;
+        padding: 5px 0;
+        z-index: 899;
+    }
+    
+    .layui-selectup .cascader-dropdown {
+        top: auto;
+        bottom: 42px;
+    }
+    
+    .cascader-input.focus+.cascader-dropdown {
+        display: block;
+    }
+    
+    .cascader-dropdown>.cascader-dropdown-panel {
+        display: flex;
+        flex-flow: row;
+        border: 1px solid #d2d2d2;
+        background-color: #fff;
+        border-radius: 2px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, .12);
+        box-sizing: border-box;
+    }
+    
+    .cascader-dropdown-panel>.cascader-dropdown-dl {
+        min-width: 180px;
+        min-height: 180px;
+        max-height: 300px;
+        overflow-y: auto;
+        box-sizing: border-box;
+        color: #606266;
+        border-right: 1px solid #d2d2d2;
+    }
+    
+    .cascader-dropdown-dl {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+    
+    .cascader-dropdown-dl::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .cascader-dropdown-dl:last-child {
+        border-right: none;
+    }
+    
+    .cascader-dropdown-dd {
+        cursor: pointer;
+        position: relative;
+        display: flex;
+        align-items: center;
+        padding: 0 16px;
+        height: 40px;
+        line-height: 40px;
+        outline: none;
+        color: #606266;
+        user-select: none;
+    }
+    
+    .cascader-dropdown-dd:hover {
+        transition: .5s all;
+        background-color: #f2f2f2;
+    }
+    
+    .cascader-dropdown-dd.active,
+    .cascader-dropdown-dd.in-active {
+        background-color: #5FB878;
+        color: #fff;
+    }
+    
+    .cascader-dropdown-dd>span {
+        flex: 1;
+        padding-right: 16px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .cascader-dropdown-dd.selected {
+        color: #5FB878;
+        font-weight: 600;
+    }
+    
+    .cascader-dropdown-dd .layui-icon-ok {
+        display: none;
+    }
+    
+    .cascader-dropdown-dd.selected .layui-icon-ok {
+        display: inline-block;
+    }
+    
+    .mdBox {
+        /* 为了避免分辨率缩小位置错乱 可以把下面打开 给高度一个固定值 */
+        /* height: 117px; */
+        border-right: 1px solid #ccc;
+        text-align: center;
+        padding: 35px;
+        margin-bottom: 15px;
+    }
+    
+    .infoDetail {
+        margin-top: 12px;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">首页</a>
+        <a><cite>数据统计</cite></a>
+        <a><cite>数据统计</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-row">
+            <div class=" layui-col-md2" style=" height: 30px;line-height: 30px; padding: 20px;font-size: 18px;font-weight: bold;">
+                数据明细
+            </div>
+            <div class=" layui-col-md10" style="display: flex;justify-content: flex-end;">
+                <div class="layui-inline" style="margin-top: 18px;">
+                    <label class="layui-form-label">时间段查询</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="time" class="layui-input" id="testTime" placeholder=" 开始时间 ~ 结束时间 ">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <div class="tabMsg ">
+                        <div class="current" data-index="2">全部</div>
+                        <div data-index="6">今日</div>
+                        <div data-index="0">昨日</div>
+                        <div data-index="4">本周</div>
+                        <div data-index="3">上周</div>
+                        <div data-index="-1">近30天</div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    <!-- 统计 -->
+    <div class="layui-card" style="padding-top: 15px;">
+        <div class="layui-row">
+            <div class="layui-col-md3 mdBox">
+                新增注册会员
+                <i class="layui-icon layui-icon-about" title="所选时间内，平台新注册的会员数量"></i>
+                <div class="infoDetail">
+
+                </div>
+
+            </div>
+            <div class="layui-col-md3 mdBox">
+                商城交易额（元）
+                <i class="layui-icon layui-icon-about" title="所选时间内，商城板块的交易额"></i>
+                <div class="infoDetail"></div>
+
+            </div>
+            <div class="layui-col-md3 mdBox">
+                商城货款提现（元）
+                <i class="layui-icon layui-icon-about" title="所选时间内，所有供货商的提现金额"></i>
+                <div class="infoDetail"></div>
+            </div>
+
+            <div class="layui-col-md3 mdBox">
+                奖金拨出（元）
+                <i class="layui-icon layui-icon-about" title="所选时间内，平台拨给所有会员的奖金"></i>
+                <div class="infoDetail"></div>
+            </div>
+            <div class="layui-col-md3 mdBox">
+                佣金提现
+                <i class="layui-icon layui-icon-about" title="所选时间内，手机端所有会员的提现金额"></i>
+                <div class="infoDetail"></div>
+            </div>
+            <div class="layui-col-md3 mdBox">
+                订单数（单）
+                <i class="layui-icon layui-icon-about" title="所选时间内，平台的订单数量"></i>
+                <div class="infoDetail"></div>
+            </div>
+            <div class="layui-col-md3 mdBox">
+                售后数（单）
+                <i class="layui-icon layui-icon-about" title="所选时间内，平台内发起的售后申请数量"></i>
+                <div class="infoDetail"></div>
+            </div>
+            <div class="layui-col-md3 mdBox">
+                服务费拨出（元）
+                <i class="layui-icon layui-icon-about" title="所选时间呢，平台向组长/团长/市场督导支出的服务费"></i>
+                <div class="infoDetail"></div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+</div>
+<div style="display: flex;margin: 0 15px;">
+    <div style="width:49.5%;margin-right: 1%;">
+        <div class="layui-card">
+            <div style="display: flex;justify-content: flex-end;">
+                <div class=" layui-col-md3" style=" height: 30px;line-height: 30px; padding: 20px;width: 150px;">
+                    商品销量排行
+                </div>
+                <div class=" layui-col-md9" style="text-align: right;">
+                    <div class="layui-inline">
+                        <div class="tabMsg1 ">
+                            <div class="current" data-index="2">全部</div>
+                            <div data-index="6">今日</div>
+                            <div data-index="0">昨日</div>
+                            <div data-index="4">近7天</div>
+                            <div data-index="3">近30天</div>
+                            <div data-index="-1">本月</div>
+                            <div data-index="1">本年</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div style="background-color: rgba(249, 249, 249, 1); display: flex;align-items: center;padding: 20px;">
+                    <div class="layui-col-md2">
+                        <h4>排名</h4>
+                    </div>
+                    <div class="layui-col-md6">
+                        <h4>商品名称</h4>
+                    </div>
+                    <div class="layui-col-md4" style="text-align: right;">
+                        <h4>销量（件）</h4>
+                    </div>
+                </div>
+                <!-- 商品排行榜单 -->
+                <div style="height: 700px; width: 100%; overflow: hidden;">
+                    <div id="getGoodsOrder" style="height: 100%;width: 110%;overflow-y: auto;overflow-x: hidden;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <div style="width:49.5%;">
+        <div class="layui-card">
+            <div style="display: flex;justify-content: flex-end;">
+                <div class=" layui-col-md3" style=" height: 30px;line-height: 30px; padding: 20px;width:156px;">
+                    供货商销售额排行
+                </div>
+                <div class=" layui-col-md9" style="text-align: right;">
+                    <div class="layui-inline">
+                        <div class="tabMsg2 ">
+                            <div class="current" data-index="2">全部</div>
+                            <div data-index="6">今日</div>
+                            <div data-index="0">昨日</div>
+                            <div data-index="4">近7天</div>
+                            <div data-index="3">近30天</div>
+                            <div data-index="-1">本月</div>
+                            <div data-index="1">本年</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div style="background-color: rgba(249, 249, 249, 1); display: flex;align-items: center;padding: 20px;">
+                    <div class="layui-col-md2">
+                        <h4>排名</h4>
+                    </div>
+                    <div class="layui-col-md6">
+                        <h4>商户名称</h4>
+                    </div>
+                    <div class="layui-col-md4" style="text-align: right;">
+                        <h4>销量额（元）</h4>
+                    </div>
+                </div>
+                <!-- 商品排行榜单 -->
+                <div style="height: 700px; width: 100%; overflow: hidden;">
+                    <div id="getGoodsOrder1" style="height: 100%;width: 110%;overflow-y: auto;overflow-x: hidden;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+
+<script>
+    layui.use(['public', 'admin', 'form', 'contlist', 'table', 'laydate', 'common', 'jquery', 'rate'], function() {
+        var $ = layui.jquery,
+            form = layui.form,
+            admin = layui.admin,
+            common = layui.common,
+            laydate = layui.laydate,
+            view = layui.view,
+            rate = layui.rate,
+            table = layui.table;
+        form.render();
+        var formData = {
+                start: '',
+                end: '',
+                access_token: layui.data('ShptMapi').access_token
+            }
+            //判断是否选中了时间
+        isTimeChoiced = false
+
+        // =1今天 =2昨天 =3本周 =4上周 =5近30天 =6全部
+        var the_type = 6
+
+        //商品排行 下的分类 =1全部 =2今天 =3昨天 =4近七天 =5近30天 =6本月 =7本年
+        var goods_type = 1
+
+        //商户排行 下的分类 =1全部 =2今天 =3昨天 =4近七天 =5近30天 =6本月 =7本年
+        var business_type = 1
+
+
+
+        //拿数据明细
+        infoDetail()
+            //初始化拿商品数据
+        commodityList();
+        //初始化拿商户数据
+        businessList();
+
+
+
+
+        var cols = [];
+        var goods_status = 2
+            //数据明细tab
+        $(".tabMsg>div").click(function() {
+
+            var index = $(".tabMsg div").index(this);
+            $(this).addClass('current').siblings().removeClass('current');
+            goods_status = $(this).attr('data-index');
+            if ($(this).attr('data-index') === '2') { //已上架
+                the_type = 6
+            } else if ($(this).attr('data-index') === '6') { //预发布
+                the_type = 1
+            } else if ($(this).attr('data-index') === '0') { //待审核
+                the_type = 2
+            } else if ($(this).attr('data-index') === '4') { //审核未通过
+                the_type = 3
+            } else if ($(this).attr('data-index') === '3') { //未上架
+                the_type = 4
+            } else if ($(this).attr('data-index') === '-1') { //未上架
+                the_type = 5
+            }
+            //只要点击了右侧的时间分类 就把日期判断变回false
+            isTimeChoiced = false
+
+            $('#testTime').val("")
+            infoDetail()
+        });
+        //商品销量tab
+        $(".tabMsg1>div").click(function() {
+            var index = $(".tabMsg1 div").index(this);
+            $(this).addClass('current').siblings().removeClass('current');
+            goods_status = $(this).attr('data-index');
+            if ($(this).attr('data-index') === '2') { //已上架
+                goods_type = 1
+            } else if ($(this).attr('data-index') === '6') { //预发布
+                goods_type = 2
+            } else if ($(this).attr('data-index') === '0') { //待审核
+                goods_type = 3
+            } else if ($(this).attr('data-index') === '4') { //审核未通过
+                goods_type = 4
+            } else if ($(this).attr('data-index') === '3') { //未上架
+                goods_type = 5
+            } else if ($(this).attr('data-index') === '-1') { //未上架
+                goods_type = 6
+            } else if ($(this).attr('data-index') === '1') { //未上架
+                goods_type = 7
+            }
+            commodityList();
+        });
+        //商户销售额tab
+        $(".tabMsg2>div").click(function() {
+            var index = $(".tabMsg2 div").index(this);
+            $(this).addClass('current').siblings().removeClass('current');
+            goods_status = $(this).attr('data-index');
+            if ($(this).attr('data-index') === '2') { //已上架
+                business_type = 1
+            } else if ($(this).attr('data-index') === '6') { //预发布
+                business_type = 2
+            } else if ($(this).attr('data-index') === '0') { //待审核
+                business_type = 3
+            } else if ($(this).attr('data-index') === '4') { //审核未通过
+                business_type = 4
+            } else if ($(this).attr('data-index') === '3') { //未上架
+                business_type = 5
+            } else if ($(this).attr('data-index') === '-1') { //未上架
+                business_type = 6
+            } else if ($(this).attr('data-index') === '1') { //未上架
+                business_type = 7
+            }
+            businessList();
+        });
+
+        //日期范围
+        laydate.render({
+            elem: '#testTime',
+            type: 'datetime',
+            range: true,
+            trigger: 'click',
+            format: 'yyyy/M/d',
+            change: function(value, date, endDate) {
+
+            },
+            done: function(value, date, endDate) {
+                //清空和确定 都会触发 done方法
+                //根据value 是否为空 来判断是点击了清空 还是确定  
+
+                if (!value) {
+                    $("input[name=testInput]").val("");
+                    formData.start = '';
+                    formData.end = '';
+                    isTimeChoiced = false
+                } else {
+                    formData.start = new Date(value.split('-')[0]).getTime() / 1000;
+                    formData.end = new Date(value.split('-')[1]).getTime() / 1000;
+                    isTimeChoiced = true
+                    infoDetail()
+                    $('.tabMsg > div').removeClass('current')
+                }
+            }
+        });
+        //获取首页数据明细
+        function infoDetail() {
+            console.log(123)
+            $('.infoDetail').empty()
+                //选择了时间 把type变为空    
+            if (isTimeChoiced) {
+                the_type = ''
+            }
+            if (!isTimeChoiced) {
+                formData.start = '';
+                formData.end = '';
+            }
+            admin.req({
+                url: layui.setter.requestUrl +
+                    'api.php?c=finance/DataStatistics', //实际使用请改成服务端真实接口
+                data: {
+                    time_start: formData.start,
+                    time_end: formData.end,
+                    type: the_type
+                },
+                type: 'get',
+                success: function(res) {
+                    console.log(res);
+                    if (res.code == 0) {
+                        $('.infoDetail:eq(0)').append(`
+                       <span>${res.data.user_num}</span>
+                       
+                      `)
+                        $('.infoDetail:eq(1)').append(`
+                       <span>${res.data.order_money/100}</span>
+                       
+                      `)
+                        $('.infoDetail:eq(2)').append(`
+                       <span>${res.data.supplier_extract_money/100}</span>
+                       
+                      `)
+                        $('.infoDetail:eq(3)').append(`
+                       <span>${res.data.integral_money/100}</span>
+                       
+                      `)
+                        $('.infoDetail:eq(4)').append(`
+                       <span>${res.data.user_extract_money/100}</span>
+                       
+                      `)
+                        $('.infoDetail:eq(5)').append(`
+                       <span>${res.data.order_count}</span>
+                       
+                      `)
+                        $('.infoDetail:eq(6)').append(`
+                       <span>${res.data.sale_count}</span>
+                       
+                      `)
+                        $('.infoDetail:eq(7)').append(`
+                       <span>${res.data.server_money/100}</span>
+                       
+                      `)
+
+                    }
+                }
+            })
+        }
+
+
+        //   商品排行
+        // goods_type  1 是商品排行    2是商户排行
+        function commodityList() {
+            console.log(123)
+            $('#getGoodsOrder').empty()
+            admin.req({
+                url: layui.setter.requestUrl +
+                    'api.php?c=finance/GoodsStatistics', //实际使用请改成服务端真实接口
+                data: {
+                    goods_type: 1,
+                    type: goods_type
+                },
+                type: 'get',
+                success: function(res) {
+                    // console.log(res);
+                    if (res.code == 0) {
+                        res.data.forEach((element, index) => {
+                            $('#getGoodsOrder').append(`
+                        <div style="display: flex;align-items: center;padding: 10px;">
+                            <div class="layui-col-md2">
+                                <h4>${index+1}</h4>
+                            </div>
+                            <div class="layui-col-md6">
+                                <h4>${element.goods_name}</h4>
+                            </div>
+                            <div class="layui-col-md4" style="text-align: center;">
+                                <h4>${element.goods_sale}</h4>
+                            </div>
+                        </div>
+                     `)
+                        });
+                    }
+                }
+            })
+        }
+        // commodityList();
+
+        //商户排行
+        function businessList() {
+
+            $('#getGoodsOrder1').empty()
+            admin.req({
+                url: layui.setter.requestUrl +
+                    'api.php?c=finance/GoodsStatistics', //实际使用请改成服务端真实接口
+                data: {
+                    goods_type: 2,
+                    type: business_type
+                },
+                type: 'get',
+                success: function(res) {
+                    // console.log(res);
+                    if (res.code == 0) {
+                        res.data.forEach((element, index) => {
+                            $('#getGoodsOrder1').append(`
+                        <div style="display: flex;align-items: center;padding: 10px;">
+                            <div class="layui-col-md2">
+                                <h4>${index+1}</h4>
+                            </div>
+                            <div class="layui-col-md6">
+                                <h4>${element.supplier_name}</h4>
+                            </div>
+                            <div class="layui-col-md4" style="text-align: center;">
+                                <h4>${element.order_total_price/100}</h4> 
+                            </div>
+                        </div>
+                     `)
+                        });
+                    }
+                }
+            })
+        }
+
+
+
+
+
+
+    });
+</script>

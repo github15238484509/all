@@ -1,0 +1,303 @@
+<style>
+    .delete {
+        width: 20px;
+        height: 20px;
+        line-height: 20px;
+        text-align: center;
+        border-radius: 50%;
+        border: 1px solid #ccc;
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        display: none;
+        cursor: pointer;
+    }
+
+    .layui-anim-upbit {
+        z-index: 111111 !important;
+    }
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <form class="layui-form form" style="margin-top: 20px">
+        <div class="layui-form-item">
+            <label class="layui-form-label">课程类型</label>
+            <div class="layui-input-inline" style="width:300px;">
+                <input type="text" value="{{d.params.jump_name?d.params.jump_name:''}}" style="width:300px;" disabled
+                    autocomplete="off" placeholder="请输入内容" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">课程分类</label>
+            <div class="layui-input-inline" style="width:300px;">
+                <select name="classif_id" class="classif_id" lay-verify="required">
+
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">课程标题:</label>
+            <div class="layui-input-inline">
+                <input type="text" name="name" value="{{d.params.name?d.params.name:''}}" style="width:300px;"
+                    lay-verify="required" autocomplete="off" placeholder="请输入内容" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">课程封面：（1张）</label>
+            <div class="layui-upload layui-input-inline" style="width:230px">
+                <img src="../src/images/upImg.png" id="test1" style="width:230px;height:90px;cursor:pointer"></img>
+            </div>
+            <div style="color:rgba(212, 48, 48, 1);display:inline-block">
+                <p>1.建议上传图片比例为16：9</p>
+                <p>2.尺寸为800*450</p>
+                <p>2.为保证质量，建议图片大小为5MB</p>
+            </div>
+        </div>
+        <div class="layui-form-item layui-form-text video" style="display:none">
+            <label class="layui-form-label">上传视频</label>
+            <div class="layui-upload layui-input-inline" style="width:230px;position:relative">
+                <img src="../src/images/upImg.png" id="test" style="width:230px;height:90px;cursor:pointer"></img>
+                <video src="" controls="controls" style="width:230px;height:90px;display:none"
+                    class="showVideo"></video>
+                <div class="delete">×</div>
+            </div>
+            <div style="color:rgba(212, 48, 48, 1);display:inline-block">
+                <p>1.建议视频比例为9：16</p>
+                <p>2.为保证质量，建议图片大小为50MB</p>
+            </div>
+        </div>
+        <div class="content" style="display:none">
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">图文详情:</label>
+                <div class="layui-input-inline" style="width:500px">
+                    <div id="content"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="width:120px">上架设置:</label>
+                <div class="layui-input-inline status" style="width:300px">
+                    <input type="radio" name="status" value="1" title="立即上架" checked>
+                    <input type="radio" name="status" value="2" title="暂不上架">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="width:120px">是否推荐为热门:</label>
+                <div class="layui-input-inline is_hot">
+                    <input type="radio" name="is_hot" value="1" title="是" checked>
+                    <input type="radio" name="is_hot" value="2" title="否">
+                </div>
+            </div>
+        </div>
+        <div style="padding-bottom: 10px;text-align:center;margin-top:30px">
+            <button class="layui-btn" lay-submit lay-filter="formDemo">提交</button>
+        </div>
+    </form>
+</script>
+<script>
+    layui.data.sendParams = function (params) {
+        layui.use(['admin', 'element', 'view', 'form', 'public', 'upload', 'laydate'], function () {
+            var $ = layui.$;
+            var admin = layui.admin;
+            var element = layui.element;
+            var view = layui.view;
+            var form = layui.form;
+            var laydate = layui.laydate;
+            var upload = layui.upload;
+            var public = layui.public;
+            var tool = layui.public.tool;
+            var base = new layui.public.Base64();
+            var xmSelect = layui.xmSelect;
+            var tagNames = [],
+                cover = '', //封面
+                video_url = ''; //上传视频
+            var content = new layui.public.Edit({
+                el: '#content',
+                success: function () {
+                    content.setContent(params.content ? base.decode(params.content) : '')
+                }
+            })
+            //添加时跳转路径  1为视频  2为链接  3为分享
+            if (params.jump_id == 1) {
+                $('.video').css('display', 'block')
+
+            } else {
+                $('.content').css('display', 'block')
+            }
+
+            if (params.course_index) {
+                console.log(params);
+                if (params.type == 1) {
+                    $('.content').css('display', 'none')
+                    $('.video').css('display', 'block')
+                    $('.showVideo').css('display', 'block')
+                    $('#test').css('display', 'none')
+                    $('.delete').css('display', 'block')
+                    $('.showVideo').attr('src', layui.setter.CDN + params.video_url)
+                    video_url = params.video_url
+                } else {
+                    $('.content').css('display', 'block')
+                    // $('#content').html(base.decode(params.content))
+                    $('.video').css('display', 'none')
+                }
+                $('#test1').attr('src', layui.setter.CDN + params.cover)
+                cover = params.cover
+                //上下架
+                $('.status').empty()
+                if (params.status == '1') {
+                    $('.status').append(`
+                        <input type="radio" name="status" value="1" title="立即上架" checked>
+                        <input type="radio" name="status" value="2" title="暂不上架" >
+                    `)
+                } else {
+                    $('.status').append(`
+                        <input type="radio" name="status" value="1" title="立即上架">
+                        <input type="radio" name="status" value="2" title="暂不上架" checked>
+                    `)
+                }
+                // 任务是否审核
+                $('.is_hot').empty()
+                if (params.is_hot == '1') {
+                    $('.is_hot').append(`
+                        <input type="radio" name="is_hot" value="1" title="是" checked>
+                        <input type="radio" name="is_hot" value="2" title="否">
+                    `)
+                } else {
+                    $('.is_hot').append(`
+                        <input type="radio" name="is_hot" value="1" title="是">
+                        <input type="radio" name="is_hot" value="2" title="否" checked>
+                    `)
+                }
+
+            }
+
+            //显示分类
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=course/CourseClassifList',
+                data: {
+                    is_able: '0'
+                },
+                success: function (res) {
+                    if (res.code == 0) {
+                        var data = res.data
+                        $('.classif_id').empty()
+                        $('.classif_id').append(`
+                            <option value="" selected>请选择</option>
+                        `)
+                        data.forEach(items => {
+                            if (params.classif_id == items.classif_index) {
+                                $('.classif_id').append(`
+                                    <option value="${items.classif_index}" selected>${items.name}</option>
+                                `)
+                            } else {
+                                $('.classif_id').append(`
+                                    <option value="${items.classif_index}">${items.name}</option>
+                                `)
+                            }
+                        })
+                        layui.form.render("select");
+                    }
+                }
+            })
+
+            form.render()
+            // 上传视频
+            public.uploadVideo({
+                elem: '#test',
+                url: layui.setter.requestUrl + 'api.php?c=uploadImg/uploadImage',
+                data: {
+                    module: 'video',
+                },
+                getTimes: function (time) {
+                    console.log(time); //对象
+                },
+                done: function (res, index, upload) {
+                    video_url = res.data
+                    $('.delete').css('display', 'block')
+                    $('#test').css('display', 'none')
+                    $('.showVideo').css('display', 'block')
+                    $('.showVideo').attr('src', layui.setter.CDN + res.data)
+                }
+            })
+            $('.delete').click(function () {
+                $('.showVideo').css('display', 'none')
+                $('#test').css('display', 'block')
+                video_url = ''
+                $('.delete').css('display', 'none')
+            })
+            //上传任务缩略图
+            upload.render({
+                elem: '#test1',
+                url: layui.setter.requestUrl + 'api.php?c=uploadImg/uploadImage' //改成您自己的上传接
+                    ,
+                multiple: false,
+                data: {
+                    module: ''
+                },
+                before: function (obj) {
+                    //预读本地文件示例，不支持ie8
+                    obj.preview(function (index, file, result) {
+                        $('#test1').attr('src', result)
+                    });
+                },
+                done: function (res) {
+                    //上传完毕
+                    if (res.code == 0) {
+                        layer.msg('上传成功')
+                        cover = res.data
+                    } else {
+                        layer.msg('上传失败')
+                    }
+                }
+            });
+
+            form.on('submit(formDemo)', function (data) {
+                if (cover == '') {
+                    layer.msg('请上传封面')
+                    return false;
+                }
+                if ($('.video').css('display') == 'block' && video_url == '') {
+                    layer.msg('请上传视频')
+                    return false;
+                }
+                var data = data.field
+                delete data.file
+                data.cover = cover
+                data.video_url = video_url
+                if (params.course_index) {
+                    data.type = params.type
+                    data.course_index = params.course_index
+                } else {
+                    data.type = params.jump_id
+                }
+                console.log(data);
+                data.content = content.getContent(0)
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=course/CourseAdd',
+                    method: 'post',
+                    data: data,
+                    success: function (res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg)
+                            layer.closeAll()
+                            if (params.table == '1') {
+                                parent.layui.table.reload("courseTable2");
+                            } else if (params.table == '2') {
+                                parent.layui.table.reload("courseTable3");
+                            } else {
+                                parent.layui.table.reload("courseTable1");
+                            }
+                        }
+                    }
+                })
+                return false;
+            })
+
+        })
+
+    }
+</script>

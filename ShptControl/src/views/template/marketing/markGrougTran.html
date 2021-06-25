@@ -1,0 +1,132 @@
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto form" lay-filter="app-content-list">
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:100px;">默认团队:</label>
+            <div class="layui-input-inline">
+                <input type="text" id="sort" readonly="readonly" value="{{d.params.data.province_name+d.params.data.city_name+d.params.data.district_name}}" name="sort" class="layui-input" placeholder="">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:100px;">转移新团队：</label>
+            <div class="layui-input-inline">
+                <select name="province12" class="province" lay-filter="province">
+                        <option value="">请选择省</option>
+                    </select>
+            </div>
+            <div class="layui-input-inline">
+                <select name="city12" class="city" lay-filter="city">
+                        <option value="">请选择市</option>
+                    </select>
+            </div>
+            <div class="layui-input-inline">
+                <select name="district12" class="district" lay-filter="district">
+                        <option value="">请选择县/区</option>
+                    </select>
+            </div>
+        </div>
+        <div class="layui-form-item" style="display: none;text-indent: 4em;" id="tuandui">
+            团队编号:53333
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:auto;">转移新团对排序:</label>
+            <div class="layui-input-inline">
+                <input type="number" id="sort123" min="0" name="sort" class="layui-input" placeholder="数值越大越靠前">
+            </div>
+            <p style="color: red;">提示：数值越大越靠前</p>
+        </div>
+        <div class="layui-form-item" style="text-align: center;">
+            <button class="layui-btn" id="cancel123465">
+                取消
+            </button>
+            <button class="layui-btn layuiadmin-btn-list" id="confirm132465">
+                确定
+            </button>
+        </div>
+    </div>
+</script>
+<script>
+    layui.data.sendParams = function(params) {
+
+        layui.use(['admin', 'upload', 'form', 'public'], function() {
+            var $ = layui.$;
+            var admin = layui.admin;
+            var upload = layui.upload;
+            var form = layui.form;
+            var base = new layui.public.Base64();
+            var tool = layui.public.tool;
+            let new_area_index = null;
+            let option_index = params.data.option_index;
+            console.log(option_index);
+
+            tool.linkage({
+                province: 'province',
+                city: 'city',
+                county: 'district',
+                success: function(province, city, county) {
+                    console.log(province);
+                    console.log(city);
+                    console.log(county);
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=group_area/getGroupArea',
+                        data: {
+                            province: province,
+                            city: city,
+                            district: county
+                        },
+                        success: function(res) {
+                            if (res.code == 0) {
+                                $("#tuandui").css('display', '')
+                                $("#tuandui").html('团队编号: ' + res.data)
+                                new_area_index = res.data
+                            } else {
+                                layer.msg('此地区没有团')
+                            }
+                        }
+                    })
+                }
+            });
+            $("#cancel123465").on('click', function() {
+                layer.close(layer.index)
+            })
+            $("#confirm132465").on('click', function() {
+                if (!new_area_index) {
+                    layer.msg("没有对应的团")
+                    return false
+                }
+                if (option_index === new_area_index) {
+                    layer.msg("同一个团不能转移")
+                    return false
+                }
+                if (!document.querySelector("#sort123").value) {
+                    layer.msg("请输入排序")
+                    return false
+                }
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=group_option/changeGroupOption',
+                    data: {
+                        option_index,
+                        new_area_index,
+                        sort: document.querySelector("#sort123").value,
+                    },
+                    success: function(res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg, {
+                                icon: 1
+                            })
+                            setTimeout(function() {
+                                layer.closeAll()
+                            }, 1500)
+                            parent.layui.table.reload("commentTable");
+                        } else {
+                            layer.msg(res.msg, {
+                                icon: 1
+                            })
+                        }
+                    }
+                })
+
+            })
+            form.render()
+        })
+    }
+</script>

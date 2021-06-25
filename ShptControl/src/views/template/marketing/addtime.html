@@ -1,0 +1,106 @@
+<style>
+
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <form class="layui-form form">
+        <div class="layui-item" style="margin-bottom: 30px;">
+            <label class="layui-form-label">开始时间：</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" id="test1" placeholder="HH:mm:ss">
+            </div>
+        </div>
+        <div class="layui-item" style="margin-bottom: 20px;">
+            <label class="layui-form-label">结束时间：</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" id="test2" placeholder="HH:mm:ss">
+            </div>
+        </div>
+        <p style="
+        color: red;margin-bottom: 20px;text-indent: 8em;">提示:开始时间与结束时间段至少为30分钟</p>
+        <div class="layui-item" style="
+       text-align: center;">
+            <button class="layui-btn" lay-submit lay-filter="formDemo">提交</button>
+        </div>
+    </form>
+</script>
+<script>
+    layui.data.sendParams = function(params) {
+        console.log(params);
+        layui.use(['admin', 'element', 'view', 'form', 'public', 'upload', 'laydate'], function() {
+            var $ = layui.$;
+            var admin = layui.admin;
+            var element = layui.element;
+            var view = layui.view;
+            var form = layui.form;
+            var laydate = layui.laydate;
+            var upload = layui.upload;
+            var public = layui.public;
+            var tool = layui.public.tool;
+
+            var time_index = null
+            var time_start = null
+            var time_end = null
+            if (params.data) {
+                time_index = params.data.time_index
+            }
+            laydate.render({
+                elem: '#test1',
+                type: 'time',
+                trigger: "click",
+                min: '00:00:00',
+                max: '23:59:59',
+                btns: ['clear', 'confirm'],
+                done: function(value, date, endDate) {
+                    time_start = value
+                },
+                ready: function(date) {
+                        console.log(date);
+                    } //得到初始的日期时间对象：{year: 2017, month: 8, date: 18, hours: 0, minutes: 0, seconds: 0}
+            });
+
+            laydate.render({
+                elem: '#test2',
+                type: 'time',
+                trigger: "click",
+                min: '00:00:00',
+                max: '23:59:59',
+                btns: ['clear', 'confirm'],
+                done: function(value, date, endDate) {
+                    time_end = value
+                }
+            });
+
+            form.on('submit(formDemo)', function() {
+                let data = {
+                    time_index: time_index,
+                    time_start,
+                    time_end
+                }
+                if (!data.time_start) {
+                    layer.msg("请选择开始时间")
+                    return false
+                }
+                if (!data.time_end) {
+                    layer.msg("请选择结束时间")
+                    return false
+                }
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=group_time/addEditGroupTime',
+                    data: data,
+                    success: function(res) {
+                        if (res.code == 0) {
+                            layer.msg('添加成功', {
+                                icon: 1
+                            })
+                            setTimeout(function() {
+                                layer.closeAll()
+                            }, 1500)
+                            parent.layui.table.reload("brandTable");
+                        }
+                    }
+                })
+                return false;
+            })
+        })
+    }
+</script>

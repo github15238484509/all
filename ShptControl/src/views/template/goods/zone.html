@@ -1,0 +1,184 @@
+<style>
+    .tabMsg {
+        display: flex;
+        padding: 20px;
+    }
+
+    .tabMsg>div {
+        width: 200px;
+        height: 30px;
+        text-align: center;
+        line-height: 30px;
+        font-size: 14px;
+        color: rgba(42, 130, 228, 1);
+        border: 1px solid rgba(42, 130, 228, 1);
+        cursor: pointer;
+        margin-left: -1px;
+    }
+
+    .tabMsg .current {
+        color: #fff;
+        background-color: rgba(42, 130, 228, 1);
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">首页</a>
+        <a><cite>商品</cite></a>
+        <a><cite>分区管理</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <button type="button" class="layui-btn layui-btn-normal addZone">添加分区</button>
+    <table class="layui-hide" id="zoneTable" lay-filter="zoneTable"></table>
+</div>
+
+<script>
+    layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'table', 'laydate', 'common', 'public'],
+        function () {
+            var $ = layui.$,
+                admin = layui.admin,
+                laydate = layui.laydate,
+                view = layui.view,
+                table = layui.table;
+            IsshowAnNiu = layui.common.IsshowAnNiu;
+            var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+            var brand_status = '1';
+            var cols = []
+            var tool = layui.public.tool;
+            var base = new layui.public.Base64();
+            $('.addZone').click(function () {
+                admin.popup({
+                    id: 'addZone',
+                    title: '添加分区',
+                    area: ['500px', '500px'],
+                    success: function () {
+                        view(this.id).render('/template/goods/addZone', {});
+                    }
+                });
+            })
+            //渲染表格数据
+            var render_table = function () {
+                table.render({
+                    elem: '#zoneTable',
+                    url: layui.setter.requestUrl + 'api.php?c=goods_zone/getGoodsZoneList',
+                    where: {
+                        type: brand_status
+                    },
+
+                    cols: cols = [
+                        [{
+                                field: 'zone_index',
+                                title: 'ID',
+                                align: 'center',
+                                width: 70,
+                                sort: true
+                            }, {
+                                field: 'zone_name',
+                                title: '分类名称',
+                                align: 'center'
+                            }, {
+                                field: 'zone_pic',
+                                title: '分区图片',
+                                align: 'center',
+                                height: '60px',
+                                templet: function (d) {
+                                    var src = layui.setter.CDN + d.zone_pic
+                                    var str =
+                                        `<img src = ${src} style="cursor:pointer;width:30px;height:30px" lay-event = 'enlarge' ></img>`
+                                    return str
+                                }
+                            }, {
+                                field: 'zone_desp',
+                                title: '分区简介',
+                                align: 'center',
+                                templet: function (d) {
+                                    return base.decode(d.zone_desp)
+                                }
+                            }, {
+                                field: 'zone_type',
+                                align: 'center',
+                                title: '分区类型',
+                                templet: function (d) {
+                                    return '自建分区'
+                                }
+                            }, {
+                                field: 'add_time',
+                                align: 'center',
+                                title: '创建时间',
+                                templet: function (d) {
+                                    return layui.common.createTime(d.add_time)
+                                }
+                            },
+                            {
+                                fixed: 'right',
+                                align: 'center',
+                                title: '操作',
+                                width: 240,
+                                templet: function (d) {
+                                    return `<button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-event = 'edit'>编辑</button>
+                                    <button type="button" class="layui-btn layui-btn-danger layui-btn-sm" lay-event = 'del'>删除</button>
+                                    <button type="button" class="layui-btn layui-btn-sm" lay-event = 'set'>分润设置</button>`
+                                }
+                            }
+                        ]
+                    ],
+                    page: true,
+                });
+            }
+            //先自调用请求渲染数据
+            render_table();
+
+
+            table.on('tool(zoneTable)', function (obj) { //注：tool table 是 table  lay-filter="对应的值"
+                var data = obj.data; //获得当前行数据
+                var layEvent = obj.event; //获得 lay-event 对应的值
+                if (layEvent == 'enlarge') {
+                    tool.lookBigImg(data.zone_pic.split(','));
+                } else if (layEvent == 'edit') {
+                    admin.popup({
+                        id: 'editBrand',
+                        title: '编辑分区',
+                        area: ['500px', '500px'],
+                        success: function () {
+                            view(this.id).render('/template/goods/addZone', data);
+                        }
+                    });
+                } else if (layEvent == 'del') {
+                    tool.delTableLine({
+                        url: 'goods_zone/delZone',
+                        param: {
+                            zone_index: data.zone_index
+                        },
+                        success: function (res) {
+                            table.reload('zoneTable', {
+                                url: layui.setter.requestUrl +
+                                    'api.php?c=goods_zone/getGoodsZoneList'
+                            });
+                        }
+                    });
+                } else if (layEvent == 'set') {
+                    admin.popup({
+                        id: 'setProfit',
+                        title: '分润设置',
+                        area: ['500px', '300px'],
+                        success: function () {
+                            view(this.id).render('/template/goods/setProfit', {
+                                zone_index: data.zone_index,
+                                rank_ratio1: data.rank_ratio ? data.rank_ratio[0]
+                                    .rank_ratio : '',
+                                rank_ratio2: data.rank_ratio ? data.rank_ratio[1]
+                                    .rank_ratio : ''
+                            });
+                        }
+                    });
+                }
+            })
+
+
+        });
+</script>

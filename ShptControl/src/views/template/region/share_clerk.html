@@ -1,0 +1,138 @@
+<style>
+    .layui-form-item{
+        width: 900px;
+        margin-bottom: 50px;
+        margin: 50px auto;
+    }
+    .layui-upload{
+        position: relative;
+    }
+    .right{
+        position: absolute;
+        left: 300px;
+        top: 30px;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>系统配置</cite></a>
+        <a><cite>分享文案</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+            class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+        <div style="height: 100%;background:#fff;">
+            <form class="layui-form" style="background:#fff;margin:10px 0;padding:10px 0 0 0" lay-filter="form">
+                <h1 style="text-align: center;">分享文案</h1>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">小程序分享主标题</label>
+                    <div class="layui-input-block">
+                       <input type="text" name="share_title" placeholder="请输入内容" autocomplete="off" class="layui-input" style="width: 700px;">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">分享副标题</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="share_subtitle" placeholder="请输入内容" autocomplete="off" class="layui-input" style="width: 700px;">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">上传图片 </label>
+                    <div class="layui-upload" style="display:flex">
+                        <img src="../src/images/upImg.png" id="test2" style="width:150px;height:150px;cursor:pointer" class="img"></img>
+                        <div class="right">
+                            <p style="color:rgba(212, 48, 48, 1)">注意事项：</p>
+                            <p style="color:rgba(212, 48, 48, 1)"> 1、请上传.png格式图片</p>
+                            <p style="color:rgba(212, 48, 48, 1)">2、图片宽高比要去：1：1</p>
+                            <p style="color:rgba(212, 48, 48, 1)">3、最低像素尺寸要求：150*150</p>
+                            <p style="color:rgba(212, 48, 48, 1)">4、图片文件大小控制在1MB以内</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block" style="text-align: center;">
+                        <button type="submit" class="layui-btn layui-btn-danger" lay-submit lay-filter="submit">提交</button>
+                    </div>
+                </div>
+            </form> 
+        </div>
+  <script>
+  //注意：选项卡 依赖 element 模块，否则无法进行功能性操作
+  layui.use(['form','layer','upload','common'], function(){
+    var admin = layui.admin,
+        setter = layui.setter,
+        $ = layui.jquery,
+        form = layui.form,
+        upload = layui.upload,
+        layer = layui.layer,
+        IsshowAnNiu = layui.common.IsshowAnNiu;
+        var menuPermissions = IsshowAnNiu('addviews');  //菜单权限
+        var share_pic = ''
+        //页面渲染
+        admin.req({
+            url:layui.setter.requestUrl+'houseadmin/api.php?c=configJson/getConfigJsonSetKey',
+            data:{
+                key:'share_title,share_subtitle,share_pic_url'
+            },
+            success:function(res){
+                if(res.code==0){
+                    form.val("form", { //formTest 即 class="layui-form" 所在元素属性 lay-filter="" 对应的值
+                        "share_title": res.data.share_title
+                        ,"share_subtitle": res.data.share_subtitle
+                    });
+                    $('.img').attr('src',res.data.share_pic_url)
+                    share_pic = res.data.share_pic_url;
+                }
+            }
+        })
+        //图片上传
+        upload.render({
+            elem: '#test2'
+            ,url: layui.setter.requestUrl + 'houseadmin/api.php?c=uploadImg/uploadImage'
+            ,data:{module:'news',access_token:layui.data('layuiAdmin').access_token}
+            ,before: function(obj){
+                //预读本地文件示例，不支持ie8
+                obj.preview(function(index, file, result){
+                    $('#test2').attr('src', result); //图片链接（base64）
+                });
+            }
+            ,done: function(res){
+                //如果上传失败
+                if(res.code == 0){
+                    layer.msg('上传成功');
+                    share_pic = layui.setter.CDN + res.data
+                }else{
+                    return layer.msg('上传失败');
+                }
+            }
+            ,error: function(){
+            //演示失败状态，并实现重传
+            var demoText = $('#demoText');
+            demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+            demoText.find('.demo-reload').on('click', function(){
+                uploadInst.upload();
+            });
+            }
+        });
+        //提交
+        form.on('submit(submit)',function(data){
+            data.field.share_pic_url = share_pic
+            delete data.field.file
+            console.log(data.field);
+            admin.req({
+                url:layui.setter.requestUrl+'houseadmin/api.php?c=configJson/configJsonSetKey',
+                type: 'POST',
+                data:data.field,
+                success:function(res){
+                    if(res.code==0){
+                        layer.msg(res.msg,{icon:1})
+                    }else{
+                        layer.msg(res.msg)
+                    }
+                }
+            })
+            return false;
+        })
+  });
+  </script>

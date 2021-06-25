@@ -1,0 +1,374 @@
+<style>
+    .tabMsg {
+        display: flex;
+        padding: 20px;
+    }
+    
+    .tabMsg>div {
+        width: 200px;
+        height: 30px;
+        text-align: center;
+        line-height: 30px;
+        font-size: 14px;
+        color: rgba(42, 130, 228, 1);
+        border: 1px solid rgba(42, 130, 228, 1);
+        cursor: pointer;
+        margin-left: -1px;
+    }
+    
+    .tabMsg .current {
+        color: #fff;
+        background-color: rgba(42, 130, 228, 1);
+    }
+    
+    .form {
+        background-color: #fff;
+    }
+    
+    .layui-table-cell {
+        height: auto !important;
+        line-height: 20px !important;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">首页</a>
+        <a><cite>营销管理</cite></a>
+        <a><cite>拼团商品列表</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="tabMsg">
+            <div class="current wait_count" data-index="1">已上架</div>
+            <div class="yyz" data-index="0">已下架</div>
+        </div>
+    </div>
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto form" lay-filter="app-content-list">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">商品名称:</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="goods_name" class="layui-input" placeholder=" 请输入店铺名称">
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">添加时间</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="time" class="layui-input" id="testTime1" placeholder=" 请输入时间">
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search">
+                    <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>搜索
+                </button>
+            </div>
+        </div>
+    </div>
+    </form>
+    <button class="layui-btn layuiadmin-btn-list exportForm" style="margin-top: 10px;">添加拼团商品</button>
+    <table class="layui-hide" id="commentTable" lay-filter="commentTable"></table>
+</div>
+
+<script>
+    layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'table', 'laydate', 'common', 'public', 'form'], function() {
+        var $ = layui.$,
+            admin = layui.admin,
+            laydate = layui.laydate,
+            view = layui.view,
+            table = layui.table,
+            form = layui.form,
+            IsshowAnNiu = layui.common.IsshowAnNiu;
+        var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+        var base = new layui.public.Base64();
+        var cols = []
+        var tool = layui.public.tool;
+        var base = new layui.public.Base64();
+        var field = {
+                group_status: '1',
+                goods_name: '',
+                start: '',
+                end: ''
+            }
+            //tab切换
+        $(".tabMsg>div").click(function() {
+            var index = $(".tabMsg div").index(this);
+            field.group_status = $(this).attr('data-index');
+            $(this).addClass('current').siblings().removeClass('current');
+            render_table(field);
+        });
+
+        //日期范围
+        laydate.render({
+            elem: '#testTime1',
+            type: 'datetime',
+            range: true,
+            trigger: 'click',
+            format: 'yyyy/M/d',
+            change: function(value, date, endDate) {
+
+            },
+            done: function(value, date, endDate) {
+                if (!value) {
+                    $("input[name=testInput]").val("");
+                    field.start = '';
+                    field.end = '';
+                } else {
+                    field.start = new Date(value.split('-')[0]).getTime() / 1000;
+                    field.end = new Date(value.split('-')[1]).getTime() / 1000;
+                }
+            }
+        });
+        form.on('submit(search)', function(data) {
+            field.goods_name = data.field.goods_name;
+            render_table(field);
+            return false;
+        });
+        form.render()
+
+        //渲染表格数据
+        var render_table = function(data) {
+                cols = [
+                    [{
+                        title: 'ID',
+                        align: 'center',
+                        field: 'group_goods_index',
+                        width: 80,
+                        sort: true
+                    }, {
+                        field: 'group_name',
+                        title: '活动标题',
+                        align: 'center'
+                    }, {
+                        field: 'goods_name',
+                        title: '商品名称',
+                        align: 'center',
+                    }, {
+                        field: 'goods_icon',
+                        align: 'center',
+                        title: '商品图',
+                        templet: function(d) {
+                            if (d.goods_icon == '') {
+                                return '暂无'
+                            } else {
+                                return `<button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-event = 'enlarge'>查看</button>`
+                            }
+                        }
+                    }, {
+                        field: 'group_price',
+                        align: 'center',
+                        title: '拼团价格',
+                        templet: function(d) {
+                            return d.group_price / 100
+                        }
+                    }, {
+                        field: 'group_num',
+                        align: 'center',
+                        title: '参与团数'
+                    }, {
+                        field: 'add_time',
+                        align: 'center',
+                        title: '添加时间',
+                        templet: function(d) {
+                            return layui.common.createTime(d.add_time)
+                        }
+                    }, {
+                        fixed: 'right',
+                        align: 'center',
+                        title: '操作',
+                        width: 320,
+                        templet: function(d) {
+                            return `
+                                <button class="layui-btn" lay-event="editor">编辑</button>
+                                <button class="layui-btn" lay-event="stop" style="display:${d.group_status==1?'':'none'}">下架</button>
+                                <button class="layui-btn" lay-event="start" style="display:${d.group_status==1?'none':''}">上架</button>
+                                `
+                        }
+                    }]
+                ]
+
+                table.render({
+                    elem: '#commentTable',
+                    url: layui.setter.requestUrl + 'api.php?c=group_goods/getGroupGoodsList',
+                    where: data,
+                    cellMinWidth: 120,
+                    cols: cols,
+                    page: true,
+                    parseData: function(res) {
+                        // $('.wait_count').html('待审核' + '&nbsp;' + res.data.wait_count)
+                        // $('.yyz').html('营业中' + '&nbsp;' + res.data.success_count)
+                        return {
+                            "count": res.count, //解析接口状态
+                            "code": res.code, //解析接口状态
+                            "data": res.data //解析数据列表
+                        };
+                    },
+                });
+            }
+            //先自调用请求渲染数据
+        render_table(field);
+        table.on('tool(commentTable)', function(obj) { //注：tool table 是 table  lay-filter="对应的值"
+            var data = obj.data; //获得当前行数据
+            var layEvent = obj.event; //获得 lay-event 对应的值
+            if (layEvent == 'enlarge') {
+                data.img = data.goods_icon
+                tool.lookBigImg(data.img.split(','));
+            } else if (layEvent == 'editor') {
+                admin.popup({
+                    id: 'spro456456uct',
+                    area: ['600px', '500px'],
+                    title: '修改商品',
+                    success: function(asdf, index) {
+                        var that = this;
+                        view(that.id).render('template/marketing/addset', {
+                            data: data,
+                            closeIndex: index
+                        });
+                    }
+                });
+            } else if (layEvent == 'stop') {
+                layer.confirm('真的要下架吗?', function(index) {
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=group_goods/changeGroupGoods',
+                        data: {
+                            group_goods_index: data.group_goods_index
+                        },
+                        success: function(res) {
+                            if (res.code == 0) {
+                                layer.msg(res.msg, {
+                                    icon: 1
+                                })
+                                setTimeout(function() {
+                                    layer.closeAll()
+                                }, 1500)
+                                layui.table.reload("commentTable");
+                            }
+                        }
+                    })
+                });
+            } else if (layEvent == 'start') {
+                layer.confirm('真的要上架吗?', function(index) {
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=group_goods/changeGroupGoods',
+                        data: {
+                            group_goods_index: data.group_goods_index
+                        },
+                        success: function(res) {
+                            if (res.code == 0) {
+                                layer.msg(res.msg, {
+                                    icon: 1
+                                })
+                                setTimeout(function() {
+                                    layer.closeAll()
+                                }, 1500)
+                                layui.table.reload("commentTable");
+                            } else {
+                                layer.msg(res.msg, {
+                                    icon: 1
+                                })
+                            }
+                        }
+                    })
+                });
+            }
+        });
+        //添加商品
+        $('.exportForm').on('click', function() {
+            admin.popup({
+                id: 'sprouct',
+                area: ['1200px', '600px'],
+                title: '添加商品',
+                success: function() {
+                    var that = this;
+                    view(that.id).render('template/marketing/addPinGoods', {
+                        // data: merchant_id
+                    });
+                }
+            });
+        });
+        //强制下架
+        function qzxj(merchant_id, status) {
+            layer.confirm(`确认${status == 5 ? '下架' : '上架'}吗？`, {
+                btn: ['确定', '取消'] //按钮
+            }, function(index) {
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=merchant/offMerchant',
+                    data: {
+                        merchant_id: merchant_id,
+                        type: status
+                    },
+                    done: function(res) {
+                        if (res.code === 0) {
+                            layer.closeAll();
+                            layer.msg(res.msg);
+                            render_table(field);
+                        }
+                    }
+                });
+            });
+        }
+        //年费缴纳记录
+        function nfjn(merchant_id) {
+            admin.popup({
+                id: 'sprouct',
+                area: ['1200px', '600px'],
+                title: '缴纳记录',
+                success: function() {
+                    var that = this;
+                    view(that.id).render('template/merchants/nfjn', {
+                        data: merchant_id
+                    });
+                }
+            });
+        };
+        //续交年费
+        function xjnf(merchant_id, expire_time) {
+            if (expire_time == -1) {
+                layer.msg('当前年费已永久缴纳');
+                return false;
+            };
+            admin.popup({
+                id: 'sprouct',
+                area: ['800px', '600px'],
+                title: '续交年费',
+                success: function() {
+                    var that = this;
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=province_company/getYearPrice',
+                        data: {
+                            type: 1
+                        },
+                        success(res) {
+                            view(that.id).render('template/merchants/xjnf', {
+                                data: res.data,
+                                merchant_id: merchant_id,
+                                employee_type: layui.data(layui.setter.tableName).employee_type
+                            });
+                        }
+                    })
+                }
+            });
+        };
+        //查看代理商资料或者审核
+        function lookZl(data, isShenhe) {
+            // isShenhe有参数就代表审核，没有就代表查看记录
+            admin.popup({
+                id: 'sprouct',
+                area: ['800px', '600px'],
+                title: '店铺资料',
+                success: function() {
+                    view(this.id).render('template/merchants/lookStore', {
+                        data: data,
+                        isShenhe: isShenhe
+                    });
+                }
+            });
+        };
+    });
+</script>

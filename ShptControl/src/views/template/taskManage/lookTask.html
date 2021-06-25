@@ -1,0 +1,210 @@
+<style>
+    .label {
+        display: flex;
+        line-height: 35px;
+        color: rgba(153, 153, 153, 1);
+    }
+
+    .label>div {
+        color: rgba(153, 153, 153, 1);
+    }
+
+    .label .div1 {
+        flex: 1;
+    }
+
+    .imgs {
+        display: flex;
+        margin-bottom: 10px;
+    }
+
+    .img1 {
+        width: 90px;
+        height: 90px;
+        margin-right: 10px;
+    }
+
+    .video {
+        width: 120px;
+        height: 120px;
+    }
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <div class="label">
+        <div>任务标题：</div>
+        <div class="div1 title"></div>
+    </div>
+    <div class="label">
+        <div>任务标签：</div>
+        <div class="div1 tag"></div>
+    </div>
+    <div class="label">
+        <div>任务说明：</div>
+        <div class="div1 statement"></div>
+    </div>
+    <div class="label label4">
+        <div>链接名称：</div>
+        <div class="div1 name"></div>
+    </div>
+    <div class="label label5">
+        <div>链接地址：</div>
+        <div class="div1 link"></div>
+    </div>
+    <div class="label label3">
+        <div>任务文案：</div>
+        <div class="div1 copywriting"></div>
+    </div>
+    <div class="label label6">
+        <div>链接缩略图：</div>
+        <div class="div1">
+            <img src="" alt="" class="link_thum img1">
+        </div>
+    </div>
+    <div class="label label1">
+        <div>任务缩略图：</div>
+        <div class="div1">
+            <img src="" alt="" class="thum img1">
+        </div>
+    </div>
+    <div class="label label2" style="margin-top:10px">
+        <div>任务视频：</div>
+        <div class="div1 ">
+            <video src="" controls="controls" style="width:230px;height:90px" class="video"></video>
+        </div>
+    </div>
+    <!-- <div class="label">
+        <div>自动复制内容：</div>
+        <div class="div1 content"></div>
+    </div> -->
+    <div class="label">
+        <div>奖励设置：</div>
+        <div class="div1">
+            完成任务，可解锁总消费金的<text class="consumption"></text> %，最高可解锁
+            <text class="consumption_most"></text> 元消费金，最低可解锁
+            <text class="consumption_least"></text> 元消费金或获得
+            <text class="cash"></text> 元佣金
+        </div>
+    </div>
+    <div class="label">
+        <div>重复完成任务：</div>
+        <div class="div1 is_repeat"></div>
+    </div>
+    <div class="label">
+        <div>是否开启审核：</div>
+        <div class="div1 is_examine"></div>
+    </div>
+    <div class="label">
+        <div>任务次数：</div>
+        <div class="div1 frequency_count"></div>
+    </div>
+
+    <button class="layui-btn layui-btn-lg layui-btn sure" style="margin:20px 0 0 200px">确定</button>
+</script>
+<script>
+    layui.data.sendParams = function (params) {
+        layui.use(['admin', 'element', 'public'], function () {
+            var $ = layui.$;
+            var admin = layui.admin;
+            var tool = layui.public.tool;
+            var base = new layui.public.Base64();
+            var info = {}
+            $('.order_time').html(params.order_time == '0' ? '暂无' : layui.common.createTime(params
+                .order_time))
+            $('.payment_time').html(params.payment_time == '0' ? '暂无' : layui.common.createTime(params
+                .payment_time))
+            $('.fahuo_time').html(params.fahuo_time == '0' ? '暂无' : layui.common.createTime(params
+                .fahuo_time))
+            $('.confirm_time').html(params.confirm_time == '0' ? '暂无' : layui.common.createTime(params
+                .confirm_time))
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=task/task_detail',
+                method: 'post',
+                data: {
+                    task_index: params.task_index,
+                },
+                success: function (res) {
+                    info = res.data
+                    if (res.code == 0) {
+                        $('.title').text(res.data.title)
+                        $('.tag').text(res.data.label)
+                        $('.statement').html(res.data.statement ? base.decode(res.data
+                            .statement) : '暂无')
+                        $('.content').html(res.data.content ? base.decode(res.data.content) :
+                            '暂无')
+                        $('.consumption').text(res.data.consumption)
+                        $('.consumption_least').text(res.data.consumption_least / 100)
+                        $('.consumption_most').text(res.data.consumption_most / 100)
+                        $('.cash').text(res.data.cash / 100)
+                        $('.frequency_count').text(res.data.frequency_count)
+                        if (res.data.is_examine == '1') {
+                            $('.is_examine').text('需要')
+                        } else {
+                            $('.is_examine').text('不需要')
+                        }
+                        if (res.data.is_repeat == '1') {
+                            $('.is_repeat').text('是')
+                        } else {
+                            $('.is_repeat').text('否')
+                        }
+                        if (res.data.type_id == '1') {
+                            $('.label4').css('display', 'none')
+                            $('.label5').css('display', 'none')
+                            $('.label6').css('display', 'none')
+                            $('.copywriting').html(res.data.copywriting ? base.decode(res.data
+                                .copywriting) : '暂无')
+                            $('.label1>.div1').empty()
+                            $('.label1>.div1').append(`
+                                    <img src="${layui.setter.CDN+res.data.thum}" alt="" class="thum img1">
+                                `)
+                            $('.video').attr('src', layui.setter.CDN + res.data.video)
+                        }
+                        if (res.data.type_id == '2') {
+                            $('.label2').css('display', 'none')
+                            $('.label3').css('display', 'none')
+                            $('.label1>.div1').empty()
+                            $('.label1>.div1').append(`
+                                    <img src="${layui.setter.CDN+res.data.thum}" alt="" class="thum img1">
+                                `)
+                            $('.label6>.div1').empty()
+                            $('.label6>.div1').append(`
+                                    <img src="${layui.setter.CDN+res.data.link_thum}" alt="" class="link_thum img1">
+                                `)
+                            $('.name').html(res.data.name)
+                            $('.link').html(res.data.link)
+                        }
+                        if (res.data.type_id == '3') {
+                            $('.label2').css('display', 'none')
+                            $('.label4').css('display', 'none')
+                            $('.label5').css('display', 'none')
+                            $('.label6').css('display', 'none')
+                            $('.copywriting').html(res.data.copywriting ? base.decode(res.data
+                                .copywriting) : '暂无')
+                            $('.label1>.div1').empty()
+                            var arr = res.data.picture.split(',')
+                            arr.forEach(item => {
+                                $('.label1>.div1').append(`
+                                        <img src="${layui.setter.CDN+item}" alt="" class="picture img1">
+                                    `)
+                            });
+
+                        }
+                    } else {
+                        layer.msg(res.msg);
+                    }
+                }
+            })
+            $('.sure').click(function () {
+                layer.closeAll()
+            })
+            $('.label').on('click', '.picture', function () {
+                tool.lookBigImg(info.picture.split(','));
+            })
+            $('.label').on('click', '.link_thum', function () {
+                tool.lookBigImg(info.link_thum.split(','));
+            })
+            $('.label').on('click', '.thum', function () {
+                tool.lookBigImg(info.thum.split(','));
+            })
+        })
+    }
+</script>

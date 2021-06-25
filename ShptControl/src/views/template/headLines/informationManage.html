@@ -1,0 +1,100 @@
+<style>
+    .form .layui-form-label {
+        width: 100px;
+    }
+
+    .form .layui-form-item .layui-input-inline {
+        width: 400px;
+    }
+
+    .layui-table-cell {
+        height: auto;
+        vertical-align: middle;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>头条资讯</cite></a>
+        <a><cite>资讯管理</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+
+<div class="layui-tab layui-tab-brief" lay-filter="tabVP">
+    <ul class="layui-tab-title">
+        <li class="layui-this">视频资讯</li>
+        <li>图文资讯</li>
+    </ul>
+
+
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto" style="background-color: #fff;">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">内容标题：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="title" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">添加时间：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="time" class="layui-input" id="time" placeholder=" 开始时间-结束时间 ">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width: 85px;">是否置顶:</label>
+                <div class="layui-input-inline">
+                    <select name="is_topping">
+                        <option value="">请选择</option>
+                        <option value="1">是</option>
+                        <option value="2">否</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width: 85px;">是否上架:</label>
+                <div class="layui-input-inline">
+                    <select name="status">
+                        <option value="">请选择</option>
+                        <option value="1">上架</option>
+                        <option value="2">下架</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width: 85px;">所属类目:</label>
+                <div class="layui-input-inline">
+                    <select name="headline_classify" class="headline_classify1">
+
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search">
+                    <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>查询
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show">
+            <div class="layui-inline button" style="margin-left:20px">
+                <button class="layui-btn addVideo">添加视频资讯</button>
+            </div>
+            <table class="layui-hide" id="infoTable1" lay-filter="infoTable1"></table>
+        </div>
+        <div class="layui-tab-item">
+            <div class="layui-inline button" style="margin-left:20px">
+                <button class="layui-btn addImage">添加图文资讯</button>
+            </div>
+            <table class="layui-hide" id="infoTable2" lay-filter="infoTable2"></table>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    layui.use('checkTask', layui.factory('checkTask'));
+    layui.use('information', layui.factory('information'));
+</script>

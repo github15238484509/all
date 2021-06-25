@@ -1,0 +1,226 @@
+<div class="layui-fluid">
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto form" lay-filter="app-content-list">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <div class="layui-inline">
+                    <label class="layui-form-label">分组选择框</label>
+                    <div class="layui-input-inline">
+                        <select name="goods_sort2" id="goods_sort2">
+                        <!-- <option value="">请选择问题</option>
+                        <optgroup label="城市记忆">
+                          <option value="你工作的第一个城市">你工作的第一个城市</option>
+                        </optgroup>
+                        <optgroup label="学生时代">
+                          <option value="你的工号">你的工号</option>
+                          <option value="你最喜欢的老师">你最喜欢的老师</option>
+                        </optgroup> -->
+                      </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">商品名称:</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="goods_name" class="layui-input" placeholder=" 请输入店铺名称">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search465">
+                    <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>搜索
+                </button>
+                </div>
+            </div>
+        </div>
+        <table class="layui-hide" id="commentTable13564" lay-filter="commentTable13564"></table>
+    </div>
+
+    <script>
+        layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'table', 'laydate', 'common', 'public', 'form'], function() {
+            var $ = layui.$,
+                admin = layui.admin,
+                laydate = layui.laydate,
+                view = layui.view,
+                table = layui.table,
+                form = layui.form,
+                IsshowAnNiu = layui.common.IsshowAnNiu;
+            var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+            var base = new layui.public.Base64();
+            var cols = []
+            var tool = layui.public.tool;
+            var base = new layui.public.Base64();
+            var field = {
+                type: "1",
+            }
+
+            //渲染表格数据
+            var render_table789 = function(data) {
+                    cols = [
+                        [{
+                            title: 'ID',
+                            align: 'center',
+                            field: 'goods_index',
+                        }, {
+                            field: 'goods_name',
+                            title: '商品名称',
+                            align: 'center',
+                        }, {
+                            field: 'goods_icon',
+                            align: 'center',
+                            title: '商品图',
+                            templet: function(d) {
+                                if (d.goods_icon == '') {
+                                    return '暂无'
+                                } else {
+                                    return `<button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-event = 'enlarge'>查看</button>`
+                                }
+                            }
+                        }, {
+                            field: 'group_goods_count',
+                            align: 'center',
+                            title: '商品分类',
+                            templet: function(d) {
+                                return `
+                                ${d.sort1_name}/${d.sort2_name}
+                                `
+                            }
+                        }, {
+                            field: 'group_price',
+                            align: 'center',
+                            title: '拼团价格',
+                            templet: function(d) {
+                                return `
+                            <p>市场价:${d.goods_price/100}</p>
+                            <p>售价:${d.goods_cost/100}</p>
+                            <p>成本价:${d.retail_price/100}</p>
+                            `
+                            }
+                        }, {
+                            field: 'group_goods_count',
+                            align: 'center',
+                            title: '销量/库存',
+                            templet: function(d) {
+                                return `
+                                ${d.goods_sale}/${d.goods_sku_count}
+                                `
+                            }
+                        }, {
+                            field: 'goods_add_time',
+                            align: 'center',
+                            title: '创建时间',
+                            templet: function(d) {
+                                return layui.common.createTime(d.goods_add_time)
+                            }
+                        }, {
+                            fixed: 'right',
+                            align: 'center',
+                            title: '操作',
+                            templet: function(d) {
+                                return `
+                                <button class="layui-btn" lay-event="addGoodsone">添加</button>
+                                `
+                            }
+                        }]
+                    ]
+
+                    table.render({
+                        elem: '#commentTable13564',
+                        url: layui.setter.requestUrl + 'api.php?c=supplier_goods/getGoodsList',
+                        where: data,
+                        cellMinWidth: 120,
+                        cols: cols,
+                        page: true,
+                        parseData: function(res) {
+                            return {
+                                "count": res.count, //解析接口状态
+                                "code": res.code, //解析接口状态
+                                "data": res.data.list //解析数据列表
+                            };
+                        },
+                    });
+                }
+                //先自调用请求渲染数据
+            render_table789(field);
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=config_classify/getClassifyInfo',
+                success: function(res) {
+                    // <option value="">请选择问题</option>
+                    // <optgroup label="城市记忆">
+                    //   <option value="你工作的第一个城市">你工作的第一个城市</option>
+                    // </optgroup>
+                    // <optgroup label="学生时代">
+                    //   <option value="你的工号">你的工号</option>
+                    //   <option value="你最喜欢的老师">你最喜欢的老师</option>
+                    // </optgroup>
+                    if (res.code == 0) {
+                        let str = `<option value="-1">请选择问题</option>`
+                        for (let i = 0; i < res.data.length; i++) {
+                            str += `<optgroup label="${res.data[i].name}">`
+                            for (let j = 0; j < res.data[i].children.length; j++) {
+                                str += ` <option value="${res.data[i].children[j].id}">${res.data[i].children[j].name}</option>`
+                            }
+                            str += ` </optgroup>`
+                        }
+                        $("#goods_sort2").html(str)
+                        form.render()
+                    } else {
+                        layer.msg(res.msg);
+                    }
+                }
+            })
+
+            form.on('submit(search465)', function(data) {
+                field.goods_name = data.field.goods_name;
+                field.goods_sort2 = data.field.goods_sort2;
+                render_table789(field);
+                return false;
+            });
+            form.render()
+            table.on('tool(commentTable13564)', function(obj) { //注：tool table 是 table  lay-filter="对应的值"
+                var data = obj.data; //获得当前行数据
+                var layEvent = obj.event; //获得 lay-event 对应的值
+                console.log(data);
+                if (layEvent == 'enlarge') {
+                    data.img = data.goods_icon
+                    tool.lookBigImg(data.img.split(','));
+                } else if (layEvent == 'addGoodsone') {
+                    admin.popup({
+                        id: 'sprouct645',
+                        area: ['600px', '500px'],
+                        title: '添加商品',
+                        success: function(closeIndex, index) {
+                            console.log(1111);
+                            console.log(index);
+                            console.log(closeIndex);
+                            console.log(1111);
+                            var that = this;
+                            view(that.id).render('template/marketing/addset', {
+                                data: data,
+                                closeIndex: index
+                            });
+                        }
+                    });
+                }
+            });
+
+        });
+
+
+        // layer.confirm('真的要添加吗?', function(index) {
+        //     admin.req({
+        //         url: layui.setter.requestUrl + 'api.php?c=merchant/setLevelDes',
+        //         data: {
+        //             merchant_id: params.merchant_id,
+        //             des: note.getContent(0),
+        //         },
+        //         success: function(res) {
+        //             if (res.code == 0) {
+        //                 layer.msg(res.msg)
+        //                 layer.closeAll();
+        //                 parent.layui.table.reload("tableShop2");
+        //                 parent.layui.table.reload("merchantTable");
+        //             }
+        //         }
+        //     })
+        //     layer.close(index);
+        // });
+    </script>

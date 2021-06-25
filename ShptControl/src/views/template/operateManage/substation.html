@@ -1,0 +1,342 @@
+<style>
+    .layui-table-cell {
+        display: block;
+        height: auto !important;
+        line-height: 20px !important;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">首页</a>
+        <a><cite>运营管理</cite></a>
+        <a><cite>市场督导管理</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <!-- <div class="layui-card" style="padding:15px;">
+        <div class=" tabMsg">
+            <div class="current">待审核</div>
+            <div>审核通过</div>
+            <div>未通过审核</div>
+        </div>
+    </div> -->
+    <div class="">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto form" style="background: #fff;margin:10px 0">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width:100px;">会员昵称：</label>
+                    <div class="layui-input-inline" style="width:150px;">
+                        <input type="text" name="name" style="width:150px;" autocomplete="off" placeholder="请输入内容" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width:100px;">会员手机号：</label>
+                    <div class="layui-input-inline" style="width:150px;">
+                        <input type="text" name="phone" style="width:150px;" autocomplete="off" placeholder="请输入内容" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width:100px;">添加时间：</label>
+                    <div class="layui-input-inline" style="width:150px;">
+                        <input type="text" name="time" class="layui-input" id="test" placeholder=" - ">
+                    </div>
+                </div>
+                <!-- <div class="layui-inline">
+                    <label class="layui-form-label" style="width:100px;">地区筛选：</label>
+                    <div class="layui-input-inline">
+                        <select name="agency_province" class="agency_province" lay-filter="agency_province">
+                            <option value="">请选择省</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline city">
+                        <select name="agency_city" class="agency_city" lay-filter="agency_city">
+                            <option value="">请选择市</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline county">
+                        <select name="agency_county" class="agency_county" lay-filter="agency_county">
+                            <option value="">请选择县/区</option>
+                        </select>
+                    </div>
+                </div> -->
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search8">
+                        搜索
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="layui-card" style="padding:15px;">
+            <button type="button" class="layui-btn layui-btn-normal add" style="margin: 0 0 30px 30px;">添加市场督导 </button>
+            <table class="layui-hide" id="regionalTable" lay-filter="regionalTable"></table>
+        </div>
+
+    </div>
+
+
+</div>
+
+<script>
+    layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'table', 'form', 'laydate', 'common',
+            'public'
+        ],
+        function() {
+            var $ = layui.$,
+                admin = layui.admin,
+                form = layui.form,
+                laydate = layui.laydate,
+                view = layui.view,
+                public = layui.public,
+                table = layui.table;
+            var tool = layui.public.tool;
+            //     IsshowAnNiu = layui.common.IsshowAnNiu;
+            // var menuPermissions = IsshowAnNiu('addviews');  //菜单权限
+            var field = {
+                name: '',
+                phone: '',
+                start_time: '',
+                end_time: '',
+            };
+            //开启省市区三级联动
+            //开启省市区三级联动
+            // tool.linkage({
+            //     province: 'agency_province',
+            //     city: 'agency_city',
+            //     county: 'agency_county',
+            //     success: function(province, city, county) {
+
+            //     }
+            // });
+
+
+            // $(".tabMsg>div").click(function() {
+            //     var index = $(".tabMsg div").index(this);
+            //     if (index == 0) {
+            //         field.facilitato_status = '0'
+            //     } else if (index == 1) {
+            //         field.facilitato_status = '1'
+            //     } else {
+            //         field.facilitato_status = '2'
+            //     }
+            //     $(this).addClass('current').siblings().removeClass('current');
+            //     render_table(field);
+            // });
+
+            IsshowAnNiu = layui.common.IsshowAnNiu;
+            var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+            var tool = layui.public.tool;
+
+            form.render()
+                //日期格式化
+            laydate.render({
+                elem: '#test',
+                range: true,
+                trigger: 'click',
+                format: 'yyyy/MM/dd',
+                done: function(value, date, endDate) {
+
+                }
+            });
+            //搜索
+            form.on('submit(search8)', function(data) {
+                console.log(data)
+                if (data.field.time != '') {
+                    data.field.start_time = data.field.time.split('-')[0].trim()
+                    var date = new Date(data.field.start_time);
+                    data.field.start_time = date.getTime() / 1000
+                    data.field.end_time = data.field.time.split('-')[1].trim()
+                    var date = new Date(data.field.end_time);
+                    data.field.end_time = date.getTime() / 1000
+                } else {
+                    data.field.start_time = ''
+                    data.field.end_time = ''
+                }
+                delete data.field.time
+                render_table(data.field);
+            });
+
+            //渲染表格数据
+            var render_table = function(data) {
+                    table.render({
+                        elem: '#regionalTable',
+                        url: layui.setter.requestUrl + 'api.php?c=mall_facilitator/facilitator_list',
+                        type: 'post',
+                        where: data,
+                        cols: cols = [
+                            [{
+                                field: 'id',
+                                title: '序号',
+                                align: 'center',
+
+                            }, {
+                                field: 'name',
+                                title: '会员信息',
+                                align: 'center',
+                                templet: function(d) {
+                                    return `
+                                    <p>昵称：${d.user_name}</p>
+                                    <p>手机号：${d.user_phone}</p>
+                                    `
+                                }
+                            }, {
+                                field: 'name',
+                                title: '姓名',
+                                align: 'center',
+
+                            }, {
+                                field: 'phone',
+                                title: '联系电话',
+                                align: 'center',
+
+                            }, {
+                                field: 'address_lianxi',
+                                title: '联系地址',
+                                align: 'center',
+                                templet: function(d) {
+                                    return d.address_lianxi
+                                }
+
+                            }, {
+                                field: 'img',
+                                title: '相关资料',
+                                align: 'center',
+                                templet: function(d) {
+                                    if (d.img == '') {
+                                        return '暂无'
+                                    } else {
+                                        return `<button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-event = 'enlarge'>查看</button>`
+                                    }
+                                }
+
+                            }, {
+                                field: 'create_time',
+                                title: '添加时间',
+                                align: 'center',
+                                templet: function(d) {
+                                    return d.create_time == 0 ? '暂无' : layui.common.createTime(d
+                                        .create_time)
+                                }
+                            }, {
+                                field: 'status',
+                                title: '状态',
+                                align: 'center',
+                                templet: function(d) {
+                                    let str = ""
+                                    if (d.status == 1) {
+                                        str = "禁用"
+                                    } else {
+                                        str = "启用"
+                                    }
+                                    return str
+                                }
+                            }, {
+                                fixed: 'right',
+                                align: 'center',
+                                title: '操作',
+                                width: 210,
+                                templet: function(d) {
+                                    return `
+                                        <div style="margin-top:5px;"><button type="button" class="layui-btn layui-btn-sm layui-btn-normal" lay-event = 'look'>查看业绩</button>
+                                        <div style="margin-top:5px;"><button type="button" class="layui-btn layui-btn-sm layui-btn-normal" lay-event = 'edit'>编辑</button>
+                                        <button type="button" class="layui-btn layui-btn-sm" lay-event = 'del'>${d.status=='1'?'启用':d.status=='2'?'禁用':'删除'}</button>`
+                                }
+                            }]
+                        ],
+                        page: true,
+                    });
+                }
+                //自调渲染表格
+            render_table(field);
+
+            table.on('tool(regionalTable)', function(obj) { //注：tool table 是 table  lay-filter="对应的值"
+                var data = obj.data; //获得当前行数据
+                console.log(data);
+                var layEvent = obj.event; //获得 lay-event 对应的值
+                if (layEvent == 'enlarge') {
+                    data.img = data.img_holding + ',' + data.img_positive + ',' + data.img_the_other_side
+                    tool.lookBigImg(data.img.split(','));
+                } else if (layEvent == 'del') {
+                    let title = ''
+                    if (data.status == 1) {
+                        title = "确定启用吗"
+                    } else if (data.status == 2) {
+                        title = "确定禁用吗"
+                    }
+                    layer.confirm(title, {
+                        btn: ['确定', '取消'] //按钮
+                    }, function() {
+                        admin.req({
+                            url: layui.setter.requestUrl +
+                                'api.php?c=mall_facilitator/changeFacilitator',
+                            type: 'post',
+                            data: {
+                                id: data.id,
+                            },
+                            success: function(res) {
+                                if (res.code == 0) {
+                                    layer.msg(res.msg)
+                                    parent.layui.table.reload("regionalTable");
+                                }
+                            }
+                        })
+                    }, function() {});
+
+                } else if (layEvent == 'edit') {
+                    admin.popup({
+                        id: 'addService',
+                        title: ' 编辑市场督导',
+                        area: ['800px', '600px'],
+                        success: function() {
+                            view(this.id).render('/template/operateManage/addService', {
+                                id: data.id
+                            });
+                        }
+                    });
+                } else if (layEvent == 'look') {
+                    admin.popup({
+                        id: 'addService',
+                        title: ' 查看服务商业绩',
+                        area: ['1000px', '800px'],
+                        success: function() {
+                            data.addService = 'addService'
+                            view(this.id).render('/template/operateManage/lookService',
+                                data);
+                        },
+
+
+                    });
+                } else if (layEvent == 'shenhe') {
+                    admin.popup({
+                        id: 'addService',
+                        title: ' 审核服务商',
+                        area: ['800px', '600px'],
+                        success: function() {
+                            data.addService = 'addService'
+                            view(this.id).render('/template/operateManage/checkService',
+                                data);
+                        },
+                        end: function() {
+                            render_table(field);
+                        }
+
+                    });
+                }
+            })
+            $('.add').click(function() {
+                admin.popup({
+                    id: 'addService',
+                    title: ' 添加市场督导',
+                    area: ['800px', '600px'],
+                    success: function() {
+                        view(this.id).render('/template/operateManage/addService', {});
+                    }
+                });
+            })
+
+
+        });
+</script>

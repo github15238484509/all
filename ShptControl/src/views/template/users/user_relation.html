@@ -1,0 +1,193 @@
+<style>
+    .float {
+        float: left;
+        margin: 5px;
+        cursor: pointer;
+    }
+    
+    .lujing a {
+        cursor: pointer;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>会员管理</cite></a>
+        <a><cite>会员推广关系</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+    <form class="layui-form" style="background:#fff;margin:10px 0;padding:10px 0 0 0">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">手机号：</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="value" id='phone' placeholder="请输入手机号" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <button class="layui-btn layui-btn-danger" lay-submit lay-filter="search" id='serchs'>搜索</button>
+        </div>
+    </form>
+    <div class="layui-row">
+        <div class="lujing"></div>
+        <div class="layui-col-md9" style="background: #fff;" id="relationList">
+        </div>
+        <div class="layui-col-md3" style="padding: 0 10px;background: #fff;border-left:1px solid #000;" id='right_content'>
+
+        </div>
+    </div>
+</div>
+<script>
+    layui.use(['admin', 'jquery', 'form'], function() {
+        var setter = layui.setter,
+            $ = layui.jquery,
+            form = layui.form,
+            admin = layui.admin;
+        form.render();
+        let userObj = null; // 定义一个会员对象
+        //获取会员信息列表
+        getUserList('');
+
+        function getUserList(phone) {
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=users/usersRelationList',
+                data: {
+                    phone: phone
+                },
+                done: function(res) {
+                    if (!res.code) {
+                        if (res.data.name) {
+                            userObj = res.data;
+                            renderPath(userObj);
+                            $('#relationList').append(`
+                                <div style="width:99px;text-align: center;"class="float" data-phone='${res.data.phone}'>
+                                <div style="width:73px;height:73px;margin: 0px auto;"><img src="${res.data.photo.startsWith("http")?res.data.photo:(layui.setter.CDN + res.data.photo)}" alt="" style='width:100%;height:100%;'></div>
+                                    <div>${res.data.name}</div>
+                                </div>
+                            `)
+                            renderRight(res.data)
+                        } else {
+                            layer.msg('暂无此会员', {
+                                icon: 1
+                            });
+                        }
+                    } else {
+                        layer.msg(res.msg, {
+                            icon: 1
+                        });
+                    }
+                }
+            });
+        };
+        /*
+         1 首次进来渲染 父级路径 当前路径 
+         2 双击渲染父级路径 当前路径 子集路径
+        */
+        function renderPath(userObj) {
+            if (userObj.parentList.length) { //如果有父级就渲染 1
+                userObj.parentList.forEach(item => {
+                    $('.lujing').append(`
+                     <a class="getPhone" data-phone='${item.phone}'>${item.name}</a>
+                     <a>/</a>
+                    `)
+                })
+                $('.lujing').append(`
+                    <a class="getPhone" data-phone='${userObj.phone}'>${userObj.name}</a>
+                `)
+            } else { //没有就渲染 2
+                $('.lujing').append(`
+                    <a class="getPhone" data-phone='${userObj.phone}'>${userObj.name}</a>
+                `)
+            }
+        };
+        //点击父级路径渲染子集
+        $('.lujing').on('click', '.getPhone', function() {
+                $('#right_content').html('')
+                $('.lujing').html('');
+                $('#relationList').html('');
+                getUserList($(this).attr('data-phone'));
+            })
+            //渲染右侧内容
+        function renderRight(data) {
+            $('#right_content').html('')
+            $('#right_content').append(`
+                  <div>状态：${data == '0' ? '禁用' : '启用'}</div>
+                  <div>会员级别：${data.rank}</div>
+                  <div>会员编号：${data.user_id}</div>
+                  <div>注册时间：${layui.common.createTime(data.regtime)}</div>
+                  <div>手机号：${data.phone}</div>
+                  <div>累计提现：${data.total_extract_cash / 100}</div>
+                  <div>累计消费：${data.total_out_cash / 100}</div>
+                  <div>拼团本金：${data.consumption / 100}</div>
+                  <div>当前余额：${data.cash / 100}</div>
+                  <div>直推人数：${data.count}人</div>
+                  <div>实名认证：${data.card_index == '0' ? '未认证' : '已认证'}</div>
+              `)
+        }
+        //双击渲染子集
+        function renderChildren(userObj, index) {
+            $('.lujing').html('');
+            console.log(userObj);
+            renderPath(userObj);
+            if (userObj.children.length) {
+                $('.lujing').append(`
+                     <a>/</a>
+                     <a>${userObj.children[index].name}</a>
+                `)
+            }
+        };
+        $('#relationList').on('dblclick', '.float', function() {
+            if ($(this).attr('data-obj')) {
+                renderxiaji(JSON.parse($(this).attr('data-obj')).phone);
+            } else {
+                renderxiaji('');
+            }
+        });
+        $('#relationList').on('click', '.float', function() {
+                renderChildren(userObj, $(this).index());
+                var obj = null;
+                if ($(this).attr('data-obj')) {
+                    obj = JSON.parse($(this).attr('data-obj'));
+                    renderRight(obj)
+                }
+            })
+            //点击搜索
+        $('#serchs').click(function() {
+            $('#right_content').html('')
+            $('.lujing').html('');
+            $('#relationList').html('');
+            getUserList($('#phone').val())
+            return false
+        })
+
+        function renderxiaji(phone) {
+
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=users/usersRelationList',
+                data: {
+                    phone: phone
+                },
+                done: function(res) {
+                    userObj = res.data;
+                    if (res.data.children.length) {
+                        $('#relationList').html(''); // 双击默认显示第一个
+                        renderChildren(res.data, 0);
+                        renderRight(res.data.children[0]);
+                        res.data.children.forEach(item => {
+                            $('#relationList').append(`
+                                        <div style="width:99px;text-align: center;"class="float" data-obj='${JSON.stringify(item)}'>
+                                        <div style="width:73px;height:73px;margin: 0px auto;"><img src="${item.photo.startsWith("http")?item.photo:(layui.setter.CDN + item.photo)}" alt="" style='width:100%;height:100%;'></div>
+                                            <div>${item.name}</div>
+                                        </div>
+                                `)
+                        })
+                    } else {
+                        layer.msg('暂无下级')
+                    }
+                }
+            })
+        };
+    })
+    layui.use('checkTask', layui.factory('checkTask'));
+</script>

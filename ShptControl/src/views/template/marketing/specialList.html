@@ -1,0 +1,209 @@
+<style>
+    .tabMsg {
+        display: flex;
+        padding: 20px;
+    }
+
+    .tabMsg>div {
+        width: 200px;
+        height: 30px;
+        text-align: center;
+        line-height: 30px;
+        font-size: 14px;
+        color: rgba(42, 130, 228, 1);
+        border: 1px solid rgba(42, 130, 228, 1);
+        cursor: pointer;
+        margin-left: -1px;
+    }
+
+    .tabMsg .current {
+        color: #fff;
+        background-color: rgba(42, 130, 228, 1);
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">首页</a>
+        <a><cite>营销管理</cite></a>
+        <a><cite>分区管理</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <button type="button" class="layui-btn layui-btn-normal addSpecial">添加专区</button>
+    <table class="layui-hide" id="specialTable" lay-filter="specialTable"></table>
+</div>
+<script>
+    layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'table', 'laydate', 'common', 'public',
+            'form'
+        ],
+        function () {
+            var $ = layui.$,
+                admin = layui.admin,
+                laydate = layui.laydate,
+                view = layui.view,
+                form = layui.form,
+                table = layui.table;
+            IsshowAnNiu = layui.common.IsshowAnNiu;
+            var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+            var brand_status = '1';
+            var base = new layui.public.Base64();
+            var cols = []
+            var tool = layui.public.tool;
+            $('.addSpecial').click(function () {
+                admin.popup({
+                    id: 'addSpecial',
+                    title: '添加专区',
+                    area: ['500px', '500px'],
+                    success: function () {
+                        view(this.id).render('/template/marketing/addSpecial', {});
+                    }
+                });
+            })
+            //渲染表格数据
+            var render_table = function () {
+                table.render({
+                    elem: '#specialTable',
+                    url: layui.setter.requestUrl + 'api.php?c=supplier_perfecture/getPrefectureList',
+                    cols: cols = [
+                        [{
+                                field: 'prefecture_index',
+                                title: 'ID',
+                                align: 'center',
+                                width: 70,
+                                sort: true
+                            }, {
+                                field: 'prefecture_name',
+                                title: '专区名称',
+                                align: 'center'
+                            }, {
+                                field: 'limit_name',
+                                title: '专区限制',
+                                align: 'center',
+                            }, {
+                                field: 'prefecture_desc',
+                                title: '限制说明',
+                                align: 'center',
+                                templet: function (d) {
+                                    return d.prefecture_desc == '' ? '暂无' : base.decode(d
+                                        .prefecture_desc)
+                                }
+                            }, {
+                                field: 'num',
+                                align: 'center',
+                                title: '商品数量',
+                            }, {
+                                field: 'add_time',
+                                align: 'center',
+                                title: '创建时间',
+                                templet: function (d) {
+                                    return layui.common.createTime(d.add_time)
+                                }
+                            }, {
+                                field: 'is_able',
+                                align: 'center',
+                                title: '状态',
+                                templet: function (d) {
+                                    return `<input type="checkbox" name="is_able" value="${d.prefecture_index}" lay-skin="switch" lay-text="启用|禁用" lay-filter="statusSwitch" ${ d.is_able == 1 ? 'checked' : '' }>`
+
+                                }
+                            },
+                            {
+                                fixed: 'right',
+                                align: 'center',
+                                title: '操作',
+                                width: 320,
+                                templet: function (d) {
+                                    return `<button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-event = 'look'>查看专区商品</button>    
+                                    <button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-event = 'edit'>编辑</button>
+                                    <button type="button" class="layui-btn layui-btn-sm" lay-event = 'add'>添加商品</button>
+                                    <button type="button" class="layui-btn layui-btn-danger layui-btn-sm" lay-event = 'del'>删除</button>`
+                                }
+                            }
+                        ]
+                    ],
+                    page: true,
+                });
+            }
+            //先自调用请求渲染数据
+            render_table();
+
+            //监听状态操作
+            form.on('switch(statusSwitch)', function (data) {
+                console.log(data.value);
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=supplier_perfecture/addEditStatus',
+                    data: {
+                        prefecture_index: data.value,
+                    },
+                    success: function (res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg);
+                            table.reload('specialTable', {
+                                url: layui.setter.requestUrl +
+                                    'api.php?c=supplier_perfecture/getPrefectureList',
+                            });
+                        } else {
+                            layer.msg(res.msg);
+                        }
+                    }
+                })
+            });
+            table.on('tool(specialTable)', function (obj) { //注：tool table 是 table  lay-filter="对应的值"
+                var data = obj.data; //获得当前行数据
+                var layEvent = obj.event; //获得 lay-event 对应的值
+                if (layEvent == 'edit') {
+                    admin.popup({
+                        id: 'addSpecial',
+                        title: '编辑分区',
+                        area: ['500px', '500px'],
+                        success: function () {
+                            view(this.id).render('/template/marketing/addSpecial', data);
+                        }
+                    });
+                } else if (layEvent == 'del') {
+                    tool.delTableLine({
+                        url: 'supplier_perfecture/delPrefecture',
+                        param: {
+                            prefecture_index: data.prefecture_index
+                        },
+                        success: function (res) {
+                            table.reload('specialTable', {
+                                url: layui.setter.requestUrl +
+                                    'api.php?c=supplier_perfecture/getPrefectureList'
+                            });
+                        }
+                    });
+                } else if (layEvent == 'look') {
+                    admin.popup({
+                        id: 'chooseGoods1',
+                        title: '商品列表',
+                        area: ['1200px', '700px'],
+                        success: function () {
+                            view(this.id).render('/template/marketing/chooseGoods', {
+                                prefecture_index: data.prefecture_index,
+                                type: '1'
+                            });
+                        }
+                    });
+                } else if (layEvent == 'add') {
+                    admin.popup({
+                        id: 'chooseGoods2',
+                        title: '商品列表',
+                        area: ['1200px', '700px'],
+                        success: function () {
+                            view(this.id).render('/template/marketing/chooseGoods', {
+                                prefecture_index: data.prefecture_index,
+                                type: '2'
+                            });
+                        }
+                    });
+                }
+            })
+
+
+        });
+</script>

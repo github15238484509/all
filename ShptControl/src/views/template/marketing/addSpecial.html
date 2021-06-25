@@ -1,0 +1,88 @@
+<style>
+    .layui-form-select{
+        width: 300px;
+    }
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <form class="layui-form" action=" lay-filter="zoneForm"">
+        <div class="layui-form-item">
+            <label class="layui-form-label" >专区名称：</label>
+            <div class="layui-input-block">
+            <input type="text" name="prefecture_name" value="{{d.params.prefecture_name?d.params.prefecture_name:''}}" style="width:300px;" lay-verify="required" autocomplete="off" placeholder="请输入内容" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" >专区限制：</label>
+            <div class="layui-input-block">
+                <select name="prefecture_limit"  lay-verify="required" id="prefecture_limit">
+                    <option value="-1">请选择</option>
+                    <option value="1">仅vip可购买</option>
+                    <option value="2">VIP以上级别可购买</option>
+                    <option value="3">新成为vip未消费用户可购买</option>
+                    <option value="4">普通用户可购买</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" >限制说明：</label>
+            <div class="layui-input-block">
+                <textarea name="prefecture_desc" id="prefecture_desc" cols="30" rows="10" style="width:280px;height:100px;padding:10px" placeholder="请输入内容"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" >是否开启：</label>
+            <div class="layui-input-block">
+                <input type="checkbox" name="is_able"  lay-skin="switch" lay-text="启用|禁用"  {{d.params.is_able == 1 ? 'checked' : '' }}>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="width:200px;margin:0 auto;">
+            <button type="submit" class="layui-btn" style="width:100%;" lay-submit="" lay-filter="submit">确定</button>
+            </div>
+        </div> 
+    </form>  
+</script>
+    <script>
+        layui.data.sendParams = function (params) {
+            layui.use(['admin','upload','form','public'], function () {
+                var $ = layui.$;
+                var admin = layui.admin;
+                var upload = layui.upload;
+                var form = layui.form;
+                var base =new layui.public.Base64();
+                //反显
+                
+                if(params.prefecture_index){
+                    $('#prefecture_limit').val(params.prefecture_limit)
+                    $('#prefecture_desc').val(base.decode(params.prefecture_desc))
+                }
+               form.render()
+
+                form.on('submit(submit)', function (data) {
+                    if(data.field.is_able=='on'){
+                        data.field.is_able=1
+                    }else{
+                        data.field.is_able=0
+                    }
+                    if(params.prefecture_index){
+                        data.field.prefecture_index=params.prefecture_index
+                    }
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=supplier_perfecture/addEditPrefecture',
+                        data: data.field,
+                        success: function (res) {
+                            if (res.code == 0) {
+                                layer.msg(res.msg);
+                                layer.closeAll();
+                                parent.layui.table.reload("specialTable");
+                            } else {
+                                layer.msg(res.msg);
+                            }
+                        }
+                    })
+                    return false;
+                })
+            })
+        }
+    </script> 
+

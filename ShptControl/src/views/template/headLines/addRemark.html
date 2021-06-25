@@ -1,0 +1,62 @@
+
+
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <form class="layui-form" action="">
+        <div class="layui-form-item">
+          <label class="layui-form-label" >处理类型：</label>
+          <div class="layui-input-block">
+            <input type="radio" name="type" value="1" title="忽略" checked  lay-filter="radio">
+            <input type="radio" name="type" value="2" title="下架内容"  lay-filter="radio">
+          </div>
+        </div>
+        <div class="layui-form-item reason">
+            <label class="layui-form-label" >原因：</label>
+            <div class="layui-input-block">
+                  <textarea name="ignore" id="" cols="30" rows="10" placeholder="输入原因" style="padding:10px"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item" style="position:absolute;left:50px;bottom:0">
+            <div class="layui-input-block" style="width:200px;">
+                <button type="submit" class="layui-btn" style="width:100%;" lay-submit="" lay-filter="submit">确定</button>
+            </div>
+        </div> 
+    </form>
+
+</script>
+   
+
+<script>
+    layui.data.sendParams = function (params) {
+        layui.use(['admin','element','form'], function () {
+            var admin = layui.admin;
+            var form = layui.form;
+            var $ = layui.jquery,element = layui.element;
+            
+            form.render()
+          
+            form.on('submit(submit)', function(data){
+                if(data.field.ignore==''){
+                    layer.msg('请输入原因');
+                }else{
+                    data.field.complaint_index=params.complaint_index
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=headline/setComplaintExamine',
+                        data: data.field,
+                        success: function (res) {
+                            if (res.code == 0) {
+                                layer.msg(res.msg);
+                                layer.closeAll();
+                                parent.layui.table.reload("complaintTable1");
+                            } else {
+                                layer.msg(res.msg);
+                            }
+                        }
+                    })
+                }
+                return false;
+            }); 
+
+        })
+    }
+    
+</script>

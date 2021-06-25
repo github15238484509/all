@@ -1,0 +1,176 @@
+<style>
+    .layui-form-select {
+        width: 250px;
+    }
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <form class="layui-form" action="">
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:125px">请选择等级：</label>
+            <div class="layui-input-inline">
+                <select name="rank" lay-verify="required" id="rank"> 
+                    <option value="">请选择</option>
+                    <!-- <option value="1">普通会员</option>
+                    <option value="2">vip</option>
+                    <option value="3">推荐官</option>
+                    <option value="4">普通线下商家（未认证）</option>
+                    <option value="5">服务商</option>
+                    <option value="6">线上商家</option>
+                    <option value="7">金牌商户</option>
+                    <option value="8">认证商户</option> -->
+                  </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:125px">1.提现次数：</label>
+            <div class="layui-input-block">
+                <input name="withdraw_day" type="number" lay-verify="required" value="{{d.params.withdraw_day || ''}}" cols="30" rows="10" placeholder="输入内容" style="padding:10px;margin-right:5px;width:80px"></input>天，可提现一次
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:125px">2.最低提现金额：</label>
+            <div class="layui-input-block">
+                <input name="low_cash" type="number" lay-verify="required" value="{{d.params.low_cash/100 || ''}}" cols="30" rows="10" placeholder="输入内容" style="padding:10px;margin-right:5px;width:80px"></input>元
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:125px">3.提现金额设置：</label>
+            <div class="layui-input-inline">
+                <select name="cash_rule_type" lay-verify="required" style="width:250px" id="cash_rule_type">
+                    <option value="">请选择</option>
+                    <option value="1">高于最低提现金额</option>
+                    <option value="2">高于最低提现金额且为整数 </option>
+                    <option value="3">等于最低提现金额</option>
+                  </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:125px">4.提现手续费类型：</label>
+            <div class="layui-input-block service_key">
+                <input type="radio" name="service_key" value="0" title="百分比" lay-filter="radio">
+                <input type="radio" name="service_key" value="1" title="固定值" lay-filter="radio">
+                <input type="radio" name="service_key" value="2" title="免手续费" lay-filter="radio">
+            </div>
+        </div>
+        <div style="width:300px;background:rgba(245, 245, 245, 1);margin-left:150px;padding:10px 0" class="percent">
+            <div class="layui-form-item">
+                <label class="layui-form-label">百分比：</label>
+                <div class="layui-input-block">
+                    <input name="percent" type="number" value="{{d.params.percent || ''}}" cols="30" rows="10" placeholder="输入内容" style="padding:10px;margin-right:5px;width:80px"></input>%
+                </div>
+            </div>
+        </div>
+        <div style="width:300px;background:rgba(245, 245, 245, 1);margin-left:150px;padding:10px 0;display:none" class="service_value">
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="width:85px">提现手续费：</label>
+                <div class="layui-input-block">
+                    <input name="service_value" type="number" value="{{d.params.service_value/100 || ''}}" cols="30" rows="10" placeholder="输入内容" style="padding:10px;margin-right:5px;width:80px"></input>元
+                </div>
+            </div>
+        </div>
+
+
+        <div class="layui-form-item" style="position:absolute;left:50px;bottom:30px">
+            <div class="layui-input-block" style="width:200px;">
+                <button type="submit" class="layui-btn" style="width:100%;" lay-submit="" lay-filter="submit">确定</button>
+            </div>
+        </div>
+    </form>
+
+</script>
+
+
+<script>
+    layui.data.sendParams = function(params) {
+        layui.use(['admin', 'element', 'form'], function() {
+            var admin = layui.admin;
+            var form = layui.form;
+            var $ = layui.jquery,
+                element = layui.element;
+
+
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=user_rank/getUserRankList&page=1&limit=10',
+
+                success: function(res) {
+                    if (res.code == 0) {
+                        for (var i in res.data) {
+                            $('#rank').append(` <option value="${res.data[i].rank_index}">${res.data[i].rank_name}</option>`)
+                        }
+                        $('#rank').val(params.rank)
+                        form.render()
+                    } else {
+                        layer.msg(res.msg);
+                    }
+                }
+            })
+
+
+            $('#cash_rule_type').val(params.cash_rule_type)
+            if (params.service_key) {
+                if (params.service_key == 1) {
+                    $("input[name=service_key][value=1]").attr("checked", true);
+                    $('.percent').css('display', 'none')
+                    $('.service_value').css('display', 'block')
+                } else if (params.service_key == 2) {
+                    $("input[name=service_key][value=2]").attr("checked", true);
+                    $('.percent').css('display', 'none')
+                    $('.service_value').css('display', 'none')
+                } else {
+                    $("input[name=service_key][value=0]").attr("checked", true);
+                    $('.percent').css('display', 'block')
+                    $('.service_value').css('display', 'none')
+                }
+            } else {
+                $("input[name=service_key][value=0]").attr("checked", true);
+                $('.percent').css('display', 'block')
+                $('.service_value').css('display', 'none')
+            }
+            form.render()
+            form.on('radio(radio)', function(data) {
+                if (data.value == 0) {
+                    $('.percent').css('display', 'block')
+                    $('.service_value').css('display', 'none')
+                } else if (data.value == 1) {
+                    $('.percent').css('display', 'none')
+                    $('.service_value').css('display', 'block')
+                } else {
+                    $('.percent').css('display', 'none')
+                    $('.service_value').css('display', 'none')
+                }
+            });
+            form.on('submit(submit)', function(data) {
+                if (data.field.service_key == 0 && data.field.percent == '') {
+                    layer.msg('请输入提现类型的百分比')
+                    return false
+                }
+                if (data.field.service_key == 1 && data.field.service_value == '') {
+                    layer.msg('请输入提现类型的手续费')
+                    return false
+                }
+
+                if (params.withdraw_index) {
+                    data.field.withdraw_index = params.withdraw_index
+                }
+                data.field.low_cash = data.field.low_cash * 100
+                data.field.service_value = data.field.service_value * 100
+                data.field.type = "1"
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=withdraw_setting/withdrawSetting',
+                    data: data.field,
+                    success: function(res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg);
+                            layer.closeAll();
+                            parent.layui.table.reload("setTable");
+                        } else {
+                            layer.msg(res.msg);
+                        }
+                    }
+                })
+                return false;
+            });
+
+        })
+    }
+</script>

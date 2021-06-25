@@ -1,0 +1,562 @@
+<style>
+    .form .layui-form-label {
+        width: 100px;
+    }
+
+    .form .layui-form-item .layui-input-inline {
+        width: 400px;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>图文管理</cite></a>
+        <a><cite>轮播图管理</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+
+<div class="layui-tab layui-tab-brief" lay-filter="videTab">
+    <ul class="layui-tab-title">
+        <li class="layui-this">轮播图管理</li>
+        <li>轮播视频管理</li>
+    </ul>
+
+
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width: 85px;">显示位置</label>
+                <div class="layui-input-inline">
+                    <select name="region" class="local">
+
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width: 85px;">跳转类型</label>
+                <div class="layui-input-inline">
+                    <select name="banner_type">
+                        <option value="">请选择</option>
+                        <option value="2">跳转链接</option>
+                        <option value="3">跳转页面</option>
+                        <option value="1">无跳转</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width: 85px;">上线状态</label>
+                <div class="layui-input-inline">
+                    <select name="status">
+                        <option value="">请选择</option>
+                        <option value="1">上线</option>
+                        <option value="2">下线</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search7">
+                    <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>查询
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show">
+            <div class="layui-inline button" style="margin-left:20px">
+                <button class="layui-btn add_jump_link" id='1'>添加轮播图（无跳转）</button>
+                <button class="layui-btn layui-btn-warm add_jump_link" id='2'>添加轮播图（跳转链接）</button>
+                <button class="layui-btn layui-btn-normal add_jump_link" id='3'>添加轮播图（跳转页面）</button>
+            </div>
+            <table class="layui-hide" id="table" lay-filter="table"></table>
+        </div>
+        <div class="layui-tab-item">
+            <div class="layui-inline button" style="margin-left:20px">
+                <button class="layui-btn add_jump_link1" id='1'>添加轮播视频（无跳转）</button>
+                <button class="layui-btn layui-btn-warm add_jump_link1" id='2'>添加轮播视频（跳转链接）</button>
+                <button class="layui-btn layui-btn-normal add_jump_link1" id='3'>添加轮播视频（跳转页面）</button>
+            </div>
+            <table class="layui-hide" id="table1" lay-filter="table1"></table>
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use(['table', 'form', 'upload', 'layer', 'laydate', 'element', 'view', 'element', 'public'], function () {
+        var setter = layui.setter,
+            $ = layui.jquery,
+            admin = layui.admin,
+            upload = layui.upload,
+            layer = layui.layer,
+            table = layui.table,
+            form = layui.form,
+            view = layui.view,
+            tool = layui.public.tool,
+            element = layui.element,
+            laydate = layui.laydate;
+        var banner_pic = '';
+        var jump_id = '' //跳转类型的id
+        var jump_type_list = [] // 跳转类型
+        form.render();
+        var field = {
+            region: '',
+            banner_type: '',
+            status: '',
+            content_type: '1'
+        }
+        //tab切换
+        element.on('tab(videTab)', function (data) {
+            if (data.index == 0) {
+                field.content_type = "1"
+                render_table1(field);
+            } else if (data.index == 1) {
+                field.content_type = "2"
+                render_table2(field);
+            }
+        });
+        //搜索
+        form.on('submit(search7)', function (data) {
+            console.log(data)
+            data.field.content_type = field.content_type
+            field.region = data.field.region
+            field.content_type = data.field.content_type
+            field.status = data.field.status
+            if (field.content_type == '1') {
+                render_table1(data.field);
+            } else if (field.content_type == '2') {
+                render_table2(data.field);
+            }
+        });
+        showLocal();
+        //显示位置
+        function showLocal() {
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=banner/region/getRegionList',
+                success: function (res) {
+                    if (res.code == 0) {
+                        $('.local').empty()
+                        $('.local').append(`<option value="">请选择</option>`)
+                        var dataList = res.data
+                        dataList.forEach(item => {
+                            $('.local').append(
+                                `<option value=${item.id}>${item.banner_region_name}</option>`
+                            )
+                        });
+                        layui.form.render("select");
+                    }
+                }
+            })
+        }
+
+        function showType() {
+            //跳转类型
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=banner/jump/getJumpTypeList',
+                success: function (res) {
+                    if (res.code == 0) {
+                        jump_type_list = res.data
+                        jump_type_list.forEach(item => {
+                            $('.jump').append(
+                                `<option value=${item.id}>${item.jump_type_name}</option>`
+                            )
+                        });
+                        layui.form.render("select");
+                    }
+                }
+            })
+        }
+
+        var render_table1 = function (data) {
+            table.render({
+                elem: '#table',
+                url: layui.setter.requestUrl + 'api.php?c=banner/getBannerList',
+                where: data,
+                cols: [
+                    [{
+                        field: 'id',
+                        title: '编号',
+                        align: 'center'
+                    }, {
+                        field: 'url',
+                        title: '缩略图',
+                        align: 'center',
+                        width: 90,
+                        templet: function (d) {
+                            var src = layui.setter.CDN + d.banner_pic
+                            var str =
+                                `<img src = ${src} style="cursor:pointer;width:30px;height:30px" lay-event = 'enlarge'></img>`
+                            return str
+                        }
+                    }, {
+                        field: 'region_name',
+                        title: '显示位置',
+                        align: 'center'
+                    }, {
+                        field: 'jump_type_name',
+                        align: 'center',
+                        title: '跳转类型'
+                    }, {
+                        field: 'banner_des',
+                        align: 'center',
+                        title: '描述',
+                        templet: function (d) {
+                            return d.banner_des == '' ? '暂无' : d.banner_des
+                        }
+                    }, {
+                        field: 'sort',
+                        align: 'center',
+                        title: '排序值',
+                        templet: function (d) {
+                            var div = `<div>
+                                        <input style="text-align:center;width:60px" class="save" type="number" value='${d.sort}'>
+                                        <a class="layui-btn layui-btn-sm layui-btn-danger"  lay-event="saveSort">保存</a>
+                                       </div>`
+                            return [div]
+                        }
+                    }, {
+                        field: 'add_time',
+                        align: 'center',
+                        title: '添加时间',
+                        width: 160,
+                        templet: '<div>{{ layui.common.createTime(d.add_time) }}</div>'
+                    }, {
+                        field: 'status',
+                        align: 'center',
+                        title: '状态',
+                        templet: function (d) {
+                            var str = d.status == '1' ? '上线' : '下线'
+                            return str
+                        }
+                    }, {
+                        field: 'right',
+                        align: 'center',
+                        title: '操作',
+                        width: 220,
+                        templet: function (d) {
+                            return `<button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="del">删除</button>
+                                <button class="layui-btn layui-btn-sm" lay-event="edit">编辑</button>
+                                <button class="layui-btn layui-btn-normal layui-btn-sm" lay-event="up">${d.status=='1'?'下线':'立即上线'}</button>`
+                        }
+                    }]
+                ],
+                page: true
+            });
+        }
+        //先自调用请求渲染数据
+        render_table1(field);
+        table.on('tool(table)', function (obj) {
+            var data = obj.data; //获得当前行数据
+            var layEvent = obj.event; //获得 lay-event 对应的值
+            if (layEvent == 'enlarge') {
+                var src = layui.setter.CDN + data.banner_pic
+                layer.open({
+                    type: 1,
+                    title: false,
+                    area: ['auto'],
+                    shadeClose: true, //点击遮罩关闭
+                    content: `<img src = ${src} style="width:600px;height:500px"></img>`
+                });
+            } else if (layEvent == 'del') {
+                layer.confirm('确定删除？', {
+                    btn: ['确定', '取消'] //按钮
+                }, function (index) {
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=banner/delBanner',
+                        data: {
+                            id: data.id
+                        },
+                        success: function (res) {
+                            if (res.code == 0) {
+                                layer.msg('删除成功', {
+                                    icon: 1
+                                })
+                                layer.close(index)
+                                render_table1(field);
+                            }
+                        }
+                    })
+                }, function (index) {
+                    layer.close(index)
+                });
+            } else if (layEvent == 'saveSort') {
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=banner/changeBannerSort',
+                    data: {
+                        id: data.id,
+                        sort: $(this).siblings('.save').val()
+                    },
+                    success: function (res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg);
+                            parent.layui.table.reload("table");
+                        } else {
+                            layer.msg(res.msg);
+                        }
+                    }
+                })
+            } else if (layEvent == 'edit') {
+                admin.popup({
+                    id: 'addBanner',
+                    title: '编辑轮播图',
+                    area: ['800px', '600px'],
+                    success: function () {
+                        view(this.id).render('/template/news/addBanner', data);
+                    }
+                });
+            } else if (layEvent == 'up') {
+                var type = ""
+                if (data.status == '1') {
+                    type = '2'
+                } else {
+                    type = '1'
+                }
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=banner/changeBanner',
+                    data: {
+                        id: data.id,
+                        type: type
+                    },
+                    success: function (res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg);
+                            parent.layui.table.reload("table");
+                        } else {
+                            layer.msg(res.msg);
+                        }
+                    }
+                })
+            }
+        });
+        $('.add_jump_link').click(function () {
+            var title = ''
+            var jump_id = $(this).attr('id')
+            if (jump_id == '1') {
+                title = '添加轮播图（无跳转）'
+            } else if (jump_id == '2') {
+                title = '添加轮播图（跳转链接）'
+            } else {
+                title = '添加轮播图（跳转页面）'
+            }
+            showLocal();
+            admin.popup({
+                id: 'addBanner',
+                title: title,
+                area: ['800px', '600px'],
+                success: function () {
+                    view(this.id).render('/template/news/addBanner', {
+                        jump_id: jump_id
+                    });
+                }
+            });
+        })
+
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~视频~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        var render_table2 = function (data) {
+            table.render({
+                elem: '#table1',
+                url: layui.setter.requestUrl + 'api.php?c=banner/getBannerList',
+                where: data,
+                cols: [
+                    [{
+                        field: 'id',
+                        title: '编号',
+                        align: 'center'
+                    }, {
+                        field: 'video_url',
+                        title: '视频',
+                        align: 'center',
+                        width: 90,
+                        templet: function (d) {
+                            var src = layui.setter.CDN + d.video_url
+                            var str =
+                                `<video src = ${src} style="cursor:pointer;width:30px;height:30px" lay-event = 'enlarge1'></video>`
+                            return str
+                        }
+                    }, {
+                        field: 'video_cover',
+                        title: '封面',
+                        align: 'center',
+                        width: 90,
+                        templet: function (d) {
+                            var src = layui.setter.CDN + d.video_cover
+                            var str =
+                                `<img src = ${src} style="cursor:pointer;width:30px;height:30px" lay-event = 'enlarge'></img>`
+                            return str
+                        }
+                    }, {
+                        field: 'region_name',
+                        title: '显示位置',
+                        align: 'center'
+                    }, {
+                        field: 'jump_type_name',
+                        align: 'center',
+                        title: '跳转类型'
+                    }, {
+                        field: 'banner_des',
+                        align: 'center',
+                        title: '描述',
+                        templet: function (d) {
+                            return d.banner_des == '' ? '暂无' : d.banner_des
+                        }
+                    }, {
+                        field: 'sort',
+                        align: 'center',
+                        title: '排序值',
+                        width: 160,
+                        templet: function (d) {
+                            var div = `<div>
+                                        <input style="text-align:center;width:60px" class="save" type="number" value='${d.sort}'>
+                                        <a class="layui-btn layui-btn-sm layui-btn-danger"  lay-event="saveSort">保存</a>
+                                       </div>`
+                            return [div]
+                        }
+                    }, {
+                        field: 'add_time',
+                        align: 'center',
+                        title: '添加时间',
+                        width: 160,
+                        templet: '<div>{{ layui.common.createTime(d.add_time) }}</div>'
+                    }, {
+                        field: 'status',
+                        align: 'center',
+                        title: '状态',
+                        templet: function (d) {
+                            var str = d.status == '1' ? '上线' : '下线'
+                            return str
+                        }
+                    }, {
+                        field: 'right',
+                        align: 'center',
+                        title: '操作',
+                        width: 220,
+                        templet: function (d) {
+                            return `<button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="del">删除</button>
+                                <button class="layui-btn layui-btn-sm" lay-event="edit">编辑</button>
+                                <button class="layui-btn layui-btn-normal layui-btn-sm" lay-event="up">${d.status=='1'?'下线':'立即上线'}</button>`
+                        }
+                    }]
+                ],
+                page: true
+            });
+        }
+
+        $('.add_jump_link1').click(function () {
+            var title = ''
+            var jump_id = $(this).attr('id')
+            if (jump_id == '2') {
+                title = '添加轮播视频（跳转链接）'
+            } else if (jump_id == '1') {
+                title = '添加轮播视频（无跳转）'
+            } else {
+                title = '添加轮播视频（跳转页面）'
+            }
+            showLocal();
+            admin.popup({
+                id: 'addVideo',
+                title: title,
+                area: ['800px', '600px'],
+                success: function () {
+                    view(this.id).render('/template/news/addVideo', {
+                        jump_id: jump_id
+                    });
+                }
+            });
+        })
+        table.on('tool(table1)', function (obj) {
+            var data = obj.data; //获得当前行数据
+            var layEvent = obj.event; //获得 lay-event 对应的值
+            if (layEvent == 'enlarge') {
+                var src = layui.setter.CDN + data.video_cover
+                layer.open({
+                    type: 1,
+                    title: false,
+                    area: ['auto'],
+                    shadeClose: true, //点击遮罩关闭
+                    content: `<img src = ${src} style="width:600px;height:500px"></img>`
+                });
+            } else if (layEvent == 'enlarge1') {
+                var src = layui.setter.CDN + data.video_url
+                layer.open({
+                    type: 1,
+                    title: false,
+                    area: ['auto'],
+                    shadeClose: true, //点击遮罩关闭
+                    content: `<video src = ${src} style="width:600px;height:500px" controls="controls"></video>`
+                });
+            } else if (layEvent == 'del') {
+                layer.confirm('确定删除？', {
+                    btn: ['确定', '取消'] //按钮
+                }, function (index) {
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=banner/delBanner',
+                        data: {
+                            id: data.id
+                        },
+                        success: function (res) {
+                            if (res.code == 0) {
+                                layer.msg('删除成功', {
+                                    icon: 1
+                                })
+                                layer.close(index)
+                                render_table2(field);
+                            }
+                        }
+                    })
+                }, function (index) {
+                    layer.close(index)
+                });
+            } else if (layEvent == 'saveSort') {
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=banner/changeBannerSort',
+                    data: {
+                        id: data.id,
+                        sort: $(this).siblings('.save').val()
+                    },
+                    success: function (res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg);
+                            parent.layui.table.reload("table1");
+                        } else {
+                            layer.msg(res.msg);
+                        }
+                    }
+                })
+            } else if (layEvent == 'edit') {
+                admin.popup({
+                    id: 'addVideo',
+                    title: '编辑轮播视频',
+                    area: ['800px', '600px'],
+                    success: function () {
+                        view(this.id).render('/template/news/addVideo', data);
+                    }
+                });
+            } else if (layEvent == 'up') {
+                var type = ""
+                if (data.status == '1') {
+                    type = '2'
+                } else {
+                    type = '1'
+                }
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=banner/changeBanner',
+                    data: {
+                        id: data.id,
+                        type: type
+                    },
+                    success: function (res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg);
+                            parent.layui.table.reload("table1");
+                        } else {
+                            layer.msg(res.msg);
+                        }
+                    }
+                })
+            }
+        });
+    })
+    layui.use('checkTask', layui.factory('checkTask'));
+</script>

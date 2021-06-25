@@ -1,0 +1,159 @@
+<style>
+
+    .layui-form-select {
+        width: 250px;
+    }
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <form class="layui-form" action="">
+
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:125px">银行名称：</label>
+            <div class="layui-input-block">
+                <input name="bank_name" type="text" lay-verify="required" value="{{d.params.bank_name || ''}}" cols="30" rows="10" placeholder="输入内容" style="padding:10px;margin-right:5px;"></input>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:125px">银行类型：</label>
+            <div class="layui-input-block bank_type">
+                <input type="radio" name="bank_type" value="1" title="传统银行" lay-filter="radio" checked>
+                <input type="radio" name="bank_type" value="2" title="支付宝" lay-filter="radio">
+                <input type="radio" name="bank_type" value="3" title="微信" lay-filter="radio">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:125px">支持提现：</label>
+            <div class="layui-input-block is_used">
+                <input type="radio" name="is_used" value="1" title="是" lay-filter="radio" checked>
+                <input type="radio" name="is_used" value="0" title="否" lay-filter="radio">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:125px">银行logo：</label>
+            <div class="layui-upload layui-input-inline" style="width:125px">
+                <img src="/ShptControl/src/images/upImg.png" class="layui-upload-img" id="uploadLogo" style='width:96px;height:96px;cursor: pointer;'>
+            </div>
+            <div style="color:rgba(212, 48, 48, 1);display:inline-block">
+                <p>提示：建议图片尺寸100*100</p>
+                <p>支持png、jpg格式</p>
+                <p>透明背景的图片更好</p>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:125px">菜单排序：</label>
+            <div class="layui-input-block">
+                <input name="sort" type="number" lay-verify="required" value="{{d.params.sort || ''}}" cols="30" rows="10" placeholder="输入内容" style="padding:10px;margin-right:5px;width:80px"></input>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:125px">备注信息：</label>
+            <div class="layui-input-block">
+                <textarea name="bank_note" id="bank_note" cols="40" rows="5" placeholder="输入内容" style="padding:10px"></textarea>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="width:200px;">
+                <button type="submit" class="layui-btn" style="width:100%; margin-left:100px" lay-submit="" lay-filter="submit">确定</button>
+            </div>
+        </div>
+    </form>
+
+</script>
+
+
+<script>
+    layui.data.sendParams = function(params) {
+        layui.use(['admin', 'element', 'form', 'upload', 'public'], function() {
+            var admin = layui.admin;
+            var form = layui.form;
+            var upload = layui.upload;
+            var $ = layui.jquery,
+                element = layui.element;
+            var bank_logo = ''; //银行logo
+            var base = new layui.public.Base64(); //银行logo
+
+            if (params.id) {
+                $('.bank_type').empty()
+                $('.is_used').empty()
+                if (params.bank_type == '1') {
+                    $('.bank_type').append(`
+                        <input type="radio" name="bank_type" value="1" title="传统银行"  lay-filter="radio" checked>
+                        <input type="radio" name="bank_type" value="2" title="支付宝"  lay-filter="radio">
+                        <input type="radio" name="bank_type" value="3" title="微信"  lay-filter="radio">
+                    `)
+                } else if (params.bank_type == '2') {
+                    $('.bank_type').append(`
+                        <input type="radio" name="bank_type" value="1" title="传统银行"  lay-filter="radio">
+                        <input type="radio" name="bank_type" value="2" title="支付宝"  lay-filter="radio" checked>
+                        <input type="radio" name="bank_type" value="3" title="微信"  lay-filter="radio">
+                    `)
+                } else {
+                    $('.bank_type').append(`
+                        <input type="radio" name="bank_type" value="1" title="传统银行"  lay-filter="radio">
+                        <input type="radio" name="bank_type" value="2" title="支付宝"  lay-filter="radio">
+                        <input type="radio" name="bank_type" value="3" title="微信"  lay-filter="radio" checked>
+                    `)
+                }
+                if (params.is_used == '1') {
+                    $('.is_used').append(`
+                        <input type="radio" name="is_used" value="1" title="是"  lay-filter="radio" checked>
+                        <input type="radio" name="is_used" value="0" title="否"  lay-filter="radio">
+                    `)
+                } else {
+                    $('.is_used').append(`
+                        <input type="radio" name="is_used" value="1" title="是"  lay-filter="radio">
+                        <input type="radio" name="is_used" value="0" title="否"  lay-filter="radio" checked>
+                    `)
+                }
+                bank_logo = params.logo
+                $('#uploadLogo').attr("src", layui.setter.CDN + params.logo);
+                $('#bank_note').html(base.decode(params.bank_note))
+            }
+            form.render()
+                //银行logo
+            upload.render({
+                elem: '#uploadLogo',
+                url: layui.setter.requestUrl + 'api.php?c=uploadImg/uploadImage',
+                data: {
+                    module: 'bank'
+                },
+                drag: true,
+                done: function(res, index, upload) { //上传后的回调
+                    if (res.code == 0) {
+                        $('#uploadLogo').attr("src", layui.setter.CDN + res.data);
+                        bank_logo = res.data
+                    } else {
+                        layer.msg(res.msg);
+                    };
+                }
+            });
+            form.on('submit(submit)', function(data) {
+                if (bank_logo == '') {
+                    layer.msg('请上传银行logo')
+                    return false
+                }
+                data.field.bank_logo = bank_logo
+                if (params.id) {
+                    data.field.id = params.id
+                }
+                delete data.field.file
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=bank/addModifyWithdrawBankCard',
+                    data: data.field,
+                    success: function(res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg);
+                            layer.closeAll();
+                            parent.layui.table.reload("bankTable");
+                        } else {
+                            layer.msg(res.msg);
+                        }
+                    }
+                })
+                return false;
+            });
+
+        })
+    }
+</script>

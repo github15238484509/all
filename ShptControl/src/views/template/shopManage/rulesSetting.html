@@ -1,0 +1,387 @@
+<style>
+    .tabMsg {
+        display: flex;
+        padding: 20px;
+        border-radius: 10px;
+    }
+    
+    .tabMsg>div {
+        width: 200px;
+        height: 30px;
+        text-align: center;
+        line-height: 30px;
+        font-size: 14px;
+        color: rgba(42, 130, 228, 1);
+        border: 1px solid rgba(42, 130, 228, 1);
+        cursor: pointer;
+        margin-left: -1px;
+    }
+    
+    .tabMsg .current {
+        color: #fff;
+        background-color: rgba(42, 130, 228, 1);
+    }
+    
+    .form {
+        background-color: #fff;
+    }
+    
+    .layui-table-cell {
+        height: auto !important;
+        line-height: 20px !important;
+    }
+    
+    .card-box {
+        width: 100%;
+        background-color: #f5f5f5;
+        padding: 10px 10px;
+    }
+    
+    .content {
+        background-color: #f5f5f5;
+        padding: 10px 10px;
+    }
+    
+    .content-box {
+        padding-top: 10px;
+        padding-left: 10px;
+        background-color: #ffffff;
+        height: 390px;
+        font-size: 16px;
+        line-height: 36px;
+    }
+    
+    .btn {
+        margin-top: 50px;
+        margin-left: 50px;
+        width: 300px;
+        height: 50px;
+        line-height: 50px;
+        color: #ffffff;
+        font-size: 16px;
+        background-color: rgba(42, 130, 228, 1);
+        text-align: center;
+        border-radius: 10px;
+    }
+    
+    .ipt {
+        width: 79px;
+        height: 31px;
+        padding-left: 3px;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>系统配置</cite></a>
+        <a><cite>分润规则设置</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+        class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+        id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+<div class="card-box">
+    <div class="layui-card">
+        <div class=" tabMsg">
+            <div class="current status1">组长</div>
+            <div class="status2">团长</div>
+            <div class="status3">拼购设置</div>
+            <div class="status4">鸿运勋章鼓励</div>
+            <!-- <div class="status5">全国代理</div>
+            <div class="status6">城市代理</div> -->
+        </div>
+    </div>
+</div>
+<div class="content">
+    <div class="content-box">
+        <!-- 组长 -->
+        <div class="content-box-item1">
+            <form class="layui-form" action="" lay-filter="form1">
+                一、分润设置
+                <br> 团队内成员每参与一次拼团，获得服务费，每日结算一次，服务费奖励如下<br> 1.
+                <input class="ipt intNum" min="0" name="rank2_key1" type="number" placeholder="输入内容">人次以下每人次
+                <input class="ipt" min="0" name="rank2_key2" type="number" placeholder="输入内容">元服务费
+
+                <br>
+                <div style="height: 10px;"></div> 2.
+                <input class="ipt intNum" min="0" name="rank2_key3" type="number" placeholder="输入内容">人次以上至
+                <input class="ipt intNum" min="0" name="rank2_key4" type="number" placeholder="输入内容">人次一下，每人次获得
+                <input class="ipt" min="0" name="rank2_key5" type="number" placeholder="输入内容">元服务费
+
+                <br>
+                <div style="height: 10px;"></div> 3.
+                <input class="ipt intNum" min="0" name="rank2_key6" type="number" placeholder="输入内容">人次以上至
+                <input class="ipt intNum" min="0" name="rank2_key7" type="number" placeholder="输入内容">人次一下，每人次获得
+                <input class="ipt" min="0" name="rank2_key8" type="number" placeholder="输入内容">元服务费
+                <br>
+                <div style="height: 10px;"></div>4.
+                <input class="ipt intNum" min="0" name="rank2_key9" type="number" placeholder="输入内容">人次以上每人次获得
+                <input class="ipt" min="0" name="rank2_key10" type="number" placeholder="输入内容">元服务费。
+                <br> 二、升级规则
+                <br>1.自己参与拼购活动抢中<input class="ipt intNum" min="0" name="rank2_key11" type="number" placeholder="输入内容">次， 或成功邀请
+                <input class="ipt intNum" min="0" name="rank2_key12" type="number" placeholder="输入内容">个好友参与拼购，可升级为组长
+                <div class="btn btn1">确定</div>
+            </form>
+        </div>
+        <!-- 团长 -->
+        <div class="content-box-item1" style="display: none;">
+            <form class="layui-form" action="" lay-filter="form2">
+                一、分润设置
+                <br> 团队内成员每参与一次拼团，获得服务费，每日结算一次，服务费奖励如下<br> 1.
+                <input class="ipt intNum" min="0" name="rank3_key1" type="number" placeholder="输入内容">人次以下每人次
+                <input class="ipt" min="0" name="rank3_key2" type="number" placeholder="输入内容">元服务费
+                <br>
+                <div style="height: 10px;"></div> 2.
+                <input class="ipt intNum" min="0" name="rank3_key3" type="number" placeholder="输入内容">人次以上至
+                <input class="ipt intNum" min="0" name="rank3_key4" type="number" placeholder="输入内容">人次一下，每人次获得
+                <input class="ipt" min="0" name="rank3_key5" type="number" placeholder="输入内容">元服务费
+                <br>
+                <div style="height: 10px;"></div> 3.
+                <input class="ipt intNum" min="0" name="rank3_key6" type="number" placeholder="输入内容">人次以上至
+                <input class="ipt intNum" min="0" name="rank3_key7" type="number" placeholder="输入内容">人次一下，每人次获得
+                <input class="ipt" min="0" name="rank3_key8" type="number" placeholder="输入内容">元服务费
+                <br>
+                <div style="height: 10px;"></div>4.
+                <input class="ipt intNum" min="0" name="rank3_key9" type="number" placeholder="输入内容">人次以上每人次获得
+                <input class="ipt" min="0" name="rank3_key10" type="number" placeholder="输入内容">元服务费。
+                <br> 二、升级规则
+                <br>1.自己参与拼购活动抢中<input class="ipt intNum" min="0" name="rank3_key11" type="number" placeholder="输入内容">次， 或成功邀请
+                <input class="ipt intNum" min="0" name="rank3_key12" type="number" placeholder="输入内容">个好友参与拼购，可升级为团长
+                <div class="btn btn2">确定</div>
+            </form>
+        </div>
+        <!-- 拼购设置 -->
+        <div class="content-box-item1" style="display: none;">
+            <form class="layui-form" action="" lay-filter="form3">
+                1.会员注册平台登陆，获得
+                <input class="ipt" name="group1" type="number" placeholder="输入内容">金币奖励。
+                <br>
+                <div style="height: 10px;"></div>2.会员每次参与拼购，消耗
+                <input class="ipt" name="group2" type="number" placeholder="输入内容">金币。
+                <br>
+                <div style="height: 10px;"></div> 3.会员每次参与拼购，抢购失败则获得参与拼购商品全额的
+                <input class="ipt" name="group3" type="number" placeholder="输入内容">%的奖励，并退款
+                <br>
+                <div style="height: 10px;"></div>4.会员开启轻松拼购，拼团本金需要满足<input class="ipt" name="group4" type="number" placeholder="输入内容">元金额。
+                <br>
+                <div style="height: 10px;"></div>5.每个账号（以手机号为唯一 ）每天最高参与<input class="ipt intNum" name="group5" type="number" placeholder="输入内容">个拼购轮次。
+                <br>
+                <div style="height: 10px;"></div>6.拼购商品在结束时间前<input class="ipt" name="group6" type="number" placeholder="输入内容">分钟，禁止会员参团购买商品<span style="color: red;">提示：时间不能大于30分钟</span>
+                <div class="btn btn3">确定</div>
+            </form>
+        </div>
+        <!-- 鸿运勋章鼓励 -->
+        <div class="content-box-item1" style="display: none;">
+            <form class="layui-form" action="" lay-filter="form4">
+                1.会员参与拼购中
+                <input class="ipt intNum" min="0" name="zhang1" type="number" placeholder="输入内容"> 次，可获得 一枚鸿运勋章，并获得现金奖励。
+                <br>
+                <div class="btn btn4">确定</div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'table', 'laydate', 'common', 'public',
+            'form'
+        ],
+        function() {
+            var $ = layui.$,
+                admin = layui.admin,
+                laydate = layui.laydate,
+                view = layui.view,
+                table = layui.table,
+                form = layui.form,
+                IsshowAnNiu = layui.common.IsshowAnNiu;
+            var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+            var base = new layui.public.Base64();
+            var cols = []
+            var tool = layui.public.tool;
+            var base = new layui.public.Base64();
+            var field = {
+                type: '1', //审核状态
+                start: '',
+                end: '',
+                pass_start: '',
+                pass_end: ''
+            }
+
+            // 默认请求第一条数据   后面的放到点击再请求 要不数据量太大
+            getPreNum("rank2_key1,rank2_key2,rank2_key3,rank2_key4,rank2_key5,rank2_key6,rank2_key7,rank2_key8,rank2_key9,rank2_key10,rank2_key11,rank2_key12", 1);
+
+            function getPreNum(data, num) {
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=configJson/getBaseConfig',
+                    type: 'post',
+                    data: {
+                        key: data,
+
+                    },
+                    done: function(res) {
+                        switch (num) {
+                            case 1:
+                                form.val('form1', {
+                                    "rank2_key1": res.data.rank2_key1, // "name": "value"
+                                    "rank2_key2": res.data.rank2_key2 / 100, // "name": "value"
+                                    "rank2_key3": res.data.rank2_key3, // "name": "value"
+                                    "rank2_key4": res.data.rank2_key4, // "name": "value"
+                                    "rank2_key5": res.data.rank2_key5 / 100, // "name": "value"
+                                    "rank2_key6": res.data.rank2_key6, // "name": "value"
+                                    "rank2_key7": res.data.rank2_key7, // "name": "value"
+                                    "rank2_key8": res.data.rank2_key8 / 100, // "name": "value"
+                                    "rank2_key9": res.data.rank2_key9, // "name": "value"
+                                    "rank2_key10": res.data.rank2_key10 / 100, // "name": "value"
+                                    "rank2_key11": res.data.rank2_key11, // "name": "value"
+                                    "rank2_key12": res.data.rank2_key12, // "name": "value"
+
+
+                                });
+                                break;
+                            case 2:
+                                form.val('form2', {
+                                    "rank3_key1": res.data.rank3_key1, // "name": "value"
+                                    "rank3_key2": res.data.rank3_key2 / 100, // "name": "value"
+                                    "rank3_key3": res.data.rank3_key3, // "name": "value"
+                                    "rank3_key4": res.data.rank3_key4, // "name": "value"
+                                    "rank3_key5": res.data.rank3_key5 / 100, // "name": "value"
+                                    "rank3_key6": res.data.rank3_key6, // "name": "value"
+                                    "rank3_key7": res.data.rank3_key7, // "name": "value"
+                                    "rank3_key8": res.data.rank3_key8 / 100, // "name": "value"
+                                    "rank3_key9": res.data.rank3_key9, // "name": "value"
+                                    "rank3_key10": res.data.rank3_key10 / 100, // "name": "value"
+                                    "rank3_key11": res.data.rank3_key11, // "name": "value"
+                                    "rank3_key12": res.data.rank3_key12, // "name": "value"
+                                });
+                                break;
+                            case 3:
+                                form.val('form3', {
+                                    "group1": res.data.group1 / 100,
+                                    "group2": res.data.group2 / 100,
+                                    "group3": res.data.group3,
+                                    "group4": res.data.group4 / 100,
+                                    "group5": res.data.group5,
+                                    "group6": res.data.group6,
+                                });
+                                break;
+                            case 4:
+                                form.val('form4', {
+                                    "zhang1": res.data.zhang1,
+                                    "zhang2": res.data.zhang2,
+                                });
+                                break;
+                        }
+
+                    }
+                });
+            }
+
+
+
+            //tab切换
+            $(".tabMsg>div").click(function() {
+                var index = $(".tabMsg div").index(this);
+                var data = null
+                if (index == 0) {
+                    data = "rank2_key1,rank2_key2,rank2_key3,rank2_key4,rank2_key5,rank2_key6,rank2_key7,rank2_key8,rank2_key9,rank2_key10,rank2_key11,rank2_key12"
+                }
+                if (index == 1) {
+                    data = "rank3_key1,rank3_key2,rank3_key3,rank3_key4,rank3_key5,rank3_key6,rank3_key7,rank3_key8,rank3_key9,rank3_key10,rank3_key11,rank3_key12"
+                }
+                if (index == 2) {
+                    data = "group1,group2,group3,group4,group5,group6"
+                }
+                if (index == 3) {
+                    data = "zhang1,zhang2"
+                }
+                getPreNum(data, index + 1);
+
+                $(this).addClass('current').siblings().removeClass('current');
+
+                $(".content-box>div").eq(index).show()
+                console.log($(".content-box>div").eq(index))
+                $(".content-box>div").eq(index).siblings().hide()
+            });
+
+
+            // layui.$(".intNum").on("input", function(e) {
+            //     let a = parseInt(e.target.value).toFixed()
+            //     this.value = a
+            // })
+            layui.$('.btn1').on('click', function() {
+                var data = form.val('form1');
+                data.rank2_key2 = data.rank2_key2 * 100
+                data.rank2_key5 = data.rank2_key5 * 100
+                data.rank2_key8 = data.rank2_key8 * 100
+                data.rank2_key10 = data.rank2_key10 * 100
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=configJson/setBaseConfig',
+                    type: 'post',
+                    data: {...data,
+                        type: 7
+                    },
+                    done: function(res) {
+                        layer.msg(res.msg);
+                    }
+                });
+
+            });
+            layui.$('.btn2').on('click', function() {
+                var data = form.val('form2');
+                data.rank3_key2 = data.rank3_key2 * 100
+                data.rank3_key5 = data.rank3_key5 * 100
+                data.rank3_key8 = data.rank3_key8 * 100
+                data.rank3_key10 = data.rank3_key10 * 100
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=configJson/setBaseConfig',
+                    type: 'post',
+                    data: {
+                        ...data,
+                        type: 8
+                    },
+                    done: function(res) {
+                        layer.msg(res.msg);
+                    }
+                });
+            });
+            layui.$('.btn3').on('click', function() {
+                var data = form.val('form3');
+                data.group1 = data.group1 * 100
+                data.group2 = data.group2 * 100
+                data.group4 = data.group4 * 100
+                if (data.group6 > 30) {
+                    layer.msg("时间不能大于大30分钟")
+                    return false
+                }
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=configJson/setBaseConfig',
+                    type: 'post',
+                    data: {
+                        ...data,
+                        type: 10
+
+                    },
+                    done: function(res) {
+                        layer.msg(res.msg);
+                    }
+                });
+            });
+            layui.$('.btn4').on('click', function() {
+                var data = form.val('form4');
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=configJson/setBaseConfig',
+                    type: 'post',
+                    data: {
+                        ...data,
+                        type: 11
+
+                    },
+                    done: function(res) {
+                        layer.msg(res.msg);
+                    }
+                });
+            });
+        });
+</script>

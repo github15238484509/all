@@ -1,0 +1,250 @@
+<style>
+    .tabMsg {
+        display: flex;
+        padding: 20px;
+    }
+    
+    .tabMsg>div {
+        width: 200px;
+        height: 30px;
+        text-align: center;
+        line-height: 30px;
+        font-size: 14px;
+        color: rgba(42, 130, 228, 1);
+        border: 1px solid rgba(42, 130, 228, 1);
+        cursor: pointer;
+        margin-left: -1px;
+    }
+    
+    .tabMsg .current {
+        color: #fff;
+        background-color: rgba(42, 130, 228, 1);
+    }
+    
+    .form {
+        background-color: #fff;
+    }
+    
+    .layui-table-cell {
+        height: auto !important;
+        line-height: 20px !important;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">首页</a>
+        <a><cite>营销管理</cite></a>
+        <a><cite>拼中会员管理</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto form" lay-filter="app-content-list">
+        <div class="layui-form-item">
+
+            <label class="layui-form-label">地区筛选：</label>
+            <div class="layui-input-inline">
+                <select name="province" class="province" lay-filter="province">
+                        <option value="">请选择省</option>
+                    </select>
+            </div>
+            <div class="layui-input-inline">
+                <select name="city" class="city" lay-filter="city">
+                        <option value="">请选择市</option>
+                    </select>
+            </div>
+            <div class="layui-input-inline">
+                <select name="district" class="district" lay-filter="district">
+                        <option value="">请选择县/区</option>
+                    </select>
+            </div>
+            <label class="layui-form-label">激活状态:</label>
+            <div class="layui-input-inline">
+                <div class="layui-input-inline">
+                    <select name="is_open" class="">
+                        <option value="-1">请选择</option>
+                        <option value="0">否</option>
+                        <option value="1">是</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">会员昵称:</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="goods_name" class="layui-input" placeholder=" 请输入内容">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">会员手机号:</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="goods_name" class="layui-input" placeholder=" 请输入内容">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="sea4465rch">
+                    <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>搜索
+                </button>
+            </div>
+        </div>
+    </div>
+    </form>
+    <table class="layui-hide" id="commentTable" lay-filter="commentTable"></table>
+</div>
+
+<script>
+    layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'table', 'laydate', 'common', 'public', 'form'], function() {
+        var $ = layui.$,
+            admin = layui.admin,
+            laydate = layui.laydate,
+            view = layui.view,
+            table = layui.table,
+            form = layui.form,
+            IsshowAnNiu = layui.common.IsshowAnNiu;
+        var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+        var base = new layui.public.Base64();
+        var cols = []
+        var tool = layui.public.tool;
+        var base = new layui.public.Base64();
+        var field = {
+            goods_name: '',
+            goods_name: '',
+            province: '',
+            city: '',
+            district: '',
+            is_open: '-1'
+        }
+        tool.linkage({
+            province: 'province',
+            city: 'city',
+            county: 'district',
+            success: function(province, city, county) {
+                console.log(province);
+                console.log(city);
+                console.log(county);
+            }
+        });
+        form.on('submit(sea4465rch)', function(data) {
+            field.goods_name = data.field.goods_name;
+            field.province = data.field.province;
+            field.city = data.field.city;
+            field.district = data.field.district;
+            field.is_open = data.field.is_open;
+            render_table(field);
+            return false;
+        });
+        form.render()
+
+        //渲染表格数据
+        var render_table = function(data) {
+                cols = [
+                    [{
+                        title: '序号 ',
+                        align: 'center',
+                        field: 'group_goods_id',
+                        width: 80,
+                        type: 'numbers'
+                    }, {
+                        field: 'group_name',
+                        title: '会员信息',
+                        align: 'center',
+                        templet: function(d) {
+                            return `
+                            <p>昵称/姓名:${d.name}</p>
+                            <p>手机号:${d.phone}</p>
+                            `
+                        }
+                    }, {
+                        field: 'group_name',
+                        title: '地区',
+                        align: 'center',
+                        templet: function(d) {
+                            return `${d.province_name}${d.city_name}${d.district_name}`
+                        }
+                    }, {
+                        field: 'area_index',
+                        title: '团队编号',
+                        align: 'center',
+                    }, {
+                        field: 'join_num',
+                        title: '参与次数',
+                        align: 'center',
+                    }, {
+                        field: 'get_num',
+                        title: '抢中次数',
+                        align: 'center',
+                    }, {
+                        field: 'zhang_num',
+                        title: '勋章数量',
+                        align: 'center',
+                    }, {
+                        field: 'zhang_money',
+                        align: 'center',
+                        title: '勋章奖励金额',
+                        templet: function(d) {
+                            return d.zhang_money / 100
+                        }
+                    }, {
+                        field: 'is_open',
+                        align: 'center',
+                        title: '激活状态',
+                        templet: function(d) {
+                            return d.is_open == 0 ? '否' : '是'
+                        }
+                    }, {
+                        align: 'center',
+                        title: '操作',
+                        width: 320,
+                        templet: function(d) {
+                            return `
+                                <button class="layui-btn" lay-event="details1">参与详情</button>
+                                `
+                        }
+                    }]
+                ]
+
+                table.render({
+                    elem: '#commentTable',
+                    url: layui.setter.requestUrl + 'api.php?c=group_join/getJoinUserList',
+                    where: data,
+                    cellMinWidth: 120,
+                    cols: cols,
+                    page: true,
+                    parseData: function(res) {
+                        // $('.wait_count').html('待审核' + '&nbsp;' + res.data.wait_count)
+                        // $('.yyz').html('营业中' + '&nbsp;' + res.data.success_count)
+                        return {
+                            "count": res.count, //解析接口状态
+                            "code": res.code, //解析接口状态
+                            "data": res.data //解析数据列表
+                        };
+                    },
+                });
+            }
+            //先自调用请求渲染数据
+        render_table(field);
+        table.on('tool(commentTable)', function(obj) { //注：tool table 是 table  lay-filter="对应的值"
+            var data = obj.data; //获得当前行数据
+            var layEvent = obj.event; //获得 lay-event 对应的值
+            if (layEvent == 'enlarge') {
+                data.img = data.goods_icon
+                tool.lookBigImg(data.img.split(','));
+            } else if (layEvent == 'details1') {
+                admin.popup({
+                    id: 'spro456456uct',
+                    area: ['800px', '800px'],
+                    title: '参与记录',
+                    success: function() {
+                        var that = this;
+                        view(that.id).render('template/marketing/pingoujilu', {
+                            data: data,
+                            type: 1
+                        });
+                    }
+                });
+            }
+        });
+    });
+</script>

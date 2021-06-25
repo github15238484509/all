@@ -1,0 +1,206 @@
+<style>
+    .title {
+        color: rgba(80, 80, 80, 1);
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .label {
+        display: flex;
+        /* height: 35px; */
+        line-height: 35px;
+        color: rgba(153, 153, 153, 1);
+    }
+
+    .label>div {
+        width: 50%;
+        color: rgba(153, 153, 153, 1);
+    }
+
+    .label span {
+        color: #000;
+    }
+
+    .imgs {
+        display: flex;
+        margin-bottom: 10px;
+    }
+
+    .imgs>div {
+        color: rgba(153, 153, 153, 1);
+    }
+
+    .left {
+        width: 90px;
+        text-align: right;
+        color: rgba(153, 153, 153, 1);
+    }
+
+    .right {
+        flex: 1;
+    }
+
+    .img1 {
+        width: 90px;
+        height: 90px;
+    }
+
+    .img2 {
+        width: 234px;
+        height: 100px;
+        margin-right: 10px;
+    }
+
+    .flex {
+        display: flex;
+    }
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <div class="label">
+        <div>任务ID：<span class="merchant_name">{{d.params.task_index}}</span></div>
+        <div>任务类型：<span class="merchant_contacts">{{d.params.type_id=='1'?'视频':d.params.type_id=='2'?'链接':'图文'}}</span>
+        </div>
+    </div>
+    <div class="label">
+        <div>任务状态：<span
+                class="merchant_tel">{{d.params.status=='1'?'领取中':d.params.status=='2'?'审核中':d.params.status=='3'?'审核通过':d.params.status=='4'?'审核不通过':'直接奖励'}}</span>
+        </div>
+        <!-- <div>任务奖励：<span class="merchant_tel">{{d.params.amount}}元</span></div> -->
+    </div>
+    <div class="label">
+        <div>用户昵称：<span class="">{{d.params.name}}</span></div>
+        <div>用户手机号：<span class="">{{d.params.phone}}</span></div>
+    </div>
+    <div class="label" style="display:flex">
+        <span style=" color: rgba(153, 153, 153, 1);">任务内容：</span>
+        <span class="content" style="flex:1"></span>
+    </div>
+    <div class="label">
+        <div class="picture">任务截图：
+        </div>
+    </div>
+    <div class="label">
+        <div>领取任务时间：<span class="receive_time"></span></div>
+        <div>提交任务时间：<span class="submit_time"></span></div>
+    </div>
+
+    <div style="margin:20px 0 0 0;display:flex">
+        <button class="layui-btn layui-btn-lg layui-btn sure" style="margin:0 0 0 100px">通过</button>
+        <button class="layui-btn layui-btn-lg layui-btn-danger refuse" style="margin:0 0 0 120px">驳回</button>
+    </div>
+</script>
+<script>
+    layui.data.sendParams = function (params) {
+        layui.use(['admin', 'element', 'form', 'public'], function () {
+            var $ = layui.$;
+            var admin = layui.admin;
+            var tool = layui.public.tool;
+            var base = new layui.public.Base64();
+            var form = layui.form;
+            $('.submit_time').html(params.submit_time == '0' ? '暂无' : layui.common.createTime(params
+                .submit_time))
+            $('.receive_time').html(params.receive_time == '0' ? '暂无' : layui.common.createTime(params
+                .receive_time))
+            $('.content').html(params.content == '' ? '暂无' : base.decode(params.content))
+            if (params.picture) {
+                var images = []
+                images = params.picture.split(',')
+                images.forEach(item => {
+                    $('.picture').append(`
+                            <img src="${layui.setter.CDN+item}" alt="" class="img1">
+                        `)
+                });
+            } else {
+                $('.picture').append(`
+                        <div>暂无</div>
+                    `)
+            }
+            $('.sure').click(function () {
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=user_task/user_task_audit',
+                    data: {
+                        id: params.id,
+                        status: 3,
+                    },
+                    success: function (res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg);
+                            layer.closeAll()
+                            if (params.tab == '1') {
+                                parent.layui.table.reload("checkTable1");
+                            } else {
+                                parent.layui.table.reload("checkTable2");
+                            }
+                        } else {
+                            layer.msg(res.msg);
+                        }
+                    }
+                })
+            })
+            $('.refuse').click(function () {
+                //页面层
+                layer.open({
+                    type: 1,
+                    title: '拒绝原因',
+                    shadeClose: true,
+                    area: ['500px', '400px'], //宽高
+                    content: `
+                        <div class="layui-form" style="margin-top:20px;">
+                            <div class="layui-form-item">
+                                <div class="layui-inline">
+                                    <label class="layui-form-label" style="width:120px">拒绝原因：</label>
+                                    <div class="layui-input-inline" style="width:220px">
+                                        <textarea type="number" name="refuse" lay-verify="required" style="width:200px;height:150px;padding:10px;display:inline-block"  autocomplete="off" placeholder="请输入内容" class="layui-input"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="layui-form-item" style="margin-top:30px;text-align: center;">
+                                <div class="layui-inline">
+                                    <button class="layui-btn layui-btn-lg" lay-submit lay-filter="sure">
+                                        确定
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    success: function () {
+                        form.on('submit(sure)', function (data) {
+                            admin.req({
+                                url: layui.setter.requestUrl +
+                                    'api.php?c=user_task/user_task_audit',
+                                data: {
+                                    id: params.id,
+                                    status: '4',
+                                    refuse: data.field.refuse
+                                },
+                                success: function (res) {
+                                    if (res.code == 0) {
+                                        layer.closeAll();
+                                        layer.msg(res.msg);
+                                        if (params.tab == '1') {
+                                            parent.layui.table
+                                                .reload(
+                                                    "checkTable1");
+                                        }
+                                        parent.layui.table.reload(
+                                            "checkTable2");
+                                    } else {
+                                        layer.msg(res.msg);
+                                    }
+                                }
+                            })
+                        });
+
+                    }
+                });
+            })
+
+            $('.sure').click(function () {
+                layer.closeAll()
+            })
+            $('.img1').click(function () {
+                tool.lookBigImg(params.picture.split(','));
+            })
+        })
+    }
+</script>

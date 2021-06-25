@@ -1,0 +1,141 @@
+<style>
+    .layui-table-cell {
+        display: block;
+        height: auto;
+        line-height: 20px !important;
+    }
+
+    .layui-form-item {
+        margin: 0;
+    }
+
+    .layui-layer-admin .layui-layer-content {
+        padding: 0 20px;
+    }
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto form">
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:150px">库存：</label>
+            <div class="layui-input-inline">
+                <input type="text" name="limit_num" style="width:200px;" lay-verify="required" autocomplete="off"
+                    placeholder="请输入库存" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:150px"></label>
+            <div class="layui-input-inline" style="color:red">
+              
+                当前库存：{{d.params.data.goods_sku_count}}
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:150px">选择活动开始日期：</label>
+            <div class="layui-input-inline">
+                <input type="text" name="time" class="layui-input" lay-verify="required" id="time"
+                    placeholder="请选择开始日期 " style="width:200px;">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:150px"></label>
+            <div style="color:red">
+                提示：开始日期不可超过24小时
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:150px">商品排序：</label>
+            <div class="layui-input-inline">
+                <input type="number" name="limit_sort" style="width:200px;" lay-verify="required" autocomplete="off"
+                    placeholder="请输入商品排序" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:150px"></label>
+            <div style="color:red">
+                提示：数字越小越靠前
+            </div>
+        </div>
+        <div class="layui-form-item" style="text-align:center">
+            <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="submit_add">
+                确定
+            </button>
+        </div>
+    </div>
+    <table class="layui-hide" id="model" lay-filter="model"></table>
+</script>
+<script>
+    layui.data.sendParams = function (params) {
+        console.log(params)
+        layui.use(['admin', 'form', 'laydate', 'table', 'layer'], function () {
+            var $ = layui.$,
+                admin = layui.admin,
+                laydate = layui.laydate,
+                layer = layui.layer,
+                table = layui.table,
+                form = layui.form;
+            var limtTime1 = ''
+            var limtTime2 = ''
+
+            function nextDate() {
+                date = new Date(new Date());
+                date = +date + 1000 * 60 * 60 * 24;
+                date = new Date(date);
+                limtTime2 = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + ' ' +
+                    date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds()
+            }
+            nextDate()
+            //日期时间有效范围的设定: 
+            laydate.render({
+                elem: '#time',
+                type: 'datetime',
+                format: 'yyyy/MM/dd HH:mm:ss',
+                btns: ['clear', 'confirm'],
+                max: limtTime2,
+                min: layui.common.getFormatDate()
+            });
+            form.render()
+
+            //确定
+            form.on('submit(submit_add)', function (data) {
+                let time = new Date(data.field.time).getTime() / 1000
+                let limit_index = ''
+                if (params.data.limit_index) {
+                    limit_index = params.data.limit_index
+                } else {
+                    limit_index = ''
+                }
+                admin.req({
+                    url: layui.setter.requestUrl +
+                        'api.php?c=mall_goods_limit/addGoodsLimit',
+                    data: {
+                        goods_index: params.data.goods_index,
+                        limit_num: data.field.limit_num,
+                        limit_sort: data.field.limit_sort,
+                        start_time: time,
+                        limit_index: limit_index
+                    },
+                    success: function (res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg)
+                           
+                            parent.layui.table.reload("limitGoodsTable");
+                            parent.layui.table.reload("limitTable1");
+                            parent.layui.table.reload("limitTable4");
+                            parent.layui.table.reload("limitTable3");
+                           
+                           
+                                layer.close(params.index)
+                            
+                           
+                           
+                        } else {
+                            layer.msg(res.msg)
+                        }
+                    }
+                })
+                return false;
+            });
+
+        });
+    }
+</script>

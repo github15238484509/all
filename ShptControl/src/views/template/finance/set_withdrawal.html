@@ -1,0 +1,78 @@
+<style>
+    .layui-table-cell {
+        display: block;
+        height: auto !important;
+        line-height: 20px !important;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">首页</a>
+        <a><cite>财务管理</cite></a>
+        <a><cite>提现设置</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+<div class="">
+    <div class="layui-tab layui-tab-brief" lay-filter="tab">
+        <ul class="layui-tab-title">
+            <li class="layui-this status1">提现设置</li>
+            <li class="status2">提现说明</li>
+            <li class="status3">提现银行管理</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <div style="padding: 10px;background-color: #fff;">
+                    <button type="button" class="layui-btn layui-btn-sm layui-btn-normal addRule">添加规则</button>
+                </div>
+                <table class="layui-hide" id="setTable" lay-filter="setTable"></table>
+            </div>
+            <div class="layui-tab-item">
+                <form class="layui-form" action="">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label" style="width:125px;text-align: left;">1.预计到账时间：</label>
+                        <div class="layui-input-block">
+                            <input name="accounting_time" class="accounting_time" type="number" lay-verify="required"
+                                cols="30" rows="10" placeholder="请输入预计到账时间，如：48"
+                                style="padding:10px;margin-right:5px;width:380px"></input>小时
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label" style="width:125px;text-align: left;">2.紧急联系电话：</label>
+                        <div class="layui-input-block">
+                            <input name="sos_phone" class="sos_phone" type="number" lay-verify="required" cols="30"
+                                rows="10" placeholder="请输入紧急联系人电话，便于用户出现异常情况时联系"
+                                style="padding:10px;margin-right:5px;width:380px"></input>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label" style="width:125px;text-align: left;">3.提现说明：</label>
+                        <div class="layui-input-block">
+                            <textarea name="withdraw_rule" class="withdraw_rule" cols="30" rows="10"
+                                placeholder="如有特殊情况请在此输入框内说明" style="width:380px;padding: 10px;"></textarea>
+                        </div>
+                    </div>
+                    <div class="layui-form-item" style="position:absolute;left:50px;bottom:30px">
+                        <div class="layui-input-block" style="width:200px;">
+                            <button type="submit" class="layui-btn" style="width:100%;" lay-submit="sure"
+                                lay-filter="sure">确定</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="layui-tab-item">
+                <div style="padding: 10px;display: flex;align-items: center;background-color: #fff;">
+                    <button type="button" class="layui-btn layui-btn-sm layui-btn-normal addBank">添加银行卡</button>
+                    <text style="margin-left: 20px;color: rgba(255, 87, 51, 1);">
+                        提示：此处银行卡是给手机端提现银行卡提供数据的，排序决定手机端显示银行卡的顺序
+                    </text>
+                </div>
+                <table class="layui-hide" id="bankTable" lay-filter="bankTable"></table>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        layui.use('set_withdrawal', layui.factory('set_withdrawal'));
+    </script>

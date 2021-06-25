@@ -1,0 +1,70 @@
+<style>
+    .layui-layer-admin .layui-layer-content{
+        padding: 0 20px!important;
+    }
+    .layui-form-item .layui-input-inline{
+        width: 100px;
+    }
+    .layui-upload img{
+        border: 1px solid #ccc;
+    }
+    .del{
+        width: 30px;
+        height: 30px;
+        position: absolute;
+        top: -20px;
+        right: -20px;
+        border-radius: 50%;
+    }
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <form class="layui-form" action="" style="padding:20px 0">
+        <div class="layui-form-item">
+            <label class="layui-form-label" >备注：</label>
+            <div class="layui-input-block">
+                <textarea name="note" cols="30" rows="10" placeholder="输入内容" style="padding:10px" class="note"></textarea>
+            </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="width:200px;margin:0 auto;">
+            <button type="submit" class="layui-btn" style="width:100%;" lay-submit="" lay-filter="submit">确定</button>
+            </div>
+        </div> 
+    </form>  
+</script>
+    <script>
+        layui.data.sendParams = function (params) {
+            layui.use(['admin','element','upload','form','public'], function () {
+                var $ = layui.$;
+                var admin = layui.admin;
+                var element = layui.element;
+                var form = layui.form;
+                var base = new layui.public.Base64();
+                if(params.note){
+                    $('.note').val(base.decode(params.note))
+                }
+                //保存
+                form.on('submit(submit)', function (data) {
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=merchant/addNote',
+                        data:{
+                            order_index:params.order_index,
+                            note:data.field.note
+                        },
+                        success: function (res) {
+                            if (res.code == 0) {
+                                layer.msg(res.msg);
+                                layer.closeAll();
+                                parent.layui.table.reload("merchantTable");
+                            } else {
+                                layer.msg(res.msg);
+                            }
+                        }
+                    })
+                    return false;
+                })
+            })
+        }
+    </script> 
+

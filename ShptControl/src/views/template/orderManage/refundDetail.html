@@ -1,0 +1,131 @@
+<style>
+    .title {
+        color: rgba(80, 80, 80, 1);
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .label {
+        display: flex;
+        /* height: 35px; */
+        line-height: 35px;
+        color: rgba(153, 153, 153, 1);
+    }
+
+    .label1 {
+        display: flex;
+        margin-top: 10px;
+    }
+
+    .label>div {
+        width: 50%;
+        color: rgba(153, 153, 153, 1);
+    }
+
+    .label span {
+        color: #000;
+    }
+
+    .img {
+        width: 87px;
+        height: 87px;
+        margin-right: 10px;
+        vertical-align: text-top;
+    }
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <div class="title">收货信息</div>
+    <div class="label">
+        <div>用户昵称：<span class="">{{d.params.name}}</span></div>
+        <div>用户手机号：<span class="">{{d.params.phone}}</span></div>
+    </div>
+    <hr>
+    <div class="title">订单信息</div>
+    <div class="label">
+        <div>原订单编号：<span class="">{{d.params.order_id}}</span></div>
+        <div>售后状态：<span
+                class="">{{d.params.barter_status=='1'?'待审核':d.params.barter_status=='2'?'审核拒绝':d.params.barter_status=='3'?'待发货':d.params.barter_status=='4'?'待收货':d.params.barter_status=='5'?'待退款':'已完成'}}</span>
+        </div>
+    </div>
+    <div class="label">
+        <div>售后总数：<span class="">{{d.params.refund_goods_count}}</span></div>
+        <div>售后金额：<span class="">{{d.params.refund_total_price/100}}</span></div>
+    </div>
+    <div class="label">
+        <div>申请售后时间：<span class="refund_time"></span></div>
+        <div>审核时间：<span class="check_time"></span></div>
+    </div>
+    <div class="label">
+        <div>用户退货时间：<span class="times"></span></div>
+        <div>商家确认收货时间：<span class="confirm_time"></span></div>
+    </div>
+    <div class="label">
+        <div>商家退款时间：<span class="supplier_money_time"></span></div>
+    </div>
+    <hr>
+    <div class="title">退货物流信息</div>
+    <div class="label">
+        <div>物流公司：<span class="merchant_name">{{d.params.express_company==''?'暂无':d.params.express_company}}</span>
+        </div>
+        <div>运单号：<span class="merchant_name">{{d.params.express_number==''?'暂无':d.params.express_number}}</span></div>
+    </div>
+    <hr>
+    <div class="title">售后商品信息</div>
+    <div class="label1">
+        <div style="width:70%;margin-right:20px">{{d.params.goods_name}}</div>
+        <div>×{{d.params.refund_goods_count}}</div>
+    </div>
+    <hr>
+    <div class="title">售后信息</div>
+    <div class="" style="display:flex;margin:10px 0">
+        <div style="flex-wrap:nowrap;color: rgba(153, 153, 153, 1)">售后原因：</div>
+        <div class="merchant_name" id="reason" style="flex:1;color:#000"></div>
+    </div>
+    <div class="" style="display:flex">
+        <div style="flex-wrap:nowrap;color: rgba(153, 153, 153, 1)">问题描述：</div>
+        <div class="merchant_name" id="refund_remark" style="flex:1;color:#000"></div>
+    </div>
+    <div class="label images">
+    </div>
+    <div>
+        <button class="layui-btn layui-btn-lg layui-btn sure" style="margin:20px 0 0 300px">打印订单</button>
+    </div>
+</script>
+<script>
+    layui.data.sendParams = function (params) {
+        console.log(params);
+        layui.use(['admin', 'element', 'public'], function () {
+            var $ = layui.$;
+            var admin = layui.admin;
+            var base = new layui.public.Base64();
+            $('#reason').html(params.reason ? '暂无' : base.decode(params
+                .reason))
+            $('#refund_remark').html(params.refund_remark == '' ? '暂无' : base.decode(params
+                .refund_remark))
+            $('.refund_time').html(params.refund_time == '0' ? '暂无' : layui.common.createTime(params
+                .refund_time))
+            $('.check_time').html(params.check_time == '0' ? '暂无' : layui.common.createTime(params
+                .check_time))
+            $('.times').html(params.times == '0' ? '暂无' : layui.common.createTime(params.times))
+            $('.confirm_time').html(params.confirm_time == '0' ? '暂无' : layui.common.createTime(params
+                .confirm_time))
+            $('.supplier_money_time').html(params.supplier_money_time == '0' ? '暂无' : layui.common
+                .createTime(params.supplier_money_time))
+            if (params.refund_images != '') {
+                $('.images').append(`
+                        <div class="box">售后凭证：</div>
+                    `)
+                var imgs = params.refund_images.split(',')
+                imgs.forEach(item => {
+                    $('.box').append(`
+                            <img src="${layui.setter.CDN+item}" alt="" class='img'>
+                        `)
+                });
+            } else {
+                $('.images').append(`
+                        <div">售后凭证：<span>暂无</span></div>
+                    `)
+            }
+        })
+    }
+</script>

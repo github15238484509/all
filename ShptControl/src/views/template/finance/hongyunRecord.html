@@ -1,0 +1,262 @@
+<style>
+    .layui-table-cell {
+        display: table-cell;
+        vertical-align: middle;
+    }
+    
+    .layui-upload-drag1 {
+        border: none;
+        padding: 0;
+    }
+    
+    #demo2 img {
+        width: 90px;
+        height: 90px;
+        position: relative;
+    }
+    
+    .layui-upload-list {
+        margin: 0;
+    }
+    
+    #demo2 .del {
+        margin-right: 0;
+        position: relative;
+        top: -10px;
+        right: 8px;
+        cursor: pointer;
+        width: 20px;
+        height: 20px;
+        text-align: center;
+        line-height: 20px;
+        background-color: rgb(128, 120, 120);
+        color: #fff;
+        font-size: 20px;
+        border-radius: 50%;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>财务管理</cite></a>
+        <a><cite>鸿运勋章奖奖励记录</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-card" style="padding-bottom: 20px;">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="app-content-list">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width:100px">会员昵称</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="name" placeholder="请输入" autocomplete="off" class="layui-input phone">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width:100px">会员手机号</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="phone" placeholder="请输入" autocomplete="off" class="layui-input phone">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width:100px">会员级别</label>
+                    <div class="layui-input-inline">
+                        <select name="rank" lay-filter="type">
+                            <option value="-1">全部</option>
+                            <option value="2">组长</option>
+                            <option value="3">团长</option>
+                            <option value="4">市场督导</option>
+                        </select>
+                    </div>
+                </div>
+
+
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width:100px">领取状态</label>
+                    <div class="layui-input-inline">
+                        <select name="is_get" lay-filter="type">
+                            <option value="-1">全部</option>
+                            <option value="0">未领</option>
+                            <option value="1">已领</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- <div class="layui-inline">
+                    <label class="layui-form-label" style="width:100px">订单编号</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="phone" placeholder="请输入" autocomplete="off" class="layui-input phone">
+                    </div>
+                </div> -->
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width:100px">时间</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="time" class="layui-input" id="test1" placeholder=" 开始时间-结束时间 ">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search">
+                        <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>查询
+                    </button>
+                </div>
+                <div class="layui-inline" style="float: right;">
+                    <span class="layui-btn layuiadmin-btn-list" id="exportEx">
+                      导出
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <table class="layui-hide" id="table" lay-filter="table"></table>
+</div>
+
+<script>
+    layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'md5', 'table', 'laydate', 'common',
+            'upload', 'public'
+        ],
+        function() {
+            var $ = layui.$,
+                admin = layui.admin,
+                laydate = layui.laydate,
+                view = layui.view,
+                table = layui.table,
+                upload = layui.upload,
+                form = layui.form,
+                IsshowAnNiu = layui.common.IsshowAnNiu;
+            var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+            var tool = layui.public.tool;
+            var imgList = [];
+            var imgStr = ''
+            var userId = ''
+            form.render();
+            var field = {
+                    rank: "-1",
+                    is_get: '-1',
+                    name: '',
+                    phone: '',
+                    start: '',
+                    end: ''
+                }
+                //日期范围
+            laydate.render({
+                elem: '#test1',
+                range: true,
+                trigger: 'click',
+                format: 'yyyy/MM/dd',
+                done: function(value, date, endDate) {
+                    if (value != '') {
+                        field.start = value.split('-')[0].trim()
+                        var date = new Date(field.start);
+                        field.start = date.getTime()
+                        field.end = value.split('-')[1].trim()
+                        var date = new Date(field.end);
+                        field.end = date.getTime()
+                    } else {
+                        field.start = ''
+                        field.end = ''
+                    }
+                }
+            });
+            //渲染表格数据
+            var render_table = function(data) {
+
+                    table.render({
+                        elem: '#table',
+                        url: layui.setter.requestUrl + 'api.php?c=group_zhang/getGroupZhangList',
+                        where: data,
+                        page: true,
+                        cols: [
+                            [{
+                                field: 'zhang_index',
+                                title: '序号',
+                                align: 'center',
+                            }, {
+                                field: 'name',
+                                title: '会员信息',
+                                align: 'center',
+                                templet: function(d) {
+                                    return `
+                                   <p>昵称:${d.name}</p>
+                                   <p>手机号:${d.phone}</p>
+                                   `
+                                }
+                            }, {
+                                field: 'rank',
+                                title: '级别',
+                                align: 'center',
+                                templet: function(d) {
+                                    let str = ""
+                                    if (d.rank == 1) {
+                                        str = "普通会员"
+                                    }
+                                    if (d.rank == 2) {
+                                        str = "组长"
+                                    }
+                                    if (d.rank == 3) {
+                                        str = "团长"
+                                    }
+                                    if (d.rank == 4) {
+                                        str = "市场督导"
+                                    }
+                                    return str
+                                }
+                            }, {
+                                field: 'zhang_num',
+                                title: '获得鸿运勋章数量（颗）',
+                                align: 'center',
+                            }, {
+                                field: 'is_get',
+                                title: '是否已领取',
+                                align: 'center',
+                                templet: function(d) {
+                                    return d.is_get == 0 ? "未领" : "已领"
+                                }
+                            }, {
+                                field: 'reward_price',
+                                title: '现金奖励',
+                                align: 'center',
+                                templet: '<div>{{ (d.reward_price/100) }}</div>'
+                            }, {
+                                field: 'add_time',
+                                title: '奖励时间',
+                                align: 'center',
+                                sort: 'true',
+                                width: 180,
+                                templet: '<div>{{ layui.common.createTime(d.add_time)}}</div>'
+                            }, ]
+                        ],
+                    });
+                }
+                //先自调用请求渲染数据
+            render_table(field);
+
+            //监听搜索
+            form.on('submit(search)', function(data) {
+                // if (data.field.time != '') {
+                //     field.stime = data.field.time.split('-')[0].trim()
+                //     var date = new Date(field.stime);
+                //     field.stime = date.getTime()
+                //     field.etime = data.field.time.split('-')[1].trim()
+                //     var date = new Date(field.etime);
+                //     field.etime = date.getTime()
+                // } else {
+                //     field.stime = ''
+                //     field.etime = ''
+                // }
+                field.name = data.field.name
+                field.phone = data.field.phone
+                field.rank = data.field.rank
+                field.is_get = data.field.is_get
+                render_table(field);
+            });
+
+            document.getElementById("exportEx").onclick = function() {
+                window.location.href = `${layui.setter.requestUrl}api.php?c=group_zhang/getGroupZhangList&page=1&limit=10&rank=${field.rank}&is_get=${field.is_get}&name=${field.name}&phone=${field.phone}&start=${field.start}&end=${field.end}&is_excel=1`
+            }
+        });
+</script>

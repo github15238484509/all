@@ -1,0 +1,295 @@
+<style>
+    .tabMsg {
+        display: flex;
+        padding: 20px;
+    }
+    
+    .tabMsg>div {
+        width: 200px;
+        height: 30px;
+        text-align: center;
+        line-height: 30px;
+        font-size: 14px;
+        color: rgba(42, 130, 228, 1);
+        border: 1px solid rgba(42, 130, 228, 1);
+        cursor: pointer;
+        margin-left: -1px;
+    }
+    
+    .tabMsg .current {
+        color: #fff;
+        background-color: rgba(42, 130, 228, 1);
+    }
+    
+    .form {
+        background-color: #fff;
+    }
+    
+    .layui-table-cell {
+        height: auto !important;
+        line-height: 20px !important;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">首页</a>
+        <a><cite>营销管理</cite></a>
+        <a><cite>开团地区</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="tabMsg">
+            <div class="current wait_count" data-index="0">已开启</div>
+            <div class="yyz" data-index="1">已关闭</div>
+        </div>
+    </div>
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto form" lay-filter="app-content-list">
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:100px;">地区：</label>
+            <div class="layui-input-inline">
+                <select name="province" class="province" lay-filter="province">
+                        <option value="">请选择省</option>
+                    </select>
+            </div>
+            <div class="layui-input-inline">
+                <select name="city" class="city" lay-filter="city">
+                        <option value="">请选择市</option>
+                    </select>
+            </div>
+            <div class="layui-input-inline">
+                <select name="district" class="district" lay-filter="district">
+                        <option value="">请选择县/区</option>
+                    </select>
+            </div>
+            <div class="layui-inline">
+                <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search8541">
+                    <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>搜索
+                </button>
+            </div>
+        </div>
+    </div>
+    <script type="text/html" id="toolbarDemo">
+        <div class="layui-btn-container">
+            <button class="layui-btn layui-btn-sm" lay-event="add">批量转移地区</button>
+        </div>
+    </script>
+    <table class="layui-hide" id="commentTable" lay-filter="commentTable"></table>
+</div>
+
+<script>
+    layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'table', 'laydate', 'common', 'public', 'form'], function() {
+        var $ = layui.$,
+            admin = layui.admin,
+            laydate = layui.laydate,
+            view = layui.view,
+            table = layui.table,
+            form = layui.form,
+            IsshowAnNiu = layui.common.IsshowAnNiu;
+        var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+        var cols = []
+        var tool = layui.public.tool;
+        var base = new layui.public.Base64();
+        var field = {
+                is_able: '0',
+            }
+            //tab切换
+        $(".tabMsg>div").click(function() {
+            var index = $(".tabMsg div").index(this);
+            field.is_able = $(this).attr('data-index');
+            $(this).addClass('current').siblings().removeClass('current');
+            render_table(field);
+        });
+        tool.linkage({
+            province: 'province',
+            city: 'city',
+            county: 'district',
+            success: function(province, city, county) {
+                console.log(province);
+                console.log(city);
+                console.log(county);
+            }
+        });
+        form.on('submit(search8541)', function(data) {
+            field.province = data.field.province;
+            field.city = data.field.city;
+            field.district = data.field.district;
+            render_table(field);
+            return false;
+        });
+        form.render()
+
+        //渲染表格数据
+        var render_table = function(data) {
+                cols = [
+                    [{
+                        field: 'area_index',
+                        align: 'center',
+                        type: 'checkbox',
+                        title: '序号',
+                    }, {
+                        field: 'area_index',
+                        align: 'center',
+                        title: '序号',
+                    }, {
+                        field: 'province_name',
+                        title: '所在省份',
+                        align: 'center',
+                    }, {
+                        field: 'city_name',
+                        align: 'center',
+                        title: '所在市'
+                    }, {
+                        field: 'district_name',
+                        align: 'center',
+                        title: '所在区/县'
+                    }, {
+                        field: 'reg_num',
+                        align: 'center',
+                        title: '注册人数'
+                    }, {
+                        field: 'add_time',
+                        align: 'center',
+                        title: '统计时间',
+                        templet: function(d) {
+                            return layui.common.createTime(d.add_time)
+                        }
+                    }, {
+                        fixed: 'right',
+                        align: 'center',
+                        title: '操作',
+                        width: 450,
+                        templet: function(d) {
+                            return `
+                                <button class="layui-btn" lay-event="stop" style="display:${d.is_able==0?'':'none'}">关闭</button>
+                                <button class="layui-btn" lay-event="start" style="display:${d.is_able==0?'none':''}">开启</button>
+                                <button class="layui-btn" lay-event="lock">锁定人员信息</button>
+                                <button class="layui-btn" lay-event="editor">每日活动核算数据</button>
+                                `
+                        }
+                    }]
+                ]
+
+                table.render({
+                    elem: '#commentTable',
+                    url: layui.setter.requestUrl + 'api.php?c=group_area/getGroupAreaList',
+                    where: data,
+                    cellMinWidth: 120,
+                    cols: cols,
+                    page: true,
+                    toolbar: '#toolbarDemo',
+                    parseData: function(res) {
+                        // $('.wait_count').html('待审核' + '&nbsp;' + res.data.wait_count)
+                        // $('.yyz').html('营业中' + '&nbsp;' + res.data.success_count)
+                        return {
+                            "count": res.count, //解析接口状态
+                            "code": res.code, //解析接口状态
+                            "data": res.data //解析数据列表
+                        };
+                    },
+                });
+            }
+            //先自调用请求渲染数据
+        render_table(field);
+        table.on('toolbar(commentTable)', function(obj) {
+            var checkStatus = table.checkStatus('commentTable'); //idTest 即为基础参数 id 对应的值
+            console.log(checkStatus.data) //获取选中行的数据
+            console.log(checkStatus.data.length) //获取选中行数量，可作为是否有选中行的条件
+            console.log(checkStatus.isAll) //表格是否全选
+            if (!checkStatus.data.length) {
+                layer.msg("请选择需要转移的行")
+                return false
+            } else {
+                admin.popup({
+                    id: 'spro456456uct45646',
+                    area: ['800px', '500px'],
+                    title: '批量转移团队',
+                    success: function() {
+                        var that = this;
+                        view(that.id).render('template/marketing/batchPerson', {
+                            data: checkStatus.data
+                        });
+                    }
+                });
+            }
+
+
+        });
+        table.on('tool(commentTable)', function(obj) { //注：tool table 是 table  lay-filter="对应的值"
+            var data = obj.data; //获得当前行数据
+            var layEvent = obj.event; //获得 lay-event 对应的值
+            if (layEvent == 'enlarge') {
+                data.img = data.goods_icon
+                tool.lookBigImg(data.img.split(','));
+            } else if (layEvent == 'lock') {
+                admin.popup({
+                    id: 'spro456456uct',
+                    area: ['1200px', '800px'],
+                    title: '锁定人员信息',
+                    success: function() {
+                        var that = this;
+                        view(that.id).render('template/marketing/lockPerson', {
+                            data: data
+                        });
+                    }
+                });
+            } else if (layEvent == 'stop') {
+                layer.confirm('真的要关闭吗?', function(index) {
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=group_area/changeGroupArea',
+                        data: {
+                            area_index: data.area_index
+                        },
+                        success: function(res) {
+                            if (res.code == 0) {
+                                layer.msg(res.msg, {
+                                    icon: 1
+                                })
+                                setTimeout(function() {
+                                    layer.closeAll()
+                                }, 1500)
+                                layui.table.reload("commentTable");
+                            }
+                        }
+                    })
+                });
+            } else if (layEvent == 'start') {
+                layer.confirm('真的要开启吗?', function(index) {
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=group_area/changeGroupArea',
+                        data: {
+                            area_index: data.area_index
+                        },
+                        success: function(res) {
+                            if (res.code == 0) {
+                                layer.msg(res.msg, {
+                                    icon: 1
+                                })
+                                setTimeout(function() {
+                                    layer.closeAll()
+                                }, 1500)
+                                layui.table.reload("commentTable");
+                            }
+                        }
+                    })
+                });
+            } else if (layEvent == 'editor') {
+                admin.popup({
+                    id: 'spro456456uct5465',
+                    area: ['1200px', '800px'],
+                    title: '每日活动核算数据',
+                    success: function() {
+                        var that = this;
+                        view(that.id).render('template/marketing/lockPerson45665', {
+                            data: data
+                        });
+                    }
+                });
+            }
+        });
+    });
+</script>

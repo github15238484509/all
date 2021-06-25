@@ -1,0 +1,127 @@
+<style>
+  .layui-table-cell {
+    display: block;
+    height: auto !important;
+    line-height: 20px !important;
+  }
+
+  .del {
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    background-color: rgb(128, 120, 120);
+    color: #fff;
+    font-size: 20px;
+    position: absolute;
+    top: -10px;
+    right: -3px;
+    border-radius: 50%;
+    display: none;
+
+  }
+</style>
+<div class="layui-card layadmin-header">
+  <div class="layui-breadcrumb" lay-filter="breadcrumb">
+    <a lay-href="">首页</a>
+    <a><cite>商城管理</cite></a>
+    <a><cite>商城设置</cite></a>
+    <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+        class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+        id="addBook">点击收藏</cite></a>
+  </div>
+</div>
+<div class="layui-tab layui-tab-brief" lay-filter="tab">
+  <ul class="layui-tab-title">
+    <li class="layui-this status1">基础设置</li>
+    <li class="status3">售后设置</li>
+  </ul>
+
+  <div class="layui-tab-content">
+    <div class="layui-tab-item layui-show">
+      <form class="layui-form" action="">
+        <!-- <div class="layui-form-item">
+          <label class="layui-form-label" style="width:160px">订单评价：</label>
+          <div class="layui-input-block order_button">
+            <input type="checkbox" name="order_button" lay-skin="switch" lay-text="ON|OFF">
+          </div>
+        </div> -->
+        <!-- <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:160px">订单留言：</label>
+                    <div class="layui-input-block msg_button">
+                        <input type="checkbox" name="msg_button" lay-skin="switch" lay-text="ON|OFF" >
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:160px">商品问答：</label>
+                    <div class="layui-input-block reply_button">
+                        <input type="checkbox" name="reply_button" lay-skin="switch" lay-text="ON|OFF">
+                    </div>
+                </div> -->
+        <div class="layui-form-item">
+          <label class="layui-form-label" style="width:160px">自动确认收货时间：</label>
+          <div class="layui-input-inline" style="width: auto;">
+            <input type="number" name="order_day" lay-verify="required" autocomplete="off" placeholder="输入内容"
+              class="layui-input order_day" style="display:inline-block;width:100px;margin-right:5px">天
+            <input type="number" name="order_hour" lay-verify="required" autocomplete="off" placeholder="输入内容"
+              class="layui-input order_hour" style="display:inline-block;width:100px;margin:0 5px">小时
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label" style="width:160px">取消付款订单时间：</label>
+          <div class="layui-input-inline" style="width: auto;">
+            <input type="number" name="cancel_day" lay-verify="required" autocomplete="off" placeholder="输入内容"
+              class="layui-input cancel_day" style="display:inline-block;width:100px;margin-right:5px">天
+            <input type="number" name="cancel_hour" lay-verify="required" autocomplete="off" placeholder="输入内容"
+              class="layui-input cancel_hour" style="display:inline-block;width:100px;margin:0 5px">小时
+          </div>
+        </div>
+
+        <div class="layui-form-item layui-form-text">
+          <label class="layui-form-label" style="width:160px">统一说明提示：</label>
+          <div class="layui-input-inline">
+            <textarea placeholder="请输入内容" name="introduce" class="layui-textarea introduce"
+              style="width:300px"></textarea>
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <div class="layui-input-block">
+            <button type="submit" class="layui-btn" lay-submit="submit1" lay-filter="submit1"
+              style="margin: 20px 0 0 200px;">确定</button>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="layui-tab-item">
+      <form class="layui-form" action="" lay-filter="form3">
+        <div class="layui-form-item">
+          <label class="layui-form-label" style="width:160px">是否允许退货：</label>
+          <div class="layui-input-block refund_button">
+            <input type="checkbox" name="refund_button" lay-skin="switch" lay-text="ON|OFF" class="refund_button">
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label" style="width:160px">是否允许换修货：</label>
+          <div class="layui-input-block barter_button">
+            <input type="checkbox" name="barter_button" lay-skin="switch" lay-text="ON|OFF" class="barter_button">
+          </div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+          <label class="layui-form-label" style="width:160px">售后说明/政策：</label>
+          <div class="layui-input-inline" style="width:600px">
+            <div id="after_desc"></div>
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <div class="layui-input-block">
+            <button type="submit" class="layui-btn" lay-submit="submit3" lay-filter="submit3"
+              style="margin: 20px 0 0 200px;">确定</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  layui.use('setting', layui.factory('setting'));
+</script>

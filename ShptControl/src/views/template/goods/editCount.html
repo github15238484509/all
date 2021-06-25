@@ -1,0 +1,238 @@
+<style>
+    .layui-table-cell {
+        /* display:table-cell;
+        line-height: 20px!important; */
+        /* height: auto; */
+    }
+
+    .demoTable {
+        margin: 20px 0 0 50%;
+    }
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <table class="layui-hide" id="table" lay-filter="table"></table>
+    <div class="layui-btn-group demoTable">
+        <button class="layui-btn" data-type="getCheckData">确定</button>
+    </div>
+</script>
+
+
+<script>
+    layui.data.sendParams = function (params) {
+        layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'table', 'laydate', 'common',
+                'public',
+                'form'
+            ],
+            function () {
+                var $ = layui.$,
+                    admin = layui.admin,
+                    laydate = layui.laydate,
+                    view = layui.view,
+                    form = layui.form,
+                    table = layui.table,
+                    IsshowAnNiu = layui.common.IsshowAnNiu;
+                var tool = layui.public.tool;
+                var goods_index = params.goods_index
+                form.render()
+
+
+                //渲染表格数据
+                var render_table = function (goods_index) {
+                    table.render({
+                        elem: '#table',
+                        url: layui.setter.requestUrl + 'api.php?c=supplier_goods/GoodsSkuList',
+                        where: {
+                            goods_index: goods_index
+                        },
+                        cols: cols = [
+                            [{
+                                    field: 'goods_index',
+                                    title: '参数',
+                                    align: 'center',
+                                    sort: true,
+                                    width: 90,
+                                    templet: function (d) {
+                                        var sku = ''
+                                        if (d.sku_name) {
+                                            sku = d.sku_name.join(',');
+                                        } else {
+                                            sku = '暂无'
+                                        }
+                                        return sku
+                                    }
+                                }, {
+                                    field: 'sku_pic',
+                                    title: '商品图',
+                                    align: 'center',
+                                    templet: function (d) {
+                                        var src = layui.setter.CDN + d.sku_pic
+                                        var str =
+                                            `<img src = ${src} style="cursor:pointer;width:30px;height:30px" lay-event = 'enlarge'></img>`
+                                        return str
+                                    }
+                                }, {
+                                    field: 'sku_cost_price',
+                                    title: '售价',
+                                    align: 'center',
+                                    templet: function (d) {
+                                        var str = d.sku_cost_price / 100
+                                        return str
+                                    }
+                                }, {
+                                    field: 'sku_retail_price',
+                                    title: '供货价',
+                                    align: 'center',
+                                    templet: function (d) {
+                                        var str = d.sku_retail_price / 100
+                                        return str
+                                    }
+                                }, {
+                                    field: 'sku_market_price',
+                                    title: '市场价',
+                                    align: 'center',
+                                    templet: function (d) {
+                                        var str = d.sku_market_price / 100
+                                        return str
+                                    }
+                                }, {
+                                    field: 'sku_inventory',
+                                    title: '库存',
+                                    align: 'center',
+                                }, {
+                                    field: 'sku_code',
+                                    title: '商品编号',
+                                    align: 'center',
+                                }, {
+                                    field: 'sku_mer_num',
+                                    title: '最低购买数量',
+                                    align: 'center',
+                                    width: 150,
+                                    templet: function (d) {
+                                        var div = `<div>
+                                        <input style="text-align:center;width:60px" min="0" onkeyup='this.value=this.value.replace(/\D/g,"")' 
+onafterpaste='this.value=this.value.replace(/\D/g,"")''  class="save1" data-index="${d.sku_index}" type="number" value='${d.sku_mer_num /100}'>
+                                       </div>`
+                                        return div
+                                    }
+                                }, {
+                                    field: 'sku_mer_price',
+                                    title: '线下门店供应价格',
+                                    align: 'center',
+                                    width: 150,
+                                    templet: function (d) {
+                                        var div = `<div>
+                                        <input style="text-align:center;width:60px" min="0" onkeyup='this.value=this.value.replace(/\D/g,"")' 
+onafterpaste='this.value=this.value.replace(/\D/g,"")''  data-index="${d.sku_index}" class="save2" type="number" value='${d.sku_mer_price/100}'>
+                                       </div>`
+                                        return div
+                                    }
+                                }, {
+                                    field: 'sku_serve_price',
+                                    title: '服务分站供应价格',
+                                    align: 'center',
+                                    width: 150,
+                                    templet: function (d) {
+                                        var div = `<div>
+                                        <input style="text-align:center;width:60px" min="0" onkeyup='this.value=this.value.replace(/\D/g,"")' 
+onafterpaste='this.value=this.value.replace(/\D/g,"")''  data-index="${d.sku_index}" class="save3" type="number" value='${d.sku_serve_price/100}'>
+                                       </div>`
+                                        return div
+                                    }
+                                },
+
+                            ]
+                        ],
+                        page: true,
+                        //解决高度自适应固定的列高度不一致
+                        done: function (res, curr, count) {
+                            $(".layui-table-main  tr").each(function (index, val) {
+                                $($(".layui-table-fixed .layui-table-body tbody tr")[
+                                        index])
+                                    .height($(val).height());
+                            });
+                        }
+                    });
+                }
+                //先自调用请求渲染数据
+                render_table(goods_index);
+
+                var active = {
+                    getCheckData: function () { //获取选中数据
+                        var checkStatus = table.checkStatus('table'),
+                            data = checkStatus.data;
+                        console.log(data)
+                        if (data.length == 0) {
+                            layer.msg('您还未选择需要修改的数据')
+                            return false;
+                        } else {
+                            console.log("data-----" + JSON.stringify(table.cache));
+
+                        }
+
+                    },
+                };
+                $('.demoTable .layui-btn').on('click', function () {
+                    let arrAll = [];
+                    $('.save1').each((index, item) => {
+                        if ($(item).val() == "") {
+                            layer.msg('请输入内容')
+                            return false;
+                        } else {
+                            let arr = {}
+                            arr.sku_index = $(item).attr("data-index");
+                            arr.sku_mer_num = $(item).val() * 100;
+                            arrAll.push(arr)
+                        }
+
+
+                    })
+                    $('.save2').each((index, item) => {
+                        let arr = {}
+                        if ($(item).val() == "") {
+                            layer.msg('请输入内容')
+                            return false;
+                        } else {
+                            for (var i = 0; i < arrAll.length; i++) {
+                                if (arrAll[i].sku_index == $(item).attr("data-index")) {
+                                    arrAll[i].sku_mer_price = $(item).val() * 100;
+                                }
+                            }
+                        }
+                    })
+                    $('.save3').each((index, item) => {
+                        if ($(item).val() == "") {
+                            layer.msg('请输入内容')
+                            return false;
+                        } else {
+                            let arr = {}
+                            for (var i = 0; i < arrAll.length; i++) {
+                                if (arrAll[i].sku_index == $(item).attr("data-index")) {
+                                    arrAll[i].sku_serve_price = $(item).val() * 100;
+                                }
+                            }
+                        }
+                    })
+                    console.log(arrAll)
+                    if (arrAll.length > 0) {
+                        admin.req({
+                            url: layui.setter.requestUrl +
+                                'api.php?c=supplier_goods/EditGoodsSku',
+                            type: 'POST',
+                            data: {
+                                skuName: arrAll
+                            },
+                            success: function (res) {
+                                if (res.code == 0) {
+                                    layer.closeAll()
+                                    layer.msg(res.msg)
+                                } else {
+                                    layer.msg(res.msg)
+                                }
+                            }
+                        })
+                    }
+                });
+
+            });
+    }
+</script>

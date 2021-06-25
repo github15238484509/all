@@ -1,0 +1,91 @@
+<style>
+    .layui-form-select {
+        width: 250px;
+    }
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <form class="layui-form" lay-filter="formTest" action="">
+
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:125px">充值金额:</label>
+            <div class="layui-input-block">
+                <input name="pay_money" type="number" lay-verify="required" placeholder="输入内容" style="padding:10px;margin-right:5px;">元
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:125px">赠送金额:</label>
+            <div class="layui-input-block">
+                <input name="send_money" type="number" lay-verify="required" placeholder="输入内容" style="padding:10px;margin-right:5px;">元
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:125px">排序:</label>
+            <div class="layui-input-block">
+                <input name="sort" type="number" lay-verify="required" placeholder="越小越靠前" style="padding:10px;margin-right:5px;">
+            </div>
+        </div>
+        <p style="color: red;padding-left: 120px;">
+            提示:越小越靠前
+        </p>
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="width:200px;">
+                <button type="submit" class="layui-btn" style="width:100%; margin-left:100px" lay-submit="" lay-filter="132submit">确定</button>
+            </div>
+        </div>
+    </form>
+
+</script>
+
+
+<script>
+    layui.data.sendParams = function(params) {
+        console.log(params);
+        layui.use(['admin', 'element', 'form', 'upload', 'public'], function() {
+            var admin = layui.admin;
+            var form = layui.form;
+            var upload = layui.upload;
+            var $ = layui.jquery,
+                element = layui.element;
+            var bank_logo = ''; //银行logo
+            var base = new layui.public.Base64(); //银行logo
+
+            if (params.data) {
+                form.val("formTest", { //formTest 即 class="layui-form" 所在元素属性 lay-filter="" 对应的值
+                    "pay_money": params.data.pay_money / 100,
+                    "send_money": params.data.send_money / 100,
+                    "sort": params.data.sort,
+                });
+            }
+            form.render()
+
+            form.on('submit(132submit)', function(data) {
+                var result = data.field
+                result.pay_money = result.pay_money * 100
+                result.send_money = result.send_money * 100
+                if (params.data) {
+                    result.rule_index = params.data.rule_index
+                }
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=consumption/addEditRule',
+                    data: {
+                        ...result
+                    },
+                    method: 'post',
+                    success: function(res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg);
+                            setTimeout(function() {
+                                layer.closeAll();
+                                layui.table.reload("table");
+                            }, 1000)
+                        } else {
+                            layer.msg(res.msg);
+                        }
+                    }
+                })
+                return false;
+            });
+
+        })
+    }
+</script>

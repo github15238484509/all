@@ -1,0 +1,443 @@
+<style>
+    .ul_record {
+        margin-left: 60px;
+    }
+
+    .li_record {
+        width: 300px;
+        display: flex;
+        padding: 10px;
+        background-color: pink;
+    }
+
+    .word_record {
+        margin-left: 20px;
+    }
+
+    .money_record {
+        margin-top: 18px;
+    }
+
+    .layui-table-cell {
+        height: 55px;
+    }
+
+    .layui-laypage-limits {
+        display: none !important;
+    }
+
+    .layui-table {
+        margin: auto !important;
+    }
+
+    .layui-table-view .layui-table td,
+    .layui-table-view .layui-table th {
+        border-top: none;
+        border-left: none;
+        border-right: none;
+    }
+
+    .layui-table-view,
+    .layui-table-header {
+        border: none !important;
+    }
+
+    .layui-table-cell {
+        height: auto;
+        overflow: visible;
+        text-overflow: inherit;
+        white-space: normal;
+    }
+
+    .color1 {
+        color: rgba(255, 87, 51, 1);
+    }
+
+    .color2 {
+        color: rgba(165, 214, 63, 1);
+    }
+
+    .color3 {
+        color: rgba(121, 72, 234, 1);
+    }
+
+    .wordStatus {
+        position: absolute;
+        top: 0;
+        right: 20px;
+        font-size: 11px;
+    }
+
+    .right {
+        width: 100%;
+        padding: 20px;
+    }
+
+    .wordStatus1 {
+        position: absolute;
+        right: 50px;
+        top: 358px;
+        color: rgba(165, 214, 63, 1);
+        font-size: 24px;
+    }
+
+    .title {
+        color: rgba(80, 80, 80, 1);
+        font-size: 16px;
+        font-weight: bold;
+        margin: 20px 0;
+    }
+
+    .title1 {
+        color: rgba(80, 80, 80, 1);
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .member p {
+        margin: 10px 0 15px 0;
+    }
+
+    .member p:last-child {
+        margin-bottom: 0;
+    }
+
+    .bgc {
+        background-color: rgba(0, 186, 173, 1);
+    }
+
+    .copy {
+        display: inline-block;
+        cursor: pointer;
+        margin-left: 5px;
+        padding: 5px;
+    }
+
+    #account {
+        background: none !important;
+        border: none;
+        color: #666;
+    }
+
+    .del {
+        width: 20px;
+        height: 20px;
+        position: relative;
+        top: -12px;
+        right: 15px;
+        cursor: pointer;
+        text-align: center;
+        line-height: 20px;
+        background-color: rgb(128, 120, 120);
+        color: #fff;
+        font-size: 20px;
+        border-radius: 50%;
+    }
+
+    #demo {
+        display: flex;
+    }
+
+    .layui-card {
+        margin-bottom: 0px;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>财务管理</cite></a>
+        <a><cite>提现记录</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+
+<div class="layui-form" style="background:#fff;margin:10px 0;padding:10px 0 0 0">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">搜索类型：</label>
+            <div class="layui-input-inline">
+                <select name="searchType" lay-filter="type">
+                    <option value="-1">全部</option>
+                    <option value="0">手机</option>
+                    <option value="1">姓名</option>
+                    <option value="2">银行卡</option>
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <input type="text" name="searchInfo" placeholder="请输入所查询内容" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">日期范围：</label>
+            <div class="layui-input-inline">
+                <input type="text" name="time" class="layui-input" id="testTime" placeholder=" 开始时间-结束时间 ">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">提现状态：</label>
+            <div class="layui-input-inline">
+                <select name="orderStatus" lay-filter="status">
+                    <option value="-1">全部</option>
+                    <option value="0">待打款</option>
+                    <option value="1">已完成</option>
+                    <option value="2">已驳回</option>
+                </select>
+            </div>
+        </div>
+        <button class="layui-btn layui-btn-danger" lay-submit lay-filter="search2">查询</button>
+    </div>
+</div>
+<div style="display: flex;">
+    <div class="layui-card layui-col-xs4" style="margin-right: 15px;">
+        <table class="layui-hide" id="tt_record" lay-filter="tt_record"></table>
+    </div>
+    <div class="layui-card layui-col-xs8">
+        <div class="right">
+        </div>
+    </div>
+</div>
+<script>
+    layui.use(['element', 'table', 'form', 'upload', 'laypage', 'layer', 'laydate'], function () {
+        var setter = layui.setter,
+            $ = layui.jquery,
+            admin = layui.admin,
+            upload = layui.upload,
+            laypage = layui.laypage,
+            layer = layui.layer,
+            element = layui.element,
+            table = layui.table,
+            base = new layui.public.Base64(),
+            form = layui.form,
+            laydate = layui.laydate,
+            view = layui.view;
+        var imgList = [] //图片数组
+        var imgStr = '' //图片路径
+        var extract_index = '' //提现记录id
+        //初始化表单
+        form.render()
+        //定义搜索数据
+        var field = {
+            searchType: '-1',
+            searchInfo: '',
+            extract_type: '1',
+            orderStatus: '-1',
+            start: '',
+            end: ''
+        }
+        //日期格式化
+        //下单时间
+        laydate.render({
+            elem: '#testTime',
+            type: 'datetime',
+            range: true,
+            trigger: 'click',
+            format: 'yyyy/M/d',
+            change: function (value, date, endDate) {
+
+            },
+            done: function (value, date, endDate) {
+                if (!value) {
+                    $("input[name=testInput]").val("");
+                    field.start = '';
+                    field.end = '';
+                } else {
+                    field.start = new Date(value.split('-')[0]).getTime() / 1000;
+                    field.end = new Date(value.split('-')[1]).getTime() / 1000;
+                }
+            }
+        });
+        //渲染表格数据
+        var render_table = function (data) {
+            delete data.time
+            data.start = field.start;
+            data.end = field.end;
+            table.render({
+                elem: '#tt_record',
+                url: layui.setter.requestUrl + 'api.php?c=order/cashOutList',
+                where: data,
+                cols: [
+                    [{
+                        field: 'photo',
+                        width: '90',
+                        templet: function (d) {
+                            var src = layui.setter.CDN + d.photo
+                            var str =
+                                `<img src = ${src} style="cursor:pointer;width:50px;height:50px" lay-event = 'enlarge'></img>`
+                            return str
+                        }
+                    }, {
+                        field: 'card_holder',
+                        width: '300',
+                        templet: function (d) {
+                            var status = d.payment_status
+                            var status_word = ''
+                            if (status == '0') {
+                                status_word = '待打款'
+                            } else if (status == '1') {
+                                status_word = '已完成'
+                            } else {
+                                status_word = '已驳回'
+                            }
+                            let name;
+                            if(d.withdrawal_type==1) {
+                            name = '暂无'
+                           }
+                           if(d.withdrawal_type==2) {
+                            name = d.alipay_real_name
+                           }
+                           if(d.withdrawal_type==3) {
+                            name = d.card_holder
+                           }
+                          
+
+                            var str = `<div>收款人姓名：${name}</div>
+                                            <div>
+                                                <img src = "../src/images/card.png" style="cursor:pointer;width:30px;height:30px;margin-right:20px"></img>提交时间：${layui.common.createTime(d.extract_time)}
+                                                <div class="wordStatus ${status=='0' ? 'color1': status=='1' ? 'color2' :'color3'}">${status_word}</div>
+                                            </div>`
+                            return str
+                        }
+                    }]
+                ],
+                page: true,
+                layout: ['page', 'count', 'skip'],
+                done: function (res, curr, count) {
+                    rightRender(res.data[0]);
+
+                    $('.layui-table .layui-table-cell > span').css({
+                        'font-weight': 'bold'
+                    }); //表头字体样式
+                    $('th').hide(); //表头隐藏的样式
+                    // $('.layui-table-page').css('margin-top', '40px'); //页码部分的高度调整
+                }
+            });
+        }
+        render_table(field);
+        //监听搜索
+        form.on('submit(search2)', function (data) {
+            var obj = data.field
+            obj.extract_type = '1'
+            render_table(obj);
+            return false;
+        });
+        //table选中变色
+        table.on('row(tt_record)', function (obj) {
+            //标注选中样式
+            obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+            rightRender(obj.data);
+
+        });
+        //审核操作
+        function rightRender(data) {
+            if (data) {
+                var status = data.payment_status
+                var check_status = data.check_status
+                extract_index = data.extract_index
+                $('.right').empty()
+                $('.right').append(`
+                    <div class="title">会员信息:</div>
+                    <div style="display: flex;">
+                        <div style="margin: 0 30px;">
+                            <img src=${layui.setter.CDN + data.photo} style="width: 80px;height:80px">
+                        </div>
+                        <div class="member">
+                            <p><span style="margin-right: 30px;">会员昵称：${data.name}</span><span style="margin-right: 30px;">会员级别：${data.rank}</span></p>
+                            <p><span style="margin-right: 30px;">手机号：${data.phone}</span>推荐人：${data.referrer_user_phone}</p>
+                            <p style="color:rgba(42, 130, 228, 1)">当前余额：${data.cash && (data.cash/100).toFixed(2)+'元' || '未知'}</p>
+                            <p>注册时间：${(data.regtime && layui.common.createTime(data.regtime))||'暂无'}</p>
+                        </div>
+                    </div>
+                    <div class="title">提现信息:</div>
+                    <div class="member">
+                        <p style="display:${data.withdrawal_type==1?'block':'none'}"><span style="margin-right:30px}">收款人姓名：待填充</span> <span style="margin-left:30px" ></span> 收款账号：待填充<span style="margin-right:30px"></span> 收款方式：微信</p>
+                        <p style="display:${data.withdrawal_type==2?'block':'none'}"><span style="margin-right:30px}">收款人姓名：${data.alipay_real_name}</span> <span style="margin-left:30px" ></span>收款账号：${data.alipay_number} <span style="margin-right:30px"></span>收款方式：支付宝</p>
+                        <p style="display:${data.withdrawal_type==3?'block':'none'}"><span style="margin-right:30px}">收款人姓名：${data.card_holder}</span> <span style="margin-left:30px" ></span>银行卡号：<input id="account" readonly="readonly" value=${data.card_number}> </input><span class="copy">复制账号</span> <span style="margin-right:30px"></span> 开卡银行：${data.card_bank}</p>
+                       
+                        <div style="background-color: rgba(245, 245, 245, 1);padding:20px;width: 539px;">
+                            <p style="color: #000;"><span style="margin-right: 30px;">提现前余额：${(data.extract_before/100).toFixed(2)}元</span><span style="margin-right: 30px;">提现后余额：${(data.extract_later/100).toFixed(2)}元</span> <span style="color:rgba(42, 130, 228, 1)">提现金额：${(data.extract_money && data.extract_money/100).toFixed(2)||'未知'}元</span></p>
+                            <p style="color: #000;"><span style="margin-right: 30px;">提现手续费：${(data.service_money/100).toFixed(2)}元</span><span style="margin-right: 30px;">实际打款金额：${(data.actual_money/100).toFixed(2)}元</span>  <span style="color:rgba(255, 87, 51, 1)">提现状态：${status=='0' ? '待打款': status=='1' ? '已完成' :'已驳回'}</span></p>
+                        </div>
+                    </div>
+                `)
+                if (status == '0') {
+                    $('.right').append(
+                        `<button class="layui-btn layui-btn-normal handle" style="margin:30px 30px 30px 87px">处理</button>`
+                    )
+                } else if (status == '1') {
+                    var imgList = []
+                    if (data.remit_voucher) {
+                        imgList = data.remit_voucher.split(',')
+                    }
+                    $('.right').append(`
+                            <div class="title1">打款证明</div>
+                            <div style="padding:20px 0 20px 0" class="voucher">
+                            </div>
+                            <div style="height: 40px;line-height: 40px;">
+                                <div class="layui-inline title1"></div>
+                                <div class="layui-inline">
+                                    <label >打款备注：</label>
+                                    <div class="layui-input-inline">
+                                        ${data.refund_reason==''?'暂无':base.decode(data.refund_reason)}
+                                    </div>
+                                </div>
+                            </div>
+                        `)
+                    imgList.forEach(item => {
+                        $('.voucher').append(
+                            `<img src=${layui.setter.CDN+item} style="width: 80px;height:80px;margin-right:10px;"></img>`
+                        )
+                    });
+                } else {
+                    $('.right').append(`
+                        <div style="line-height: 40px;margin-bottom:10px;padding-right:30px" class="choose1">
+                            <div class="layui-inline title1">驳回原因</div>
+                            <div class="" style="color:rgba(255, 87, 51, 1)">
+                                ${ base.decode(data.refund_reason)}
+                            </div>
+                        </div>
+                    `)
+                }
+                //input账号的长度随返回的数据改变
+                var l = $('#account').val().length
+                $('#account').width((l + 1) * 8 + "px")
+                //复制按钮事件绑定
+                $(".copy").on("click", function () {
+                    //选择当前对象
+                    $("#account").select();
+                    try {
+                        //进行复制到剪切板
+                        if (document.execCommand("Copy", "false", null)) {
+                            //如果复制成功
+                            layer.msg("复制成功！");
+                        } else {
+                            //如果复制失败
+                            layer.msg("复制失败！");
+                        }
+                    } catch (err) {
+                        //如果报错
+                        layer.msg("复制错误！")
+                    }
+                })
+            } else {
+                $('.right').empty()
+            }
+        }
+
+        //审核处理
+        $('.right').on('click', '.handle', function () {
+            admin.popup({
+                id: 'checkWithdrawal',
+                title: '审核提现申请',
+                area: ['650px', '500px'],
+                success: function () {
+                    view(this.id).render('/template/finance/checkWithdrawal', {
+                        exchange_index: extract_index
+                    });
+                }
+            });
+        });
+    })
+    layui.use('checkTask', layui.factory('checkTask'));
+</script>

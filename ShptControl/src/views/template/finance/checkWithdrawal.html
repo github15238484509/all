@@ -1,0 +1,143 @@
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <form class="layui-form" action="">
+        <div class="layui-form-item">
+            <label class="layui-form-label">审核状态：</label>
+            <div class="layui-input-block">
+                <input type="radio" name="status" value="0" title="通过审核" checked lay-filter="radio">
+                <input type="radio" name="status" value="2" title="驳回申请" lay-filter="radio">
+            </div>
+        </div>
+        <hr>
+        <div class="success">
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="font-size:16px;color:rgba(80, 80, 80, 1);font-weight:bold;width:120px">提交打款证明</label>
+            </div>
+            <div class="layui-form-item ">
+                <label class="layui-form-label">打款证明：</label>
+                <div class="layui-input-block">
+                    <div class="layui-upload" style="display:flex;flex-wrap:wrap">
+                        <div class="layui-upload-list" id="demo" style="display:flex;flex-wrap:wrap"></div>
+                        <img src="../src/images/upImg.png" id="upImg" style="width:90px;height:90px;cursor:pointer;margin-top:10px;"></img>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">打款备注：</label>
+                <div class="layui-input-inline">
+                    <textarea name="remark" cols="40" rows="5" placeholder="请输入打款备注" style="padding:10px"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="reason" style="display:none">
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="font-size:16px;color:rgba(80, 80, 80, 1);font-weight:bold;width:120px">填写驳回原因</label>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">驳回原因：</label>
+                <div class="layui-input-block">
+                    <textarea name="refuse_reason" cols="40" rows="10" placeholder="输入拒绝原因" style="padding:10px"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="width:200px;">
+                <button type="submit" class="layui-btn" style="width:100%;" lay-submit="" lay-filter="tt_submit">确定</button>
+            </div>
+        </div>
+    </form>
+</script>
+
+
+<script>
+    layui.data.sendParams = function(params) {
+        layui.use(['admin', 'element', 'form', 'upload'], function() {
+            var admin = layui.admin;
+            var form = layui.form;
+            var upload = layui.upload;
+            var $ = layui.jquery,
+                element = layui.element;
+            var imgList = [] //图片数组
+            var imgStr = '' //图片路径
+            form.render()
+            form.on('radio(radio)', function(data) {
+                if (data.value == 2) {
+                    $('.reason').css('display', 'block')
+                    $('.success').css('display', 'none')
+                } else {
+                    $('.reason').css('display', 'none')
+                    $('.success').css('display', 'block')
+                }
+            });
+            //上传打款凭证
+            upload.render({
+                elem: '#upImg',
+                url: layui.setter.requestUrl + 'api.php?c=uploadImg/uploadImage',
+                data: {
+                    module: 'withdrawal'
+                },
+                drag: true,
+                done: function(res, index, upload) { //上传后的回调
+                    if (res.code == 0) {
+                        layer.msg('上传成功')
+                        $('#demo').append('<img src="' + layui.setter.CDN + res.data +
+                            '" class="layui-upload-img" style="width:90px;height:90px;margin-bottom: 10px;"><div class="del">x</div>'
+                        )
+                        imgList.push(res.data);
+                        imgStr = imgList.join(',')
+                        if (imgList.length == 5) {
+                            $('#upImg').hide();
+                        }
+                    } else {
+                        layer.msg(res.msg);
+                    };
+                }
+            });
+            //删除图片得到最后上传成功的路径字符串
+            $('#demo').on('click', '.del', function() {
+                var i = ($(this).index() - 1) / 2
+                $(this).prev('img').remove()
+                $(this).remove()
+                imgList.splice(i, 1)
+                if (imgList.length < 5) {
+                    $('#upImg').show();
+                }
+                imgStr = imgList.join(',')
+            });
+            var flag = true
+            form.on('submit(tt_submit)', function(data) {
+                if (!flag) {
+                    return false;
+                }
+                flag = false
+                if (data.field.status == 0 && imgStr == '') {
+                    layer.msg('请上传打款凭证');
+                    return false;
+                }
+                if (data.field.status == 2 && data.field.refuse_reason == '') {
+                    layer.msg('请输入拒绝原因');
+                    return false;
+                }
+                data.field.exchange_index = params.exchange_index
+                data.field.imgUrl = imgStr
+                delete data.field.file
+                console.log(data.field);
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=order/transactionStatus',
+                    data: data.field,
+                    success: function(res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg);
+                            layer.closeAll();
+                            parent.layui.table.reload("tt_record");
+                        } else {
+                            layer.msg(res.msg);
+                        }
+                        flag = true
+                    }
+                })
+                return false;
+            });
+
+        })
+    }
+</script>

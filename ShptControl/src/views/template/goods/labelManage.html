@@ -1,0 +1,247 @@
+<style>
+    .tabMsg {
+        display: flex;
+        padding: 20px;
+    }
+
+    .tabMsg>div {
+        width: 200px;
+        height: 30px;
+        text-align: center;
+        line-height: 30px;
+        font-size: 14px;
+        color: rgba(42, 130, 228, 1);
+        border: 1px solid rgba(42, 130, 228, 1);
+        cursor: pointer;
+        margin-left: -1px;
+    }
+
+    .tabMsg .current {
+        color: #fff;
+        background-color: rgba(42, 130, 228, 1);
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">首页</a>
+        <a><cite>系统配置</cite></a>
+        <a><cite>标签管理</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+<div class="layui-form layui-card-header layuiadmin-card-header-auto form" style="background: #fff;margin:10px 0">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">标签名称：</label>
+            <div class="layui-input-inline">
+                <input type="text" name="tag_name" style="width:200px;" autocomplete="off" placeholder="请输入标签名称"
+                    class="layui-input">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">标签状态：</label>
+            <div class="layui-input-inline">
+                <select name="is_able">
+                    <option value="-1">全部</option>
+                    <option value="0">启用</option>
+                    <option value="1">禁用</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search">
+                <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>搜索
+            </button>
+        </div>
+    </div>
+</div>
+<div class="layui-fluid" style="background: #fff;">
+    <button type="button" class="layui-btn layui-btn-normal addLabel">添加标签</button>
+    <button class="layui-btn" id="delete">批量删除</button>
+
+</div>
+<table class="layui-hide" id="labelTable" lay-filter="labelTable"></table>
+<script type="text/html" id="switchTpl">
+    <input type="checkbox" name="is_able" value="{{d.tag_index}}" lay-skin="switch" lay-text="启用|禁用"
+        lay-filter="statusSwitch" {{ d.is_able == 0 ? 'checked' : '' }}>
+</script>
+<script>
+    layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'table', 'laydate', 'common', 'public',
+            'form'
+        ],
+        function () {
+            var $ = layui.$,
+                admin = layui.admin,
+                laydate = layui.laydate,
+                view = layui.view,
+                form = layui.form,
+                table = layui.table;
+            IsshowAnNiu = layui.common.IsshowAnNiu;
+            var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+            var brand_status = '1';
+            var checkStatus = [];
+            var tool = layui.public.tool;
+            var base = new layui.public.Base64();
+            var field = {
+                tag_name: '',
+                is_able: '-1'
+            }
+            form.render()
+            //搜索
+            form.on('submit(search)', function (data) {
+                render_table(data.field);
+            });
+            //多选拿到选择的行的数据
+            table.on('checkbox(labelTable)', function (d) {
+                checkStatus = table.checkStatus('labelTable').data;
+            });
+            //批量删除
+            $('#delete').on('click', function () {
+                if (checkStatus.length == 0) {
+                    layer.msg('请先选择行');
+                    return false
+                }
+                let tag_index = []
+                checkStatus.forEach(item => {
+                    tag_index.push(item.tag_index)
+                })
+                tool.delTableLine({
+                    url: 'goods_tag/delTags',
+                    param: {
+                        tag_index_str: tag_index.join(',')
+                    },
+                    success: function () {
+                        table.reload('labelTable', {
+                            url: layui.setter.requestUrl +
+                                'api.php?c=goods_tag/getGoodsTagList'
+                        });
+                    }
+                });
+            })
+            //添加标签
+            $('.addLabel').click(function () {
+                admin.popup({
+                    id: 'addLabel',
+                    title: '添加标签',
+                    area: ['500px', '400px'],
+                    success: function () {
+                        view(this.id).render('/template/goods/addLabel', {});
+                    }
+                });
+            })
+            //渲染表格数据
+            var render_table = function (data) {
+                table.render({
+                    elem: '#labelTable',
+                    url: layui.setter.requestUrl + 'api.php?c=goods_tag/getGoodsTagList',
+                    where: data,
+                    cols: cols = [
+                        [{
+                                type: 'checkbox',
+                                fixed: 'left'
+                            }, {
+                                field: 'tag_index',
+                                title: '序号',
+                                align: 'center',
+                                sort: true
+                            }, {
+                                field: 'tag_name',
+                                title: '标签名称',
+                                align: 'center'
+                            }, {
+                                field: 'tag_des',
+                                title: '标签含义',
+                                align: 'center',
+                                templet: function (d) {
+                                    return base.decode(d.tag_des)
+                                }
+
+                            }, {
+                                field: 'is_able',
+                                title: '状态',
+                                align: 'center',
+                                templet: '#switchTpl'
+                            },
+                            {
+                                fixed: 'right',
+                                align: 'center',
+                                title: '操作',
+                                width: 180,
+                                templet: function (d) {
+                                    return `<button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-event = 'edit'>编辑</button>
+                                    <button type="button" class="layui-btn layui-btn-danger layui-btn-sm" lay-event = 'del'>删除</button>`
+                                }
+                            }
+                        ]
+                    ],
+                    page: true,
+                });
+            }
+            //先自调用请求渲染数据
+            render_table(field);
+
+
+            table.on('tool(labelTable)', function (obj) { //注：tool table 是 table  lay-filter="对应的值"
+                var data = obj.data; //获得当前行数据
+                var layEvent = obj.event; //获得 lay-event 对应的值
+                if (layEvent == 'enlarge') {
+                    tool.lookBigImg(data.zone_pic.split(','));
+                } else if (layEvent == 'edit') {
+                    admin.popup({
+                        id: 'editBrand',
+                        title: '编辑标签',
+                        area: ['500px', '400px'],
+                        success: function () {
+                            view(this.id).render('/template/goods/addLabel', data);
+                        }
+                    });
+                } else if (layEvent == 'del') {
+                    tool.delTableLine({
+                        url: 'goods_tag/delTag',
+                        param: {
+                            tag_index: data.tag_index
+                        },
+                        success: function (res) {
+                            table.reload('labelTable', {
+                                url: layui.setter.requestUrl +
+                                    'api.php?c=goods_tag/getGoodsTagList'
+                            });
+                        }
+                    });
+                } else if (layEvent == 'changeStatus') {
+                    console.log(111);
+                }
+            })
+            //监听操作
+            form.on('switch(statusSwitch)', function (obj) {
+                let type = ''
+                if (obj.elem.checked) {
+                    type = '0'
+                } else {
+                    type = '1'
+                }
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=goods_tag/changeTag',
+                    data: {
+                        tag_index: obj.value,
+                        type: type
+                    },
+                    success: function (res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg);
+                            table.reload('labelTable', {
+                                url: layui.setter.requestUrl +
+                                    'api.php?c=goods_tag/getGoodsTagList',
+                                where: field
+                            });
+                        } else {
+                            layer.msg(res.msg);
+                        }
+                    }
+                })
+            });
+
+        });
+</script>

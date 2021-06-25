@@ -1,0 +1,174 @@
+<style>
+    .layui-table-cell {
+        /* display:table-cell;
+        line-height: 20px!important; */
+        height: auto;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">首页</a>
+        <a><cite>财务管理</cite></a>
+        <a><cite>余额转赠设置</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid" style="background: #fff;">
+    <button type="button" class="layui-btn layui-btn-normal chooseGoods">新增转赠余额</button>
+</div>
+<table class="layui-hide" id="table" lay-filter="table"></table>
+
+<script>
+    layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'table', 'laydate', 'common', 'public',
+            'form'
+        ],
+        function() {
+            var $ = layui.$,
+                admin = layui.admin,
+                laydate = layui.laydate,
+                view = layui.view,
+                form = layui.form,
+                table = layui.table,
+                IsshowAnNiu = layui.common.IsshowAnNiu;
+            var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+            var checkStatus = [];
+            var tool = layui.public.tool;
+            var goods_sort = []
+            var field = {
+                type: "1"
+            }
+            form.render()
+
+            //多选拿到选择的行的数据
+            table.on('checkbox(table)', function(d) {
+                checkStatus = table.checkStatus('table').data;
+            });
+
+            //选择商品
+            $('.chooseGoods').click(function() {
+                    admin.popup({
+                        id: 'chooseGoods',
+                        title: '新增 /编辑余额转赠设置',
+                        area: ['600px', '400px'],
+                        success: function() {
+                            view(this.id).render('/template/finance/payMoneyAddSet123', {});
+                        }
+                    });
+                })
+                //渲染表格数据
+            var render_table = function(data) {
+                    table.render({
+                        elem: '#table',
+                        url: layui.setter.requestUrl + 'api.php?c=consumption/getConsumptionRuleList',
+                        where: data,
+                        cols: cols = [
+                            [{
+                                field: 'rule_index',
+                                title: '序号',
+                                align: 'center',
+                            }, {
+                                field: 'pay_money',
+                                title: '转赠余额',
+                                align: 'center',
+                                templet: function(d) {
+                                    return d.pay_money / 100
+                                }
+
+                            }, {
+                                field: 'hot_sort',
+                                title: '排序',
+                                align: 'center',
+                                templet: function(d) {
+                                    var div = `<div>
+                                        <input style="text-align:center;width:60px" class="save" type="number" value='${d.sort}'>
+                                        <a class="layui-btn layui-btn-sm layui-btn-danger"  lay-event="saveSort">保存</a>
+                                       </div>`
+                                    return [div]
+                                }
+                            }, {
+                                field: 'add_time',
+                                title: '添加时间',
+                                align: 'center',
+                                templet: function(d) {
+                                    return layui.common.createTime(d.add_time)
+                                }
+                            }, {
+                                align: 'center',
+                                title: '操作',
+                                templet: function(d) {
+                                    return `
+                                    <button type="button" class="layui-btn layui-btn-danger layui-btn-sm" lay-event = 'edit'>编辑</button>
+                                    <button type="button" class="layui-btn layui-btn-danger layui-btn-sm" lay-event = 'del'>删除</button>
+                                    `
+                                }
+                            }]
+                        ],
+                        page: true,
+                        //解决高度自适应固定的列高度不一致
+                        done: function(res, curr, count) {
+                            $(".layui-table-main  tr").each(function(index, val) {
+                                $($(".layui-table-fixed .layui-table-body tbody tr")[index])
+                                    .height($(val).height());
+                            });
+                        }
+                    });
+                }
+                //先自调用请求渲染数据
+            render_table(field);
+
+
+            table.on('tool(table)', function(obj) { //注：tool table 是 table  lay-filter="对应的值"
+                var data = obj.data; //获得当前行数据
+                var layEvent = obj.event; //获得 lay-event 对应的值
+                if (layEvent == 'del') {
+                    layer.confirm("真的要删除吗？", function() {
+                        admin.req({
+                            url: layui.setter.requestUrl + 'api.php?c=consumption/delRule',
+                            data: {
+                                rule_index: data.rule_index,
+                            },
+                            success: function(res) {
+                                if (res.code == 0) {
+                                    layer.msg(res.msg);
+                                    table.reload('table');
+                                } else {
+                                    layer.msg(res.msg);
+                                }
+                            }
+                        })
+                    })
+                } else if (layEvent == 'saveSort') {
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=consumption/sortRule',
+                        data: {
+                            rule_index: data.rule_index,
+                            sort: $(this).siblings('.save').val()
+                        },
+                        success: function(res) {
+                            if (res.code == 0) {
+                                layer.msg(res.msg);
+                                table.reload('table');
+                            } else {
+                                layer.msg(res.msg);
+                            }
+                        }
+                    })
+                } else if (layEvent == "edit") {
+                    admin.popup({
+                        id: 'chooseGoods',
+                        title: '新增 /编辑余额转赠设置',
+                        area: ['600px', '400px'],
+                        success: function() {
+                            view(this.id).render('/template/finance/payMoneyAddSet123', {
+                                data: data
+                            });
+                        }
+                    });
+                }
+            })
+
+        });
+</script>

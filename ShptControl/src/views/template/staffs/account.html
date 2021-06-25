@@ -1,0 +1,375 @@
+<style>
+  .layui-tab-card>.layui-tab-title .layui-this {
+    background-color: red;
+    color: #fff;
+  }
+  .layui-form-label{
+    padding: 19px 15px;
+  }
+  p{
+    font-size: 12px;
+  }
+  .account_jl {
+    display: flex;
+  }
+
+  .account_jl div {
+    margin: 0 60px;
+  }
+</style>
+<div class="layui-card layadmin-header">
+  <div class="layui-breadcrumb" lay-filter="breadcrumb">
+    <a lay-href="">主页</a>
+    <a><cite>系统配置</cite></a>
+    <a><cite>账号资料管理</cite></a>
+    <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+        class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+        id="addBook">点击收藏</cite></a>
+  </div>
+</div>
+<div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief" style="height: 100%;">
+  <ul class="layui-tab-title">
+    <li class="layui-this">修改资料</li>
+    <li>修改操作密码</li>
+    <li>修改登录密码</li>
+    <li>账号使用记录</li>
+  </ul>
+  <div class="layui-tab-content">
+    <div class="layui-tab-item  layui-show">
+      <form class="layui-form" lay-filter="form">
+        <!-- <div class="layui-form-item">
+          <label class="layui-form-label">头像</label>
+          <div class="layui-upload" style="display:flex">
+            <img src="../src/images/upImg.png" id="test2" style="width:40px;height:40px;cursor:pointer" class="img"></img>
+          </div>
+        </div> -->
+        <div class="layui-form-item">
+          <label class="layui-form-label">员工姓名</label>
+          <div class="layui-input-inline">
+            <input type="text" name="employee_name" lay-verify="nickname" autocomplete="off" class="layui-input employee_name">
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">员工账号</label>
+          <div class="layui-input-inline">
+            <input type="text" name="employee_account" lay-verify="nickname" autocomplete="off" class="layui-input employee_account">
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">账号说明</label>
+          <div class="layui-input-inline">
+            <input type="text" name="permission_des" lay-verify="nickname" autocomplete="off" class="layui-input permission_des">
+          </div>
+        </div>
+        <!-- <div class="layui-form-item">
+          <label class="layui-form-label">员工权限</label>
+          <div class="layui-input-inline">
+            <input type="text" name="nickname" value="贤心" lay-verify="nickname" disabled autocomplete="off" class="layui-input">
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">权限描述</label>
+          <div class="layui-input-inline">
+            <input type="text" name="nickname" value="贤心" lay-verify="nickname" disabled autocomplete="off" class="layui-input">
+          </div>
+        </div> -->
+        <!-- <div class="layui-form-item">
+          <label class="layui-form-label">性别</label>
+          <div class="layui-input-inline">
+            <input type="text" name="sex" value="男" lay-verify="nickname" disabled autocomplete="off"
+              class="layui-input">
+          </div>
+        </div> -->
+
+        <div class="layui-form-item">
+          <label class="layui-form-label">手机</label>
+          <div class="layui-input-inline">
+            <input type="text" name="employee_phone"  value="" lay-verify="phone" autocomplete="off"
+              class="layui-input phone">
+          </div>
+          <div class="layui-form-item" style="display: flex;margin-left:10px;">
+            <label class="layui-form-label" style="margin-top: 10px;;">上传头像</label>
+            <div class="layui-input-inline" style="display:flex;width: 100%;margin-top: 10px;">
+               <div style="width: 80px;height:80px;border:1px solid #999;"><img src="/SingleControl/src/images/upImg.png" id="uplodPhoto" alt="" style="width:80px;cursor: pointer;"></div>
+              <div style="margin-left: 10px;">
+                    <p>注意事项：</p>
+                    <p>1、请上传.jpg或.png格式图片</p>
+                    <p>2、图片宽高比要去：1：1</p>
+                    <p>3、最低像素尺寸要求：256*256像素</p>
+                    <p>4、图片文件大小控制在0.5MB以内</p>
+              </div>
+            </div>
+          </div>
+          <div class="layui-input-inline" style="margin-left:100px;">
+            <button class="layui-btn layui-btn-danger add">修改/确定</button>
+          </div>
+        </div>
+        <!-- <div class="layui-form-item">
+          <label class="layui-form-label">绑定微信</label>
+          <div class="layui-input-inline" style="line-height:38px">
+            <span style="margin-left:20px"></span>
+          </div> -->
+        <!-- <div class="layui-input-inline">
+            <button class="layui-btn layui-btn-danger btn bang"></button>
+          </div> -->
+        <!-- </div> -->
+      </form>
+    </div>
+    </form>
+    <div class="layui-tab-item">
+      <form class="layui-form" lay-filter="">
+        <div class="layui-form-item">
+          <label class="layui-form-label">当前密码</label>
+          <div class="layui-input-inline">
+            <input type="password" name="captcha" lay-verify="required" lay-verType="tips" class="layui-input">
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">新密码</label>
+          <div class="layui-input-inline">
+            <input type="password" name="pwd" lay-verify="pass" lay-verType="tips" autocomplete="off" id="LAY_password2"
+              class="layui-input">
+          </div>
+          <div class="layui-form-mid layui-word-aux">密码必须包含大小写字母和数字，且不少于8位</div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">确认新密码</label>
+          <div class="layui-input-inline">
+            <input type="password" name="repwd" lay-verify="repass" lay-verType="tips" autocomplete="off"
+              class="layui-input">
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <div class="layui-input-block">
+            <button class="layui-btn" lay-submit lay-filter="submit1">确认修改</button>
+          </div>
+        </div>
+    </div>
+    </form>
+    <div class="layui-tab-item">
+      <form class="layui-form" lay-filter="form">
+        <div class="layui-form-item">
+          <label class="layui-form-label">当前密码</label>
+          <div class="layui-input-inline">
+            <input type="password" name="oldpwd" lay-verify="required" lay-verType="tips" class="layui-input">
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">新密码</label>
+          <div class="layui-input-inline">
+            <input type="password" name="pwd" lay-verify="pass" lay-verType="tips" autocomplete="off"
+              class="layui-input">
+          </div>
+          <div class="layui-form-mid layui-word-aux">密码必须包含大小写字母和数字，且不少于8位</div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">确认新密码</label>
+          <div class="layui-input-inline">
+            <input type="password" name="repwd" lay-verify="repass" lay-verType="tips" autocomplete="off"
+              class="layui-input">
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <div class="layui-input-block">
+            <button class="layui-btn" lay-submit lay-filter="submit">确认修改</button>
+          </div>
+        </div>
+    </div>
+    <div class="layui-tab-item">
+      <div class="account_jl">
+        <div id="account_zh">账号：</div>
+        <div id="accountName">姓名：</div>
+        <div id='accountTime'>创建时间：</div>
+      </div>
+      <ul class="layui-timeline" id="flow1" style="margin: 20px 50px;">
+
+      </ul>
+    </div>
+  </div>
+</div>
+<script>
+  layui.use(['form', 'layer', 'upload', 'common','flow','public'], function () {
+    var admin = layui.admin,
+      setter = layui.setter,
+      $ = layui.jquery,
+      form = layui.form,
+      upload = layui.upload,
+      layer = layui.layer,
+      flow = layui.flow,
+      IsshowAnNiu = layui.common.IsshowAnNiu;
+    var menuPermissions = IsshowAnNiu('addviews');  //菜单权限;
+    var employee_id = ''; // 用户id
+    var employee_pic = ''; // 用户头像
+    var isWechat = true;//true 代表没有绑定过微信 反之false
+    form.on('submit(submit)', function (data) {
+      admin.req({
+        url: layui.setter.requestUrl + 'api.php?c=login/employeePwd',
+        type: 'post',
+        data: data.field,
+        success: function (res) {
+          if (res.code == 0) {
+            layer.msg(res.msg, { icon: 1 })
+          }
+        }
+      })
+      return false
+    })
+    upload.render({
+      elem: '#uplodPhoto',
+      url: layui.setter.requestUrl + 'api.php?c=uploadImg/uploadImage',
+      data: {
+        module: 'userPhoto'
+      }
+      , done: function (res, index, upload) {
+        if (res.code !== 0) {
+          return layer.msg('上传失败')
+        }
+        layer.msg('上传成功');
+        employee_pic = res.data;
+        $('#uplodPhoto').attr('src', layui.setter.CDN + res.data);
+      }
+      , error() {
+        layer.msg('上传失败');
+      }
+    })
+    form.on('submit(submit1)', function (data) {
+      admin.req({
+        url: layui.setter.requestUrl + 'api.php?c=login/editOperationPwd',
+        type: 'post',
+        data: data.field,
+        success: function (res) {
+          if (res.code == 0) {
+            layer.msg(res.msg, { icon: 1 })
+          }else{
+            layer.msg(res.msg)
+          }
+        }
+      })
+      return false
+    })
+    //获取用户的基本信息
+    getUserInfo()
+    function getUserInfo() {
+      admin.req({
+        url: layui.setter.requestUrl + 'api.php?c=login/getEmployeeBaseInfo',
+        success: function (res) {
+          if (res.code == 0) {
+            employee_id = res.data.employee_id;
+            employee_pic =res.data.employee_pic;
+            $('#uplodPhoto').attr('src', layui.setter.CDN + res.data.employee_pic);
+            form.val("form", { //formTest 即 class="layui-form" 所在元素属性 lay-filter="" 对应的值
+              "employee_name": res.data.employee_name
+              , "employee_account": res.data.employee_account
+              , "employee_phone": res.data.employee_phone
+              , "permission_des": res.data.permission_des
+            });
+            // $('.img').attr('src',layui.setter.requeatUrl+res.data.photo)
+            if (res.data.wechat_unionID && res.data.wechat_unionID != '') {
+              $('.bang').html('绑定');
+              $('.btn').html('解绑');
+              isWechat = false
+            } else {
+              $('.bang').html('未绑定')
+              $('.btn').html('绑定')
+              isWechat = true
+            }
+          }
+        }
+      })
+    }
+    //修改手机号
+    $('.add').click(function () {
+      var phone = $('.phone').val();
+      var employee_account = $('.employee_account').val();
+      var employee_name = $('.employee_name').val();
+      var permission_des = $('.permission_des').val();
+      layer.confirm('确定修改么？', {
+        btn: ['确定', '取消']
+      }, function (index) {
+        admin.req({
+          url: layui.setter.requestUrl + 'api.php?c=editEmployeeInfo',
+          data: {
+            employee_id: employee_id,
+            employee_account: employee_account,
+            employee_name: employee_name,
+            employee_phone: phone,
+            permission_des: permission_des,
+            employee_pic: employee_pic
+          },
+          done: function (res) {
+            if (res.code == 0) {
+              layer.msg(res.msg, {
+                icon: 1
+              });              
+            } else {
+              layer.msg(res.msg);
+            }
+          }
+        });
+      }, function (index) {
+        layer.close(index)
+      });
+      return false
+    })
+    //绑定微信
+    $('.bang').click(function () {
+      console.log(123);
+      if (isWechat) return window.open('https://open.weixin.qq.com/connect/qrconnect?appid=wxebd55806698d5ede&redirect_uri=' + layui.setter.requestUrl + 'admin/weChetBind.html?id=' + employee_id + '&response_type=code&scope=snsapi_login&state=3d6be0a4035d839573b04816624a415e#wechat_redirect')
+      unbundle()// 解绑微信
+    })
+    //解绑微信
+    function unbundle() {
+      admin.req({
+        url: layui.setter.requestUrl + 'api.php?c=login/unbindWechat',
+        data: {
+          employee_id: employee_id
+        },
+        success: function (res) {
+          if (res.code == 0) {
+            layer.msg(res.msg, {
+              icon: 1
+            });
+            getUserInfo()
+          } else {
+            layer.msg(res.msg, {
+              icon: 5
+            });
+          }
+        }
+      })
+    }
+    flow.load({
+      elem: '#flow1' //指定列表容器
+      , done: function (page, next) { //到达临界点（默认滚动触发），触发下一页
+        var lis = [];
+        //以jQuery的Ajax请求为例，请求下一页数据（注意：page是从2开始返回）
+        admin.req({
+          url:layui.setter.requestUrl + 'api.php?c=login/getEmployeeOperation&page=' + page + '&limit=10',
+          success:function(res){
+            $('#account_zh').append(res.data.name)//账号
+            $('#accountName').append(res.data.account)//姓名
+            $('#accountTime').append(res.data.regtime?layui.common.createTime(res.data.regtime):'暂无')//创建时间
+            //假设你的列表返回在data集合中
+            layui.each(res.data.list, function (index, item) {
+              lis.push(`
+                <li class="layui-timeline-item">
+                    <i class="layui-icon layui-timeline-axis"></i>
+                    <div class="layui-timeline-content layui-text">
+                      <h3 class="layui-timeline-title">${layui.common.createTime(item.operation_time)}</h3>
+                      <p>
+                        ${item.operation_des}。
+                        <br>登录IP：${item.operation_ip}。
+                      </p>
+                    </div>
+                  </li>
+                `)
+            });
+            //执行下一页渲染，第二参数为：满足“加载更多”的条件，即后面仍有分页
+            //pages为Ajax返回的总页数，只有当前页小于总页数的情况下，才会继续出现加载更多
+            next(lis.join(''), page < res.pages);
+            }
+        })
+      }
+    });
+  })
+</script>

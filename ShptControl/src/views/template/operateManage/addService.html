@@ -1,0 +1,463 @@
+<style>
+    .photo {
+        display: flex;
+        align-items: center;
+    }
+    
+    .photo img {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        margin-right: 20px;
+    }
+    
+    .del,
+    .del1,
+    .del2 {
+        width: 20px;
+        height: 20px;
+        position: relative;
+        top: -14px;
+        right: 5px;
+        cursor: pointer;
+        text-align: center;
+        line-height: 20px;
+        background-color: rgb(128, 120, 120);
+        color: #fff;
+        font-size: 20px;
+        border-radius: 50%;
+    }
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <form class="layui-form" action="" style="padding-top:20px" lay-filter="formTest">
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:100px;">手机号：</label>
+            <div class="layui-input-block">
+                <input type="text" name="phone" style="width:300px;" lay-verify="phone" autocomplete="off" placeholder="请输入内容" class="layui-input phone">
+            </div>
+        </div>
+        <div class="layui-form-item userInfo" style="display:none">
+            <label class="layui-form-label"></label>
+            <div class="layui-input-block photo">
+
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:100px;">姓名：</label>
+            <div class="layui-input-block">
+                <input type="text" name="name" style="width:300px;" lay-verify="required" autocomplete="off" placeholder="请输入内容" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:100px;">联系地址：</label>
+            <div class="layui-input-inline">
+                <select name="contact_province" class="contact_province" lay-filter="contact_province" lay-verify="required">
+                    <option value="">请选择省</option>
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <select name="contact_city" class="contact_city" lay-filter="contact_city" lay-verify="required">
+                    <option value="">请选择市</option>
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <select name="contact_county" class="contact_county" lay-filter="contact_county" lay-verify="required">
+                    <option value="">请选择县/区</option>
+                </select>
+            </div>
+        </div>
+        <!-- <div class="layui-form-item">
+            <label class="layui-form-label" style="width:100px;">分站级别：</label>
+            <div class="layui-input-inline">
+                <select name="rank" class="agency_province1" lay-filter="agency_province1" lay-verify="required">
+                    <option value="">请选择级别</option>
+                    <option value="5">省级分站</option>
+                    <option value="4">区/县级分站</option>
+                </select>
+            </div>
+        </div> -->
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:100px;">详细地址：</label>
+            <div class="layui-input-block">
+                <input type="text" name="contact_address" style="width:300px;" lay-verify="required" autocomplete="off" placeholder="请输入内容" class="layui-input">
+            </div>
+        </div>
+        <!-- <div class="layui-form-item">
+            <label class="layui-form-label" style="width:100px;">代理地区：</label>
+            <div class="layui-input-inline">
+                <select name="agency_province" class="agency_province" lay-filter="agency_province" lay-verify="required">
+                    <option value="">请选择省</option>
+                </select>
+            </div>
+            <div class="layui-input-inline city">
+                <select name="agency_city" class="agency_city" lay-filter="agency_city" lay-verify="required">
+                    <option value="">请选择市</option>
+                </select>
+            </div>
+            <div class="layui-input-inline county">
+                <select name="agency_county" class="agency_county" lay-filter="agency_county" lay-verify="required">
+                    <option value="">请选择县/区</option>
+                </select>
+            </div>
+        </div> -->
+        <!-- <div class="layui-form-item">
+            <label class="layui-form-label" style="width:100px;">身份证人像面：</label>
+            <div>
+                <button type="button" class="layui-btn">
+                    <i class="layui-icon">&#xe67c;</i>上传图片
+                </button>
+                <button type="button" class="layui-btn">
+                    查看已上传的图片
+                </button>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:100px;">身份证人像面：</label>
+            <div>
+
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:100px;">身份证人像面：</label>
+            <div>
+
+            </div>
+        </div> -->
+        <div class="layui-form-item ">
+            <label class="layui-form-label" style="width:100px;">身份证人像面：</label>
+            <div class="layui-input-block">
+                <div class="layui-upload" style="display:flex;flex-wrap:wrap">
+                    <div class="layui-upload-list" id="demo" style="display:flex;flex-wrap:wrap"></div>
+                    <img src="../src/images/upImg.png" id="upImg" style="width:90px;height:90px;cursor:pointer;margin-top:10px;"></img>
+                    <span style="color: red;padding-left: 14px;
+                    padding-top: 13px;">
+                        提示: 人像面需清晰、无遮挡
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item ">
+            <label class="layui-form-label" style="width:100px;">身份证国徽面：</label>
+            <div class="layui-input-block">
+                <div class="layui-upload" style="display:flex;flex-wrap:wrap">
+                    <div class="layui-upload-list" id="demo1" style="display:flex;flex-wrap:wrap"></div>
+                    <img src="../src/images/upImg.png" id="upImg1" style="width:90px;height:90px;cursor:pointer;margin-top:10px;"></img>
+                    <span style="color: red;padding-left: 14px;
+                    padding-top: 13px;">
+                        提示: 国徽面需清晰、无遮挡、并拍出有效日期等文字
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item ">
+            <label class="layui-form-label" style="width:100px;">手持身份证：</label>
+            <div class="layui-input-block">
+                <div class="layui-upload" style="display:flex;flex-wrap:wrap">
+                    <div class="layui-upload-list" id="demo2" style="display:flex;flex-wrap:wrap"></div>
+                    <img src="../src/images/upImg.png" id="upImg2" style="width:90px;height:90px;cursor:pointer;margin-top:10px;"></img>
+                    <span style="color: red;padding-left: 14px;
+                    padding-top: 13px;">
+                        提示: 需清晰拍出人物五官和文字信息不可自拍不可只拍身份证
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="width:200px;margin:0 auto;">
+                <button type="submit" class="layui-btn" style="width:100%;" lay-submit="" lay-filter="submit">保存</button>
+            </div>
+        </div>
+    </form>
+</script>
+<script>
+    layui.data.sendParams = function(params) {
+        console.log(params)
+        layui.use(['admin', 'element', 'upload', 'form', 'public'], function() {
+            var $ = layui.$;
+            var admin = layui.admin;
+            var element = layui.element;
+            var upload = layui.upload;
+            var form = layui.form;
+            var public = layui.public,
+                tool = layui.public.tool;
+            var img = ''; //上传的图片
+            var id = ''; //编辑时传的id
+            var img_positive = '';
+            var img_the_other_side = '';
+            var img_holding = '';
+
+            form.render()
+                //开启省市区三级联动
+            tool.linkage({
+                province: 'contact_province',
+                city: 'contact_city',
+                county: 'contact_county',
+                success: function(province, city, county) {
+
+                }
+            });
+            //开启省市区三级联动
+            // tool.linkage({
+            //     province: 'agency_province',
+            //     city: 'agency_city',
+            //     county: 'agency_county',
+            //     success: function(province, city, county) {
+
+            //     }
+            // });
+            form.on('select(agency_province1)', function(data) {
+                if (data.value == 5) {
+                    $('.county').hide();
+                    $('.county>select').attr('lay-verify', '');
+                    $('.county>select').val('0');
+                    $('.city>select').val('0');
+                    $('.city').hide();
+                    $('.city>select').attr('lay-verify', '');
+
+                } else {
+                    $('.county').show();
+                    $('.county>select').attr('lay-verify', 'required');
+                    $('.city').show();
+                    $('.city>select').attr('lay-verify', 'required');
+                }
+            });
+            // 编辑反显
+            if (params.id) {
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=mall_facilitator/facilitator_detail',
+                    type: 'post',
+                    data: {
+                        id: params.id
+                    },
+                    success: function(res) {
+                        console.log(res)
+                        if (res.code == 0) {
+                            img = res.data.img
+                            id = res.data.id
+                            $('.userInfo').css('display', 'block')
+
+                            // $('.photo').append(`
+                            //     <img src="${layui.setter.CDN+res.data.photo}" style="margin-right:10px">${res.data.name}
+                            // `)
+                            $('.phone').attr('disabled', true)
+                                //开启省市区三级联动
+                            tool.linkage({
+                                province: 'contact_province',
+                                city: 'contact_city',
+                                county: 'contact_county',
+                                provinceId: res.data.contact_province,
+                                cityId: res.data.contact_city,
+                                countyId: res.data.contact_county
+                            });
+                            //开启省市区三级联动
+                            // tool.linkage({
+                            //     province: 'agency_province',
+                            //     city: 'agency_city',
+                            //     county: 'agency_county',
+                            //     provinceId: res.data.agency_province,
+                            //     cityId: res.data.agency_city,
+                            //     countyId: res.data.agency_county
+                            // });
+                            if (res.data.img_positive) {
+                                img_positive = res.data.img_positive
+                                $('#upImg').hide();
+                                $('#demo').append('<img src="' + layui.setter.CDN +
+                                    img_positive +
+                                    '" class="layui-upload-img" style="width:90px;height:90px;margin-bottom: 10px;"><div class="del">x</div>'
+                                )
+                            }
+
+                            if (res.data.img_the_other_side) {
+                                img_the_other_side = res.data.img_the_other_side
+                                $('#upImg1').hide();
+                                $('#demo1').append('<img src="' + layui.setter.CDN +
+                                    img_the_other_side +
+                                    '" class="layui-upload-img" style="width:90px;height:90px;margin-bottom: 10px;"><div class="del1">x</div>'
+                                )
+                            }
+                            if (res.data.img_holding) {
+                                img_holding = res.data.img_holding
+                                $('#upImg2').hide();
+                                $('#demo2').append('<img src="' + layui.setter.CDN +
+                                    img_holding +
+                                    '" class="layui-upload-img" style="width:90px;height:90px;margin-bottom: 10px;"><div class="del2">x</div>'
+                                )
+                            }
+                            if (res.data.agency_county == 0) {
+                                $('.county').hide();
+                                $('.county>select').attr('lay-verify', '');
+                                $('.city').hide();
+                                $('.city>select').attr('lay-verify', '');
+                            }
+                            form.val("formTest", {
+                                "phone": res.data.phone,
+                                "name": res.data.name,
+                                "contact_address": res.data.contact_address,
+                                // "rank": res.data.rank,
+                            });
+                            if (res.data.phone) {
+                                getPhoto()
+                            }
+                        } else {
+                            layer.msg(res.msg);
+                            $('.userInfo').css('display', 'none')
+                        }
+                    }
+                })
+            }
+            //输入手机号反显昵称头像
+            $('.phone').blur(function() {
+                console.log($('.phone').val());
+                if ($('.phone').val() != '') {
+                    getPhoto()
+                }
+            })
+
+            function getPhoto() {
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=mall_facilitator/user_info',
+                    type: 'post',
+                    data: {
+                        phone: $('.phone').val()
+                    },
+                    success: function(res) {
+                        if (res.code == 0) {
+                            $('.userInfo').css('display', 'block')
+                            $('.photo').empty()
+                            $('.photo').append(`
+                                    <img src="${layui.setter.CDN+res.data.photo}" style="margin-right:10px">${res.data.name}
+                                `)
+                        } else {
+                            layer.msg(res.msg);
+                            $('.userInfo').css('display', 'none')
+                        }
+                    }
+                })
+            }
+
+            upload.render({
+                elem: '#upImg',
+                url: layui.setter.requestUrl + 'api.php?c=uploadImg/uploadImage',
+                data: {
+                    module: 'withdrawal'
+                },
+                drag: true,
+                done: function(res, index, upload) { //上传后的回调
+                    if (res.code == 0) {
+                        layer.msg('上传成功')
+                        $('#demo').append('<img src="' + layui.setter.CDN + res.data +
+                            '" class="layui-upload-img" style="width:90px;height:90px;margin-bottom: 10px;"><div class="del">x</div>'
+                        )
+                        img_positive = res.data
+
+                        if (img_positive) {
+                            $('#upImg').hide();
+                        }
+                    } else {
+                        layer.msg(res.msg);
+                    };
+                }
+            });
+            //删除图片得到最后上传成功的路径字符串
+            $('#demo').on('click', '.del', function() {
+                var i = ($(this).index() - 1) / 2
+                $(this).prev('img').remove()
+                $(this).remove()
+                $('#upImg').show();
+                img_positive = ''
+            });
+            upload.render({
+                elem: '#upImg1',
+                url: layui.setter.requestUrl + 'api.php?c=uploadImg/uploadImage',
+                data: {
+                    module: 'withdrawal'
+                },
+                drag: true,
+                done: function(res, index, upload) { //上传后的回调
+                    if (res.code == 0) {
+                        layer.msg('上传成功')
+                        $('#demo1').append('<img src="' + layui.setter.CDN + res.data +
+                            '" class="layui-upload-img" style="width:90px;height:90px;margin-bottom: 10px;"><div class="del1">x</div>'
+                        )
+                        img_the_other_side = res.data
+
+                        if (img_the_other_side) {
+                            $('#upImg1').hide();
+                        }
+                    } else {
+                        layer.msg(res.msg);
+                    };
+                }
+            });
+            //删除图片得到最后上传成功的路径字符串
+            $('#demo1').on('click', '.del1', function() {
+                var i = ($(this).index() - 1) / 2
+                $(this).prev('img').remove()
+                $(this).remove()
+                $('#upImg1').show();
+                img_the_other_side = ''
+            });
+            upload.render({
+                elem: '#upImg2',
+                url: layui.setter.requestUrl + 'api.php?c=uploadImg/uploadImage',
+                data: {
+                    module: 'withdrawal'
+                },
+                drag: true,
+                done: function(res, index, upload) { //上传后的回调
+                    if (res.code == 0) {
+                        layer.msg('上传成功')
+                        $('#demo2').append('<img src="' + layui.setter.CDN + res.data +
+                            '" class="layui-upload-img" style="width:90px;height:90px;margin-bottom: 10px;"><div class="del2">x</div>'
+                        )
+                        img_holding = res.data
+
+                        if (img_holding) {
+                            $('#upImg2').hide();
+                        }
+                    } else {
+                        layer.msg(res.msg);
+                    };
+                }
+            });
+            //删除图片得到最后上传成功的路径字符串
+            $('#demo2').on('click', '.del2', function() {
+                var i = ($(this).index() - 1) / 2
+                $(this).prev('img').remove()
+                $(this).remove()
+                $('#upImg2').show();
+                img_holding = ''
+            });
+
+
+            //保存
+            form.on('submit(submit)', function(data) {
+                data.field.img_positive = img_positive
+                data.field.img_the_other_side = img_the_other_side
+                data.field.img_holding = img_holding
+                let url = 'api.php?c=mall_facilitator/facilitator_add'
+                if (id != '') {
+                    data.field.id = id
+                    url = 'api.php?c=mall_facilitator/facilitator_edit'
+                }
+
+                admin.req({
+                    url: layui.setter.requestUrl + url,
+                    type: 'post',
+                    data: data.field,
+                    success: function(res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg);
+                            layer.closeAll();
+                            parent.layui.table.reload("regionalTable");
+                        } else {
+                            layer.msg(res.msg);
+                        }
+                    }
+                })
+                return false;
+            })
+        })
+    }
+</script>

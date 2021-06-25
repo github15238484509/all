@@ -1,0 +1,421 @@
+<style>
+    .ul {
+        width: 100%;
+        height: 100%;
+    }
+
+    .layui-layer-content {
+        padding: 0 20px;
+    }
+</style>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>图文管理</cite></a>
+        <a><cite>常见问题管理</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+<!--搜索框部分-->
+<form class="layui-form" style="margin-top:35px;">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">文档类型</label>
+            <div class="layui-input-inline">
+                <select name="type" lay-verify="">
+                    <option value="">请选择类型</option>
+                    <option value="1">外部链接</option>
+                    <option value="2">内部编辑</option>
+                </select>
+            </div>
+            <label class="layui-form-label">状态</label>
+            <div class="layui-input-inline">
+                <select name="status" lay-verify="">
+                    <option value="">请选择状态</option>
+                    <option value="1">上线</option>
+                    <option value="2">下线</option>
+                </select>
+            </div>
+            <label class="layui-form-label">通知标题</label>
+            <div class="layui-input-inline">
+                <input type="text" name="title" autocomplete="off" class="layui-input search1 layui-input-inline"
+                    style="wdith:300px">
+            </div>
+            <button class="layui-btn " lay-submit lay-filter="serach"><i class="layui-icon">&#xe615;</i>搜索</button>
+        </div>
+    </div>
+</form>
+<!--表格-->
+<div style="margin-left: 35px">
+    <button class="layui-btn layui-btn-danger addviews" value='url'>常见问题发布</button>
+    <table class="layui-table" lay-filter="tableData">
+        <thead>
+            <tr>
+                <th lay-data="{field:'id',width:80, align:'center'}">文档id</th>
+                <th lay-data="{field:'title',width:200, align:'center'}">标题</th>
+                <!-- <th lay-data="{field:'pv', width:80,align:'center'}">浏览量</th> -->
+
+                <th lay-data="{field:'add_time', width:180,align:'center',templet :function (row){
+                        return createTime(row.add_time);
+                }}">创建发布时间</th>
+
+
+                <th lay-data="{field:'status', width:180,align:'center',templet :function (row){
+                        if(row.status == 1){
+                            return '上线';
+                        }return '下线';
+                }}">文档状态</th>
+
+                <th lay-data="{field:'type',width:200, align:'center',templet:function(row){
+                if(row.type == 1){
+                    return '外部链接';
+                }else{
+                    return '内部编辑';
+                }
+            }}">文档内容类型</th>
+
+                <th lay-data="{fixed: 'right',templet:function(row){
+                var sta = null;
+                if(row.status == 1){
+                    sta = '下线';
+                }else{
+                    sta = '上线';
+                }
+                var but = `<a class='layui-btn layui-btn-sm layui-btn-danger' lay-event='status'>${sta}</a>
+                <a class='layui-btn layui-btn-sm layui-btn-danger' lay-event='edit'>编辑</a>
+                <a class='layui-btn layui-btn-sm layui-btn-danger' lay-event='del'>删除</a>`
+                return but;
+            }}">操作</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+<script type="text/javascript">
+    $ = layui.jquery;
+    var tableOptions = {
+        url: layui.setter.requestUrl + "api.php?c=common_issue/issueList", //后端请求数据地址
+        method: 'GET', //方式
+        id: 'tabelReload', //生成table的标识id，必须提供，用于搜索刷新操作
+        page: true, //是否分页
+        limit: 10, //每页显示多少条数据
+        dataType: 'json',
+
+    };
+    layui.use(['form', 'layedit', 'table', 'laydate', 'element', 'layer', 'admin', 'upload', 'layedit', 'common',
+        'public'
+    ], function () {
+        var form = layui.form,
+            layer = layui.layer,
+            table = layui.table,
+            admin = layui.admin,
+            upload = layui.upload,
+            base = new layui.public.Base64(),
+            layedit = layui.layedit;
+        form.render()
+        //表格初始化
+        table.init('tableData', tableOptions);
+        //搜索
+        form.on('submit(serach)', function (data) {
+            console.log(data)
+            table.reload('tabelReload', { //此处是tableOptions里定义的table标识id
+                where: {
+                    type: data.field.type,
+                    status: data.field.status,
+                    title: data.field.title
+                },
+                page: {
+                    curr: 1 //重新从第1页开始
+                }
+            });
+            return false;
+        });
+        //添加
+        $('.addviews').click(function () {
+            issue_id = undefined;
+            var urlviews = addUrlView({
+                type: '',
+                region: '',
+                edit_user: '',
+                title: '',
+                'content': '',
+                describe: ''
+            })
+            layer.open({
+                type: 1,
+                title: '新增文档',
+                area: ['800px', '700px'],
+                shadeClose: true, //点击遮罩关闭
+                content: urlviews,
+                success: function () {
+                    form.render()
+                    layedit.set({
+                        uploadImage: {
+                            url: layui.setter.requestUrl +
+                                'api.php?c=uploadImg/uploadImage&module=commonProblem',
+                            type: 'get' //默认post
+                                ,
+                            done: function (res) {
+                                console.log(res)
+                            }
+                        }
+                    });
+                    eidt_index = layedit.build('input_content'); //建立编辑器
+                    form.verify({
+                        content: function (value) {
+                            return layedit.sync(eidt_index);
+                        }
+                    });
+                }
+            });
+        })
+
+        //table表格的事件
+        table.on('tool(tableData)', function (obj) { //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
+            var data = obj.data; //获得当前行数据
+            var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+            var tr = obj.tr; //获得当前行 tr 的 DOM 对象（如果有的话）
+            issue_id = data.id;
+            if (layEvent === 'del') { //删除
+                layer.confirm('确定删除么，删除后不可恢复', {
+                    title: '删除'
+                }, function (index) {
+                    admin.req({
+                        url: layui.setter.requestUrl +
+                            'api.php?c=common_issue/issueStatus',
+                        data: {
+                            id: data.id,
+                            status: 3
+                        },
+                        done: function (res) {
+                            layer.msg(res.msg, {
+                                icon: 1
+                            });
+                            table.init('tableData', tableOptions);
+                        }
+                    });
+                });
+            } else if (layEvent === 'edit') { //编辑
+                var urlviews = addUrlView(data)
+                layer.open({
+                    type: 1,
+                    title: '编辑文档',
+                    area: ['800px', '700px'],
+                    shadeClose: true,
+                    content: urlviews,
+                    success: function () {
+                        form.render()
+                        layedit.set({
+                            uploadImage: {
+                                url: layui.setter.requestUrl +
+                                    'api.php?c=uploadImg/uploadImage&module=news',
+                                type: 'get' //默认post
+                                    ,
+                                done: function (res) {
+                                    console.log(res)
+                                }
+                            }
+                        });
+                        eidt_index = layedit.build('input_content'); //建立编辑器
+                        form.verify({
+                            content: function (value) {
+                                return layedit.sync(eidt_index);
+                            }
+                        });
+
+                        if (data.type == 1) {
+                            $('#content').hide()
+                            $('#input_url').attr('name', 'content')
+                            $('#input_content').attr('name', '')
+                            $('#url').show()
+                        } else if (data.type == 2) {
+                            $('#url').hide()
+                            $('#content').show()
+                            $('#input_content').attr('name', 'content')
+                            $('#input_url').attr('name', '')
+                        }
+
+
+                    }
+                });
+            } else if (layEvent === 'status') {
+                if (data.status == 1) { // 下线操作
+                    var sta = '下线',
+                        status = '2';
+                } else if (data.status == 2) { // 上线操作+
+                    var sta = '上线',
+                        status = '1';
+                }
+                layer.confirm('确定' + sta + '么?', {
+                    title: sta
+                }, function (index) {
+                    admin.req({
+                        url: layui.setter.requestUrl +
+                            'api.php?c=common_issue/issueStatus',
+                        data: {
+                            id: data.id,
+                            status: status
+                        },
+                        done: function (res) {
+                            layer.msg(res.msg, {
+                                icon: 1
+                            });
+                            table.init('tableData', tableOptions);
+                        }
+                    });
+                });
+            }
+        });
+        // 添加/修改提交
+        form.on('submit(formDemo)', function (datas) {
+
+            if (typeof issue_id != "undefined") {
+                datas.field.id = issue_id
+            }
+
+            if (datas.field.edit_user == '') { // 默认编辑者
+                datas.field.edit_user = JSON.parse(localStorage.getItem(layui.setter.tableName))
+                    .employee_name
+            }
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=common_issue/addIssue',
+                type: 'POST',
+                data: datas.field,
+                done: function (res) {
+                    if (res.code == 0) {
+                        layer.msg(res.msg, {
+                            icon: 1
+                        });
+                        table.init('tableData', tableOptions);
+                        layer.closeAll('page');
+                    } else {
+                        layer.msg(res.msg, {
+                            icon: 5
+                        });
+                    }
+                }
+            });
+
+            return false;
+        })
+
+        // 添加/修改视图
+        function addUrlView(data) {
+
+            var regionList = getRegionList() // 位置列表渲染
+            var regionOption = '';
+            regionList.forEach(element => {
+                if (element.id == data.region) {
+                    regionOption +=
+                        `<option value="${element.id}" selected>${element.banner_region_name}</option>`
+                } else {
+                    regionOption +=
+                        `<option value="${element.id}">${element.banner_region_name}</option>`
+                }
+            });
+
+            if (data.type == 2) {
+                var sta = 'selected'
+            }
+
+            var view = `<form class="layui-form" style="margin-top: 20px;width: 600px">
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">内容类型</label>
+                        <div class="layui-input-block">
+                            <select name="type" lay-verify="required" lay-filter="type">
+                                <option value="1">外部链接</option>
+                                <option value="2" ${sta}>内部编辑</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">显示位置</label>
+                        <div class="layui-input-block">
+                            <select name="region" lay-verify="required">
+                                <option value=""></option>
+                                ${regionOption}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">编辑者</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="edit_user" value="${data.edit_user}" placeholder="默认登陆账号" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">通知标题</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="title" value="${data.title}" required  lay-verify="required" placeholder="建议20个字以内" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item layui-form-text">
+                        <label class="layui-form-label">通知简介</label>
+                        <div class="layui-input-block">
+                            <textarea name="describe" placeholder="简介用于首页推荐弹出公告内容" class="layui-textarea">${data.describe}</textarea>
+                        </div>
+                    </div>
+                    <div class="layui-form-item" id="url">
+                        <label class="layui-form-label">链接url</label>
+                        <div class="layui-input-block">
+                            <input type="text" id="input_url" name="content" value="${data.content}"   autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item" id="content" style="display:none">
+                        <div class="layui-form-item">
+                        <label class="layui-form-label">通知内容</label>
+                        <div class="layui-input-block">
+                            <textarea id="input_content" style="display: none;"  lay-verify="content" >${data.content}</textarea>
+                        </div>
+                    </div>
+                    </div>
+
+                    <div style="padding-bottom: 10px;text-align:center;margin-top:30px">
+                        <button class="layui-btn" lay-submit lay-filter="formDemo">提交</button>
+                    </div>
+                    </form>`;
+            form.on('select(type)', function (data) {
+                if (data.value == 1) {
+                    $('#content').hide()
+                    $('#input_url').attr('name', 'content')
+                    $('#input_content').attr('name', '')
+                    $('#url').show()
+                } else if (data.value == 2) {
+                    $('#url').hide()
+                    $('#content').show()
+                    $('#input_content').attr('name', 'content')
+                    $('#input_url').attr('name', '')
+                }
+            })
+            return view
+        }
+        // 获取位置列表
+        function getRegionList() {
+            regionList = '';
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=banner/region/getRegionList',
+                type: 'get',
+                async: false,
+                data: {
+                    type: 1
+                },
+                done: function (res) {
+                    regionList = res.data
+                }
+            });
+            return regionList;
+        }
+    });
+    // 时间戳转换
+    function createTime(v) {
+        if (v > 0) {
+            return layui.common.createTime(v);
+        }
+        return '';
+    }
+    layui.use('checkTask', layui.factory('checkTask'));
+</script>

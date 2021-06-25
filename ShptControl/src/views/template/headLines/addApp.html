@@ -1,0 +1,148 @@
+<style>
+    .appForm .layui-form-label {
+        width: 140px;
+    }
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <form class="layui-form appForm" action=" lay-filter=" zoneForm "">
+        <div class="layui-form-item">
+            <label class="layui-form-label">APP名称：</label>
+            <div class="layui-input-block">
+                <input type="text" name="app_name" value="{{d.params.app_name?d.params.app_name:''}}" style="width:300px;" lay-verify="required" autocomplete="off" placeholder="请输入内容" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">上传Logo：</label>
+            <div class="layui-upload layui-input-inline" style="width:110px">
+                <img src="/ShptControl/src/images/upImg.png" class="layui-upload-img" id="uploadLogo" style='width:96px;height:96px;cursor: pointer;'>
+            </div>
+            <div style="color:rgba(212, 48, 48, 1);display:inline-block">
+                <p>提示：1.建议上传图片比例为1:1,尺寸为500*500</p>
+                <p>2.图片不大于2M</p>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">安卓APP下载链接：</label>
+            <div class="layui-input-block">
+                <input type="text" name="url" value="{{d.params.url?d.params.url:''}}" style="width:300px;" autocomplete="off" placeholder="请输入内容" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">IOSAPP下载链接：</label>
+            <div class="layui-input-block">
+                <input type="text" name="ios_url" value="{{d.params.ios_url?d.params.ios_url:''}}" style="width:300px;" autocomplete="off" placeholder="请输入内容" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">宣传文案：</label>
+            <div class="layui-input-block">
+                <textarea name="content" id="" cols="30" rows="10" style="width:280px;height:100px;padding:10px" lay-verify="required" placeholder="请输入内容" class="content"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">上传图片：</label>
+            <div class="layui-upload layui-input-inline" style="width:110px">
+                <img src="/ShptControl/src/images/upImg.png" class="layui-upload-img" id="uploadImg" style='width:96px;height:96px;cursor: pointer;'>
+            </div>
+            <div style="color:rgba(212, 48, 48, 1);display:inline-block">
+                <p>提示：1.建议上传图片比例为16:9</p>
+                <p>2.尺寸为690*388</p>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="width:200px;margin:0 auto;">
+                <button type="submit" class="layui-btn" style="width:100%;" lay-submit="" lay-filter="submit">确定</button>
+            </div>
+        </div>
+    </form>
+</script>
+<script>
+    layui.data.sendParams = function(params) {
+        layui.use(['admin', 'form', 'upload', 'public'], function() {
+            var $ = layui.$;
+            var admin = layui.admin;
+            var form = layui.form;
+            var upload = layui.upload;
+            var base = new layui.public.Base64();
+            var ad_index = ''
+            var logo = ''
+            var pic = ''
+            if (params.ad_index) {
+                ad_index = params.ad_index
+                pic = params.pic
+                logo = params.logo
+                $('#uploadLogo').attr('src', layui.setter.CDN + params.logo)
+                $('#uploadImg').attr('src', layui.setter.CDN + params.pic)
+                $('.content').text(base.decode(params.content))
+            }
+            form.render()
+                //applogo
+            upload.render({
+                elem: '#uploadLogo',
+                url: layui.setter.requestUrl + 'api.php?c=uploadImg/uploadImage',
+                data: {
+                    module: 'app'
+                },
+                drag: true,
+                done: function(res, index, upload) { //上传后的回调
+                    if (res.code == 0) {
+                        $('#uploadLogo').attr("src", layui.setter.CDN + res.data);
+                        logo = res.data
+                    } else {
+                        layer.msg(res.msg);
+                    };
+                }
+            });
+            //上传图片
+            upload.render({
+                elem: '#uploadImg',
+                url: layui.setter.requestUrl + 'api.php?c=uploadImg/uploadImage',
+                data: {
+                    module: 'app'
+                },
+                drag: true,
+                done: function(res, index, upload) { //上传后的回调
+                    if (res.code == 0) {
+                        $('#uploadImg').attr("src", layui.setter.CDN + res.data);
+                        pic = res.data
+                    } else {
+                        layer.msg(res.msg);
+                    };
+                }
+            });
+            //保存信息
+            form.on('submit(submit)', function(data) {
+                if (logo == '') {
+                    layer.msg('请上传logo');
+                    return false;
+                }
+                if (pic == '') {
+                    layer.msg('请上传图片');
+                    return false;
+                }
+                if (data.field.is_able) {
+                    data.field.is_able = '0'
+                } else {
+                    data.field.is_able = '1'
+                }
+                data.field.logo = logo
+                data.field.ad_index = ad_index
+                data.field.pic = pic
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=ad/addEditApp',
+                    data: data.field,
+                    success: function(res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg);
+                            layer.closeAll();
+                            parent.layui.table.reload("table");
+                        } else {
+                            layer.msg(res.msg);
+                        }
+                    }
+                })
+                return false;
+            })
+        })
+    }
+</script>

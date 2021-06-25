@@ -1,0 +1,53 @@
+<style>
+    .layui-table-cell {
+        display: block;
+        height: auto !important;
+        line-height: 20px !important;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">首页</a>
+        <a><cite>运营管理</cite></a>
+        <a><cite>地区服务商管理</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+<div class="">
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto form" style="background: #fff;margin:10px 0">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">姓名：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="name" style="width:200px;" autocomplete="off" placeholder="请输入内容"
+                        class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:85px">手机号：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="phone" style="width:200px;" autocomplete="off" placeholder="请输入内容"
+                        class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">时间筛选：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="time" class="layui-input" id="test" placeholder=" 开始时间-结束时间 ">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search">
+                    搜索
+                </button>
+            </div>
+        </div>
+    </div>
+    <button type="button" class="layui-btn layui-btn-normal add" style="margin-left: 30px;">添加服务商</button>
+    <table class="layui-hide" id="regionalTable" lay-filter="regionalTable"></table>
+</div>
+<script type="text/javascript">
+    layui.use('regionalService', layui.factory('regionalService'));
+</script>

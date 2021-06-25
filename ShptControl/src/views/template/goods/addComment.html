@@ -1,0 +1,263 @@
+<style>
+    .commentForm .layui-layer-admin .layui-layer-content {
+        padding: 0 20px !important;
+    }
+    
+    .commentForm .layui-form-item .layui-input-inline {
+        width: 100px;
+    }
+    
+    .commentForm .layui-upload img {
+        border: 1px solid #ccc;
+    }
+    
+    .commentForm .del {
+        width: 30px;
+        height: 30px;
+        position: absolute;
+        top: -20px;
+        right: -20px;
+        border-radius: 50%;
+    }
+</style>
+<script type="text/html" template lay-done="layui.data.sendParams(d.params)">
+    <form class="layui-form commentForm" action="" style="padding:20px 0 0">
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">虚拟昵称：</label>
+            <div class="layui-input-block">
+                <input type="text" name="comment_nick" style="width:300px;" value="{{d.params.name?d.params.name:''}}" lay-verify="required" autocomplete="off" placeholder="请输入内容" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">头像：</label>
+            <div class="layui-upload layui-input-inline">
+                <img src="/ShptControl/src/images/upImg.png" class="layui-upload-img" id="uploadPhoto" style='width:96px;height:96px;cursor: pointer;'>
+            </div>
+            <div style="color:rgba(212, 48, 48, 1);display:inline-block">
+                <p>提示：建议图片尺寸100*100</p>
+                <p>支持png、jpg格式</p>
+                <p>透明背景的图片更好</p>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">商品规格：</label>
+            <div class="layui-input-block" style="width:300px;">
+                <select name="comment_sku_index" id="sku" lay-verify="required">
+
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">评价内容：</label>
+            <div class="layui-input-block">
+                <textarea name="" style="width:280px;padding:10px;height:50px;border:1px solid #ccc" placeholder="请输入内容" class="content"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">评价图片：</label>
+            <div>
+                <button type="button" class="layui-btn" id="uploadPic">
+                    <i class="layui-icon">&#xe67c;</i>上传图片
+                </button>
+                <button type="button" class="layui-btn" id="reviewImg">
+                    查看已上传的图片
+                </button>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label"></label>
+            <div style="color:rgba(212, 48, 48, 1);display:inline-block">
+                <p>支持png、jpg格式，最多上传5张</p>
+                <p>建议图片大小不超过2M</p>
+            </div>
+        </div>
+        <div class="layui-form-item" style="margin-top:30px">
+            <div class="layui-input-block" style="width:200px;margin:0 auto;">
+                <button type="submit" class="layui-btn" style="width:100%;" lay-submit="" lay-filter="submit">确定</button>
+            </div>
+        </div>
+    </form>
+</script>
+<script>
+    layui.data.sendParams = function(params) {
+        layui.use(['admin', 'element', 'upload', 'form', 'table'], function() {
+            var $ = layui.$;
+            var admin = layui.admin;
+            var upload = layui.upload;
+            var upload = layui.upload;
+            var table = layui.table;
+            var form = layui.form;
+            var comment_user_photo = '' //上传头像
+            var comment_images = []; //评论图片
+            var comment_image = ''; //评论图片
+            var goods_index = params.goods_index
+
+
+            admin.req({
+                url: layui.setter.requestUrl + 'api.php?c=supplier_goods/getGoodsSku',
+                data: {
+                    goods_index: goods_index
+                },
+                success: function(res) {
+                    if (res.code == 0) {
+                        $('#sku').empty()
+                        res.data.forEach(item => {
+                            $('#sku').append(`
+                                    <option value="${item.sku_index}">${item.sku}</option>
+                                `)
+                        })
+                        form.render()
+                    } else {
+                        layer.msg(res.msg);
+                    }
+                }
+            })
+
+            //上传头像
+            upload.render({
+                elem: '#uploadPhoto',
+                url: layui.setter.requestUrl + 'api.php?c=uploadImg/uploadImage',
+                data: {
+                    module: 'comment'
+                },
+                before: function() {
+                    layer.load();
+                },
+                drag: true,
+                done: function(res, index, upload) { //上传后的回调
+                    layer.closeAll('loading'); //关闭loading
+                    if (res.code == 0) {
+                        $('#uploadPhoto').attr("src", layui.setter.CDN + res.data);
+                        comment_user_photo = res.data
+                    } else {
+                        layer.msg(res.msg);
+                    };
+                }
+            });
+            //评论图片
+            $('#uploadPic').on('click', function() {
+                    layer.open({
+                        type: 1,
+                        title: '上传评论图片',
+                        area: ['600px', '500px'],
+                        content: ` 
+                            <div style="padding:10px;">            
+                            <div class="layui-upload">
+                                    <button type="button" class="layui-btn" id="test2">多图片上传</button> 
+                                    <blockquote class="layui-elem-quote layui-quote-nm" style="margin-top: 10px;">
+                                        预览图：
+                                        <div class="layui-upload-list" id="demo2" style="display:flex;flex-wrap:wrap;"></div>
+                                    </blockquote>
+                                </div>
+                                <div class="layui-form-item" style="width:200px;margin:30px auto;">
+                                    <button type="submit" style="width:100%;" class="layui-btn determine" lay-submit="">确定</button>
+                                </div>
+                            </div>`, //这里content是一个普通的String
+                        success: function(lay, index) {
+                            var arr = [];
+                            if (comment_images.length != 0) {
+                                arr = comment_images.split(',');
+                                arr.forEach(item => {
+                                    $('#demo2').append(`
+                                    <div style="display:flex;flex-direction:column;align-items:center;" class="imgList">
+                                    <div style="width:92px;height:92px;overflow: hidden;margin:10px;">
+                                    <img src="${layui.setter.CDN + item}" style="height:100%;" class="layui-upload-img">
+                                    </div>
+                                    <button type="error"  class="layui-btn delImg" lay-submit="">删除</button>
+                                    </div>
+                                `)
+                                })
+                            }
+                            //多图片上传
+                            var load = ''
+                            upload.render({
+                                elem: '#test2',
+                                url: layui.setter.requestUrl +
+                                    'api.php?c=uploadImg/uploadImage' //改成您自己的上传接口
+                                    ,
+                                data: {
+                                    module: 'comment'
+                                },
+                                multiple: true,
+                                number: '5',
+                                before: function(obj) {
+                                    load = layer.load(1);
+                                    if (arr.length < 5) {
+                                        //预读本地文件示例，不支持ie8
+                                        obj.preview(function(index, file,
+                                            result) {
+                                            $('#demo2').append(`
+                                                <div style="display:flex;flex-direction:column;align-items:center;" class="imgList">
+                                                    <div style="width:92px;height:92px;overflow: hidden;margin:10px;">
+                                                    <img src="${result}" alt="${file.name}" style="height:100%;" class="layui-upload-img">
+                                                    </div>
+                                                    <button type="error"  class="layui-btn delImg" lay-submit="">删除</button>
+                                                </div>
+                                    `)
+                                        });
+                                    } else {
+                                        layer.msg('最多上传五张图片');
+                                    }
+                                },
+                                done: function(res) {
+                                    layer.close(load);
+                                    if (arr.length < 5) {
+                                        arr.push(res.data);
+                                    }
+                                }
+                            });
+                            $('.determine').on('click', function() {
+                                comment_image = arr.join(',');
+                                layer.close(index);
+                            })
+                            $('#demo2').on('click', '.delImg', function() {
+                                var subscript = $(this).parent('.imgList').index();
+                                $(this).parent('.imgList').remove();
+                                arr.splice(subscript, 1);
+                            })
+                        }
+                    });
+                })
+                //查看已上传的图片
+            $('#reviewImg').click(function() {
+                if (comment_image) {
+                    layui.public.tool.lookBigImg(comment_image.split(','));
+                } else {
+                    layer.msg('暂无上传图片');
+                }
+            });
+            //保存
+            form.on('submit(submit)', function(data) {
+                data.field.goods_index = goods_index //商品主键值
+                data.field.comment_user_photo = comment_user_photo //头像
+                data.field.comment_images = comment_image //评论图片
+                data.field.comment_content = $('.content').val() //评论内容
+                delete data.field.file
+                console.log(data.field);
+                if (data.field.comment_user_photo == '') {
+                    layer.msg('请上传头像')
+                    return false;
+                }
+                if (data.field.comment_content == '') {
+                    layer.msg('请输入评价内容')
+                    return false;
+                }
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=supplier_goods/addComment',
+                    data: data.field,
+                    success: function(res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg);
+                            layer.closeAll();
+                            parent.layui.table.reload("goodsTable2");
+                        } else {
+                            layer.msg(res.msg);
+                        }
+                    }
+                })
+                return false;
+            })
+        })
+    }
+</script>

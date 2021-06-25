@@ -1,0 +1,553 @@
+<style>
+    .tabMsg {
+        display: flex;
+        padding: 20px;
+    }
+    
+    .tabMsg>div {
+        width: 200px;
+        height: 30px;
+        text-align: center;
+        line-height: 30px;
+        font-size: 14px;
+        color: rgba(42, 130, 228, 1);
+        border: 1px solid rgba(42, 130, 228, 1);
+        cursor: pointer;
+        margin-left: -1px;
+    }
+    
+    .tabMsg .current {
+        color: #fff;
+        background-color: rgba(42, 130, 228, 1);
+    }
+    
+    .form {
+        background-color: #fff;
+    }
+    
+    .layui-table-cell {
+        height: auto !important;
+        line-height: 20px !important;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">首页</a>
+        <a><cite>营销管理</cite></a>
+        <a><cite>拼购消息提醒</cite></a>
+        <a href="javascript:;" style="float: right;margin: 0 20px;" id='collection'><i
+                class="layui-icon layui-icon-rate tubiao" style="font-size: 16px;color:red"></i><cite
+                id="addBook">点击收藏</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="tabMsg">
+            <div class="current wait_count" data-index="1">并团提醒记录</div>
+            <div class="yyz" data-index="2">分团提醒记录</div>
+            <div class="yyz132" data-index="3">停团提醒记录</div>
+        </div>
+    </div>
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto form" lay-filter="app-content-list">
+        <div class="layui-form-item">
+            <label class="layui-form-label">地区筛选：</label>
+            <div class="layui-input-inline">
+                <select name="province" class="province" lay-filter="province">
+                        <option value="">请选择省</option>
+                    </select>
+            </div>
+            <div class="layui-input-inline">
+                <select name="city" class="city" lay-filter="city">
+                        <option value="">请选择市</option>
+                    </select>
+            </div>
+            <div class="layui-input-inline">
+                <select name="district" class="district" lay-filter="district">
+                        <option value="">请选择县/区</option>
+                    </select>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label" id="changeTime">时间筛选:</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="time" class="layui-input" id="testTime1" placeholder=" 请输入时间">
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="search">
+                    <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>搜索
+                </button>
+            </div>
+        </div>
+    </div>
+    </form>
+    <!-- <button class="layui-btn layuiadmin-btn-list exportForm" style="margin-top: 10px;">添加拼团商品</button> -->
+    <table class="layui-hide" id="commentTable" lay-filter="commentTable"></table>
+</div>
+
+<script>
+    layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'table', 'laydate', 'common', 'public', 'form'], function() {
+        var $ = layui.$,
+            admin = layui.admin,
+            laydate = layui.laydate,
+            view = layui.view,
+            table = layui.table,
+            form = layui.form,
+            IsshowAnNiu = layui.common.IsshowAnNiu;
+        var menuPermissions = IsshowAnNiu('addviews'); //菜单权限
+        var base = new layui.public.Base64();
+        var cols = []
+        var tool = layui.public.tool;
+        var base = new layui.public.Base64();
+        var field = {
+                type: "1",
+                start: '',
+                end: '',
+                province: "",
+                city: "",
+                district: "",
+            }
+            //tab切换
+        $(".tabMsg>div").click(function() {
+            var index = $(".tabMsg div").index(this);
+            field.type = index + 1;
+            $(this).addClass('current').siblings().removeClass('current');
+            render_table(field);
+        });
+        tool.linkage({
+            province: 'province',
+            city: 'city',
+            county: 'district',
+            success: function(province, city, county) {
+                console.log(province);
+                console.log(city);
+                console.log(county);
+            }
+        });
+        //日期范围
+        laydate.render({
+            elem: '#testTime1',
+            type: 'datetime',
+            range: true,
+            trigger: 'click',
+            format: 'yyyy/M/d',
+            change: function(value, date, endDate) {
+
+            },
+            done: function(value, date, endDate) {
+                if (!value) {
+                    $("input[name=testInput]").val("");
+                    field.start = '';
+                    field.end = '';
+                } else {
+                    field.start = new Date(value.split('-')[0]).getTime() / 1000;
+                    field.end = new Date(value.split('-')[1]).getTime() / 1000;
+                }
+            }
+        });
+        form.on('submit(search)', function(data) {
+            render_table(field);
+            field.province = data.field.province;
+            field.city = data.field.city;
+            field.district = data.field.district;
+            return false;
+        });
+        form.render()
+
+        //渲染表格数据
+        var render_table = function(data) {
+                if (data.type == 1) {
+                    cols = [
+                        [{
+                            title: '序号',
+                            align: 'center',
+                            field: 'option_index',
+                            width: 80,
+                        }, {
+                            field: 'goods_name',
+                            title: '地区',
+                            align: 'center',
+                            templet: function(d) {
+                                return `
+                           ${d.province_name}
+                           ${d.city_name}
+                           ${d.district_name}
+                            `
+                            }
+                        }, {
+                            field: 'area_index',
+                            title: '团队编号',
+                            align: 'center',
+                        }, {
+                            field: 'mark_num',
+                            title: '预定人数',
+                            align: 'center',
+                        }, {
+                            field: 'add_time',
+                            align: 'center',
+                            title: '日期',
+                            templet: function(d) {
+                                return layui.common.createTime(d.add_time)
+                            }
+                        }, {
+                            align: 'center',
+                            title: '操作',
+                            width: 250,
+                            templet: function(d) {
+                                return `
+                                <p style="display:${d.is_able==2?'block':"none"}" >已标记</p>
+                                <button style="display:${d.is_able==0?'inline-block':"none"}" class="layui-btn" lay-event="transfer">拼团转移</button>
+                                <button style="display:${(d.is_able==0||d.is_able==2)?'none':"inline-block"}" class="layui-btn" lay-event="mark" >标记</button>
+                                `
+                            }
+                        }]
+                    ]
+
+
+                }
+                if (data.type == 2) {
+                    cols = [
+                        [{
+                            title: '序号',
+                            align: 'center',
+                            field: 'option_index',
+                            width: 80,
+                        }, {
+                            field: 'goods_name',
+                            title: '默认地址',
+                            align: 'center',
+                            templet: function(d) {
+                                return `
+                           ${d.province_name}
+                           ${d.city_name}
+                           ${d.district_name}
+                            `
+                            }
+                        }, {
+                            field: 'area_index',
+                            title: '团队编号',
+                            align: 'center',
+                        }, {
+                            field: 'join_num',
+                            title: '参与人数',
+                            align: 'center',
+                        }, {
+                            field: 'rank2_num',
+                            title: '组长人数',
+                            align: 'center',
+                        }, {
+                            field: 'rank3_num',
+                            title: '团长人数',
+                            align: 'center',
+                        }, {
+                            field: 'get_num',
+                            title: '拼中次数',
+                            align: 'center',
+                        }, {
+                            field: 'zhang_num',
+                            title: '勋章数量',
+                            align: 'center',
+                        }, {
+                            field: 'money',
+                            title: '出星资金预算',
+                            align: 'center',
+                            templet: function(d) {
+                                return d.money / 100
+                            }
+                        }, {
+                            field: 'open_num',
+                            title: '激活人数',
+                            align: 'center',
+                        }, {
+                            field: 'no_open_num',
+                            title: '待激活人数',
+                            align: 'center',
+                        }, {
+                            field: 'add_time',
+                            align: 'center',
+                            title: '日期',
+                            templet: function(d) {
+                                return layui.common.createTime(d.add_time)
+                            }
+                        }, {
+                            align: 'center',
+                            title: '操作',
+                            width: 250,
+                            templet: function(d) {
+                                return `
+                                <button class="layui-btn" lay-event="fentuanTransfer">分团转移</button>
+                                `
+                            }
+                        }]
+                    ]
+
+
+                }
+                if (data.type == 3) {
+                    cols = [
+                        [{
+                            title: '序号',
+                            align: 'center',
+                            field: 'option_index',
+                            width: 80,
+                        }, {
+                            field: 'goods_name',
+                            title: '地区',
+                            align: 'center',
+                            templet: function(d) {
+                                return `
+                           ${d.province_name}
+                           ${d.city_name}
+                           ${d.district_name}
+                            `
+                            }
+                        }, {
+                            field: 'area_index',
+                            title: '团队编号',
+                            align: 'center',
+                        }, {
+                            field: 'join_num',
+                            title: '参与人数',
+                            align: 'center',
+                        }, {
+                            field: 'rank2_num',
+                            title: '团队长',
+                            align: 'center',
+                        }, {
+                            field: 'rank3_num',
+                            title: '团长人数',
+                            align: 'center',
+                        }, {
+                            field: 'get_num',
+                            title: '拼中次数',
+                            align: 'center',
+                        }, {
+                            field: 'zhang_num',
+                            title: '勋章数量',
+                            align: 'center',
+                        }, {
+                            field: 'money',
+                            title: '出星资金预算',
+                            align: 'center',
+                            templet: function(d) {
+                                return d.money / 100
+                            }
+                        }, {
+                            field: 'open_num',
+                            title: '激活人数',
+                            align: 'center',
+                        }, {
+                            field: 'no_open_num',
+                            title: '待激活人数',
+                            align: 'center'
+                        }, {
+                            field: 'add_time',
+                            align: 'center',
+                            title: '日期',
+                            templet: function(d) {
+                                return layui.common.createTime(d.add_time)
+                            }
+                        }, {
+                            align: 'center',
+                            title: '操作',
+                            width: 250,
+                            templet: function(d) {
+                                return `
+                                <p style="display:${d.is_able==2?'block':"none"}" >已标记</p>
+                                <button class="layui-btn" lay-event="stop">停团</button>
+                                <button style="display:${(d.is_able==0||d.is_able==2)?'none':"inline-block"}" class="layui-btn" lay-event="mark" >标记</button>
+                                `
+                            }
+                        }]
+                    ]
+
+
+                }
+                table.render({
+                    elem: '#commentTable',
+                    url: layui.setter.requestUrl + 'api.php?c=group_option/getGroupOptionList',
+                    where: data,
+                    cellMinWidth: 120,
+                    cols: cols,
+                    page: true,
+                    parseData: function(res) {
+                        $('.wait_count').html('并团提醒记录' + '&nbsp;' + res.data.num)
+                        $('.yyz').html('分团提醒记录' + '&nbsp;' + res.data.num2)
+                        $('.yyz132').html('停团提醒记录' + '&nbsp;' + res.data.num3)
+                        return {
+                            "count": res.count, //解析接口状态
+                            "code": res.code, //解析接口状态
+                            "data": res.data.list //解析数据列表
+                        };
+                    },
+                });
+            }
+            //先自调用请求渲染数据
+        render_table(field);
+        table.on('tool(commentTable)', function(obj) { //注：tool table 是 table  lay-filter="对应的值"
+            var data = obj.data; //获得当前行数据
+            var layEvent = obj.event; //获得 lay-event 对应的值
+            if (layEvent == 'enlarge') {
+                data.img = data.goods_icon
+                tool.lookBigImg(data.img.split(','));
+            } else if (layEvent == 'transfer') {
+                admin.popup({
+                    id: 'spro456456uct',
+                    area: ['850px', '500px'],
+                    title: '并团转移',
+                    success: function() {
+                        var that = this;
+                        view(that.id).render('template/marketing/markGrougTran', {
+                            data: data
+                        });
+                    }
+                });
+            } else if (layEvent == 'fentuanTransfer') {
+                admin.popup({
+                    id: 'spro456456uct45646',
+                    area: ['1200px', '800px'],
+                    title: '分团转移',
+                    success: function() {
+                        var that = this;
+                        view(that.id).render('template/marketing/fentuanTransfer', {
+                            data: data
+                        });
+                    }
+                });
+            } else if (layEvent == 'mark') {
+                layer.confirm('确认后，按提示记录转移操作完成后，标签不能更改，如有必要可以联系技术人员协助调查。', function(index) {
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=group_option/markGroupOption',
+                        data: {
+                            option_index: data.option_index
+                        },
+                        success: function(res) {
+                            if (res.code == 0) {
+                                layer.msg(res.msg, {
+                                    icon: 1
+                                })
+                                setTimeout(function() {
+                                    layer.closeAll()
+                                }, 1500)
+                                layui.table.reload("commentTable");
+                            }
+                        }
+                    })
+                });
+            } else if (layEvent == 'stop') {
+                layer.confirm('真的要停团吗?', function(index) {
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=group_option/stopGroupOption',
+                        data: {
+                            option_index: data.option_index
+                        },
+                        success: function(res) {
+                            if (res.code == 0) {
+                                layer.msg(res.msg, {
+                                    icon: 1
+                                })
+                                setTimeout(function() {
+                                    layer.closeAll()
+                                }, 1500)
+                                layui.table.reload("commentTable");
+                            }
+                        }
+                    })
+                });
+            }
+        });
+        //添加商品
+        // $('.exportForm').on('click', function() {
+        //     admin.popup({
+        //         id: 'sprouct',
+        //         area: ['1200px', '600px'],
+        //         title: '添加商品',
+        //         success: function() {
+        //             var that = this;
+        //             view(that.id).render('template/marketing/addPinGoods', {
+        //                 // data: merchant_id
+        //             });
+        //         }
+        //     });
+        // });
+        //强制下架
+        function qzxj(merchant_id, status) {
+            layer.confirm(`确认${status == 5 ? '下架' : '上架'}吗？`, {
+                btn: ['确定', '取消'] //按钮
+            }, function(index) {
+                admin.req({
+                    url: layui.setter.requestUrl + 'api.php?c=merchant/offMerchant',
+                    data: {
+                        merchant_id: merchant_id,
+                        type: status
+                    },
+                    done: function(res) {
+                        if (res.code === 0) {
+                            layer.closeAll();
+                            layer.msg(res.msg);
+                            render_table(field);
+                        }
+                    }
+                });
+            });
+        }
+        //年费缴纳记录
+        function nfjn(merchant_id) {
+            admin.popup({
+                id: 'sprouct',
+                area: ['1200px', '600px'],
+                title: '缴纳记录',
+                success: function() {
+                    var that = this;
+                    view(that.id).render('template/merchants/nfjn', {
+                        data: merchant_id
+                    });
+                }
+            });
+        };
+        //续交年费
+        function xjnf(merchant_id, expire_time) {
+            if (expire_time == -1) {
+                layer.msg('当前年费已永久缴纳');
+                return false;
+            };
+            admin.popup({
+                id: 'sprouct',
+                area: ['800px', '600px'],
+                title: '续交年费',
+                success: function() {
+                    var that = this;
+                    admin.req({
+                        url: layui.setter.requestUrl + 'api.php?c=province_company/getYearPrice',
+                        data: {
+                            type: 1
+                        },
+                        success(res) {
+                            view(that.id).render('template/merchants/xjnf', {
+                                data: res.data,
+                                merchant_id: merchant_id,
+                                employee_type: layui.data(layui.setter.tableName).employee_type
+                            });
+                        }
+                    })
+                }
+            });
+        };
+        //查看代理商资料或者审核
+        function lookZl(data, isShenhe) {
+            // isShenhe有参数就代表审核，没有就代表查看记录
+            admin.popup({
+                id: 'sprouct',
+                area: ['800px', '600px'],
+                title: '店铺资料',
+                success: function() {
+                    view(this.id).render('template/merchants/lookStore', {
+                        data: data,
+                        isShenhe: isShenhe
+                    });
+                }
+            });
+        };
+    });
+</script>
